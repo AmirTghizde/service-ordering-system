@@ -1,0 +1,5 @@
+package ir.maktabSharif101.finalProject.entity.enums;
+
+public enum OrderStatus {
+    WAITING_FOR_TECHNICIAN_ADVICE,WAITING_FOR_TECHNICIAN,WAITING_FOR_TECHNICIAN_ARRIVAL,STARTED,FINISHED,PAID
+}
