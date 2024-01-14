@@ -11,6 +11,7 @@ import ir.maktabSharif101.finalProject.utils.Validation;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.persistence.PersistenceException;
 import javax.swing.*;
@@ -18,7 +19,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.FileNameMap;
+import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Iterator;
@@ -30,7 +33,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
 
     @Override
     public Technician register(RegisterDto registerDto, String imageAddress) {
-        validateInfo(registerDto,imageAddress);
+        validateInfo(registerDto, imageAddress);
         checkCondition(registerDto);
         Technician technician = mapDtoValues(registerDto, imageAddress);
 
@@ -44,11 +47,11 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
     }
 
     private void validateInfo(RegisterDto registerDto, String imageAddress) {
-        if (!Validation.isValidName(registerDto.getFirstname())|| !Validation.isValidName(registerDto.getLastname())){
-            throw new CustomException("4422","Invalid usage of numbers in name");
+        if (!Validation.isValidName(registerDto.getFirstname()) || !Validation.isValidName(registerDto.getLastname())) {
+            throw new CustomException("4422", "Invalid usage of numbers in name");
         } else if (!Validation.isValidEmail(registerDto.getEmailAddress())) {
-            throw new CustomException("4422","Invalid email");
-        }else if (!Validation.isValidPassword(registerDto.getPassword())) {
+            throw new CustomException("4422", "Invalid email");
+        } else if (!Validation.isValidPassword(registerDto.getPassword())) {
             throw new CustomException("4422", """
                     Passwords must contain:\s
                     At least 1 number
@@ -60,19 +63,15 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
         //image validation
         try {
             File imageFile = new File(imageAddress);
-            BufferedImage image = ImageIO.read(imageFile);
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(imageFile);
 
-            if (image != null) {
-                ImageInputStream imageInputStream = ImageIO.createImageInputStream(imageFile);
+            if (imageInputStream != null) {
                 Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
                 ImageReader reader = imageReaders.next();
                 String imageType = reader.getFormatName();
-                System.out.println(imageType);
                 long imageSize = imageFile.length() / 1024; // Size in KB
-                System.out.println(imageSize);
 
-
-                if (!imageType.equalsIgnoreCase("jpeg")){
+                if (!imageType.equalsIgnoreCase("jpeg")) {
                     throw new CustomException("4422", "Invalid image format");
                 } else if (imageSize > 300) {
                     throw new CustomException("4422", "Invalid image size");
@@ -90,7 +89,6 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
     private byte[] imageToBytes(String imageAddress) {
         try {
             File imageFile = new File(imageAddress);
-            BufferedImage image = ImageIO.read(imageFile);
             return Files.readAllBytes(imageFile.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);

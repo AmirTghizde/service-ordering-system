@@ -33,7 +33,9 @@ public class Application {
         technicianService.register(
                 new RegisterDto(
                         "Alireza","Alavi","Alireza@gmail.com","@Ali1234"
-                ), "ir/maktabSharif101/finalProject/images/Untitled.jpg");
+                ), "D:\\Java\\Maktab\\HW\\HwFinal\\src\\main\\resources\\images\\Untitled.jpg");
+
+
 
         /*
 
