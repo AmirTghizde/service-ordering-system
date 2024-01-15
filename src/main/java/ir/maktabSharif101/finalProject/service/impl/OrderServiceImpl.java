@@ -81,8 +81,6 @@ implements OrderService {
         }
         LocalDateTime localDateTime=convertDateAndTime(orderSubmitDto.getTime(),orderSubmitDto.getDate());
         LocalDateTime now = LocalDateTime.now();
-        System.out.println(localDateTime);
-        System.out.println(now);
         if (localDateTime.isBefore(now)) {
             throw new CustomException("InvalidDateAndTime","Date and time can't be before now");
         }
@@ -98,9 +96,8 @@ implements OrderService {
 
         //The date and time conversion
         LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
-        Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        order.setDateAndTime(date);
+        order.setDateAndTime(localDateTime);
         return order;
     }
 

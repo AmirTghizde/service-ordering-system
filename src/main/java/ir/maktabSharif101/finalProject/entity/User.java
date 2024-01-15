@@ -3,9 +3,11 @@ package ir.maktabSharif101.finalProject.entity;
 import com.sun.istack.NotNull;
 import ir.maktabSharif101.finalProject.base.entity.BaseEntity;
 import lombok.*;
+import org.hibernate.type.LocalDateType;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -23,7 +25,7 @@ public abstract class User extends BaseEntity<Long> {
     private String emailAddress;
     @NotNull
     private String password;
-    private Date registerDate=new Date();
+    private LocalDateTime registerDate= LocalDateTime.now();
 
     public User(String firstname, String lastname, String emailAddress, String password) {
         this.firstname = firstname;

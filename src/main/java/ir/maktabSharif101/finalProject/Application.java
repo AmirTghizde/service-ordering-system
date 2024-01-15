@@ -48,14 +48,9 @@ public class Application {
 //        technicianService.confirmTechnician(5L);
 
 
-        orderService.submitOrder(1L,new OrderSubmitDto(
-3L,"Clean home get money🤯","2024-01-15","12" +
-                "" +
-                "" +
-                "" +
-                "" +
-                ":00","Hamin baghala",15000
-        ));
+//        orderService.submitOrder(3L,new OrderSubmitDto(
+//2L,"Clean home get money🤯","2024-01-17","12:00","Hamin baghala",15000
+//        ));
 
         /*
 
@@ -66,7 +61,6 @@ public class Application {
         |____/ \___| \_/ |_____\___/ \__, |
                                      |___/
         ====================================================================================*/
-        //todo switch to localDateTime
         //todo change error codes that's dumb
         //todo make it dumb proof
         //todo add menu

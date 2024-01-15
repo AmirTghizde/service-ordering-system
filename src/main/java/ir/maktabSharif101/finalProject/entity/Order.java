@@ -5,6 +5,7 @@ import ir.maktabSharif101.finalProject.entity.enums.OrderStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,7 @@ public class Order extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private String jobInfo;
-    private Date dateAndTime;
+    private LocalDateTime dateAndTime;
     private String Address;
     private double price;
     private String comment;
