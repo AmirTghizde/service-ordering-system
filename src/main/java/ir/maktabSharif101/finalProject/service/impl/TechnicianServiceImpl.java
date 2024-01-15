@@ -46,6 +46,19 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
         return technician;
     }
 
+    @Override
+    public void confirmTechnician(Long technicianId) {
+        Technician technician = findById(technicianId).orElseThrow(() ->
+                new CustomException("TechnicianNotFound", "We can't find the technician"));
+
+        technician.setStatus(TechnicianStatus.CONFIRMED);
+        try {
+            baseRepository.save(technician);
+        }catch (PersistenceException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
     private void validateInfo(RegisterDto registerDto, String imageAddress) {
         if (!Validation.isValidName(registerDto.getFirstname()) || !Validation.isValidName(registerDto.getLastname())) {
             throw new CustomException("4422", "Invalid usage of numbers in name");

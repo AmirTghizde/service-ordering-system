@@ -1,10 +1,9 @@
 package ir.maktabSharif101.finalProject;
 
 import ir.maktabSharif101.finalProject.entity.Customer;
-import ir.maktabSharif101.finalProject.service.CustomerService;
-import ir.maktabSharif101.finalProject.service.MainServicesService;
-import ir.maktabSharif101.finalProject.service.SubServicesService;
-import ir.maktabSharif101.finalProject.service.TechnicianService;
+import ir.maktabSharif101.finalProject.entity.MainServices;
+import ir.maktabSharif101.finalProject.service.*;
+import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
 import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
 
@@ -14,6 +13,8 @@ public class Application {
         SubServicesService subServiceService = ApplicationContext.getSubServiceService();
         CustomerService customerService = ApplicationContext.getCustomerService();
         TechnicianService technicianService = ApplicationContext.getTechnicianService();
+        ManagerService managerService = ApplicationContext.getManagerService();
+        OrderService orderService = ApplicationContext.getOrderService();
 
 //        mainServicesService.addService("Cleaning");
 
@@ -21,7 +22,7 @@ public class Application {
 //        mainServices.getSubServices().stream().forEach(subServices->
 //                        System.out.println(subServices.getName())
 //                );
-
+//
 //        subServiceService.addService("CompanyCleaning",500,"blah blah blah",
 //                "Cleaning");
 
@@ -30,12 +31,31 @@ public class Application {
 //        customerService.register(new RegisterDto(
 //                "Ali","Alavi","Ali123@gmail.com","@Ali1234"
 //        ));
-        technicianService.register(
-                new RegisterDto(
-                        "Alireza","Alavi","Alireza@gmail.com","@Ali1234"
-                ), "D:\\Java\\Maktab\\HW\\HwFinal\\src\\main\\resources\\images\\Untitled.jpg");
+//        technicianService.register(
+//                new RegisterDto(
+//                        "Alireza","Alavi","Alireza@gmail.com","@Ali1234"
+//                ), "D:\\Java\\Maktab\\HW\\HwFinal\\src\\main\\resources\\images\\Untitled3.jpg");
+
+//        technicianService.editPassword(1L,"@Alireza1234");
+//
+//        subServiceService.addTechnician(3L,"HomeCleaning");
+//        subServiceService.deleteTechnician(3L,"HouseCleaning");
+
+//        managerService.register(new RegisterDto(
+//                "GholamReza","Alavi","Admin@gmail.com","#Admin1234"
+//        ));
+
+//        technicianService.confirmTechnician(5L);
 
 
+        orderService.submitOrder(1L,new OrderSubmitDto(
+3L,"Clean home get money🤯","2024-01-15","12" +
+                "" +
+                "" +
+                "" +
+                "" +
+                ":00","Hamin baghala",15000
+        ));
 
         /*
 
@@ -46,7 +66,9 @@ public class Application {
         |____/ \___| \_/ |_____\___/ \__, |
                                      |___/
         ====================================================================================*/
-        //todo finish the requested stuff
+        //todo switch to localDateTime
+        //todo change error codes that's dumb
+        //todo make it dumb proof
         //todo add menu
         //todo add logs
 

@@ -3,9 +3,11 @@ package ir.maktabSharif101.finalProject.service.impl;
 import ir.maktabSharif101.finalProject.base.service.BaseEntityServiceImpl;
 import ir.maktabSharif101.finalProject.entity.MainServices;
 import ir.maktabSharif101.finalProject.entity.SubServices;
+import ir.maktabSharif101.finalProject.entity.Technician;
 import ir.maktabSharif101.finalProject.repository.SubServicesRepository;
 import ir.maktabSharif101.finalProject.service.MainServicesService;
 import ir.maktabSharif101.finalProject.service.SubServicesService;
+import ir.maktabSharif101.finalProject.service.TechnicianService;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 
 import javax.persistence.PersistenceException;
@@ -14,10 +16,13 @@ import java.util.Optional;
 public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, Long, SubServicesRepository>
         implements SubServicesService {
     private final MainServicesService mainServicesService;
+    private final TechnicianService technicianService;
 
-    public SubServicesServiceImpl(SubServicesRepository baseRepository, MainServicesService mainServicesService) {
+    public SubServicesServiceImpl(SubServicesRepository baseRepository, MainServicesService mainServicesService
+    ,TechnicianService technicianService) {
         super(baseRepository);
         this.mainServicesService = mainServicesService;
+        this.technicianService = technicianService;
     }
 
     @Override
@@ -74,6 +79,63 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
         }catch (PersistenceException e){
             baseRepository.rollbackTransaction();
             System.out.println("💥Service saving went wrong");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public void addTechnician(Long technicianId, String subservienceName) {
+        try {
+            baseRepository.beginTransaction();
+            //get the entities
+            SubServices subService = baseRepository.findByName(subservienceName).orElseThrow(
+                    () -> new CustomException("SubServiceNotFound", "We can't find the sub service"));
+            Technician technician = technicianService.findById(technicianId).orElseThrow(
+                    () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
+
+            if (!subService.getTechnicians().contains(technician)){
+                //add them
+                subService.getTechnicians().add(technician);
+                technician.getSubServices().add(subService);
+
+                //save them
+                baseRepository.save(subService);
+                technicianService.save(technician);
+                baseRepository.commitTransaction();
+            }else {
+                throw new CustomException("TechnicianAlreadyExists","You already added this technician before");
+            }
+        }catch (PersistenceException e){
+            baseRepository.rollbackTransaction();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteTechnician(Long technicianId, String subservienceName) {
+        try{
+            baseRepository.beginTransaction();
+            //get the entities
+            SubServices subService = baseRepository.findByName(subservienceName).orElseThrow(
+                    () -> new CustomException("SubServiceNotFound", "We can't find the sub service"));
+            Technician technician = technicianService.findById(technicianId).orElseThrow(
+                    () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
+            if (subService.getTechnicians().contains(technician)){
+                //add them
+                subService.getTechnicians().remove(technician);
+                technician.getSubServices().remove(subService);
+
+                //save them
+                baseRepository.save(subService);
+                technicianService.save(technician);
+                baseRepository.commitTransaction();
+            }else {
+                throw new CustomException("TechnicianDoesntExist","Sub service doesn't have that technician");
+            }
+
+
+        }catch (PersistenceException e){
+            baseRepository.rollbackTransaction();
             System.out.println(e.getMessage());
         }
     }

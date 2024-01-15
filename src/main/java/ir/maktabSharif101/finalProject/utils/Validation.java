@@ -15,6 +15,12 @@ public class Validation {
     public static boolean isValidName(String name){
         return validateByPattern(name,"^[a-zA-Z]*$");
     }
+    public static boolean isValidDate(String name){
+        return validateByPattern(name,"\\d{4}-\\d{2}-\\d{2}");
+    }
+    public static boolean isValidTime(String name){
+        return validateByPattern(name,"^([01]\\d|2[0-3]):([0-5]\\d)$");
+    }
 
     private static boolean validateByPattern(String input, String pattern) {
         return Pattern.compile(pattern).matcher(input).matches();

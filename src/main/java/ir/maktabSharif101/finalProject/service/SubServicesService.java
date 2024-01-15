@@ -12,4 +12,6 @@ public interface SubServicesService extends BaseEntityService<SubServices,Long> 
     boolean existsByName(String subServiceName);
     void editBaseWage(Long serviceId,double newWage);
     void editDescription(Long serviceId,String newDescription);
+    void addTechnician(Long technicianId,String subservienceName);
+    void deleteTechnician(Long technicianId,String subservienceName);
 }

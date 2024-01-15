@@ -8,4 +8,5 @@ import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 
 public interface TechnicianService extends BaseUserService<Technician> {
     Technician register (RegisterDto registerDto,String imageAddress);
+    void confirmTechnician(Long technicianId);
 }

@@ -53,9 +53,9 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerR
     protected Customer mapDtoValues(RegisterDto registerDto) {
         Customer customer = new Customer();
         customer.setFirstname(registerDto.getFirstname());
-        customer.setLastname(customer.getLastname());
-        customer.setEmailAddress(customer.getEmailAddress());
-        customer.setPassword(customer.getPassword());
+        customer.setLastname(registerDto.getLastname());
+        customer.setEmailAddress(registerDto.getEmailAddress());
+        customer.setPassword(registerDto.getPassword());
         return customer;
     }
 

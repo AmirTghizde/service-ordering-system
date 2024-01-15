@@ -105,7 +105,11 @@ public class ApplicationContext {
 
     public static OrderService getOrderService() {
         if (orderService == null) {
-            orderService = new OrderServiceImpl(getOrderRepository());
+            orderService = new OrderServiceImpl(
+                    getOrderRepository(),
+                    getSubServiceService(),
+                    getCustomerService()
+            );
         }
         return orderService;
     }
@@ -114,7 +118,8 @@ public class ApplicationContext {
         if (subServicesService == null) {
             subServicesService = new SubServicesServiceImpl(
                     getSubServiceRepository(),
-                    getMainServiceService()
+                    getMainServiceService(),
+                    getTechnicianService()
             );
         }
         return subServicesService;

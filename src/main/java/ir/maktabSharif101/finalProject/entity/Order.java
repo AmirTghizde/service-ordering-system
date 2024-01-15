@@ -18,12 +18,16 @@ import java.util.List;
 @Table(name = "orders")
 public class Order extends BaseEntity<Long> {
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private String jobInfo;
     private Date dateAndTime;
     private String Address;
+    private double price;
     private String comment;
     private double point;
+    @ManyToOne
+    private Customer customer;
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "order")
     private List<Suggestion> suggestions= new ArrayList<>();
     @ManyToOne
