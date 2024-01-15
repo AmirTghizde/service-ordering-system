@@ -1,10 +1,6 @@
 package ir.maktabSharif101.finalProject;
 
-import ir.maktabSharif101.finalProject.entity.Customer;
-import ir.maktabSharif101.finalProject.entity.MainServices;
 import ir.maktabSharif101.finalProject.service.*;
-import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
-import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
 
 public class Application {

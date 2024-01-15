@@ -22,8 +22,7 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
         MainServices mainServices = setValues(serviceName);
         try {
             baseRepository.save(mainServices);
-        }catch (PersistenceException e){
-            System.out.println("💥Service saving went wrong");
+        } catch (PersistenceException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -40,7 +39,7 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
 
     private void checkConditions(String serviceName) {
         if (existsByName(serviceName)) {
-            throw new CustomException("4999", "Duplicate main service name");
+            throw new CustomException("DuplicateMainService", "Main service already exists in the database");
         }
     }
 

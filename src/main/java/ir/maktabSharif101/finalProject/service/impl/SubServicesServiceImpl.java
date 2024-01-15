@@ -19,7 +19,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     private final TechnicianService technicianService;
 
     public SubServicesServiceImpl(SubServicesRepository baseRepository, MainServicesService mainServicesService
-    ,TechnicianService technicianService) {
+            , TechnicianService technicianService) {
         super(baseRepository);
         this.mainServicesService = mainServicesService;
         this.technicianService = technicianService;
@@ -40,7 +40,6 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
             baseRepository.commitTransaction();
         } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
-            System.out.println("💥Service saving went wrong");
             System.out.println(e.getMessage());
         }
     }
@@ -58,13 +57,12 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     @Override
     public void editBaseWage(Long serviceId, double newWage) {
         SubServices subServices = findById(serviceId).
-                orElseThrow(() -> new CustomException("4404", "Sub service not found"));
+                orElseThrow(() -> new CustomException("SubServiceNotFound", "We can not find the sub service"));
         subServices.setBaseWage(newWage);
-        try{
+        try {
             baseRepository.save(subServices);
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
-            System.out.println("💥Service saving went wrong");
             System.out.println(e.getMessage());
         }
     }
@@ -74,9 +72,9 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
         SubServices subServices = findById(serviceId).
                 orElseThrow(() -> new CustomException("4404", "Sub service not found"));
         subServices.setDescription(newDescription);
-        try{
+        try {
             baseRepository.save(subServices);
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
             System.out.println("💥Service saving went wrong");
             System.out.println(e.getMessage());
@@ -93,7 +91,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
             Technician technician = technicianService.findById(technicianId).orElseThrow(
                     () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
 
-            if (!subService.getTechnicians().contains(technician)){
+            if (!subService.getTechnicians().contains(technician)) {
                 //add them
                 subService.getTechnicians().add(technician);
                 technician.getSubServices().add(subService);
@@ -102,10 +100,10 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 baseRepository.save(subService);
                 technicianService.save(technician);
                 baseRepository.commitTransaction();
-            }else {
-                throw new CustomException("TechnicianAlreadyExists","You already added this technician before");
+            } else {
+                throw new CustomException("TechnicianAlreadyExists", "You already added this technician before");
             }
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
             System.out.println(e.getMessage());
         }
@@ -113,14 +111,14 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     @Override
     public void deleteTechnician(Long technicianId, String subservienceName) {
-        try{
+        try {
             baseRepository.beginTransaction();
             //get the entities
             SubServices subService = baseRepository.findByName(subservienceName).orElseThrow(
                     () -> new CustomException("SubServiceNotFound", "We can't find the sub service"));
             Technician technician = technicianService.findById(technicianId).orElseThrow(
                     () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
-            if (subService.getTechnicians().contains(technician)){
+            if (subService.getTechnicians().contains(technician)) {
                 //add them
                 subService.getTechnicians().remove(technician);
                 technician.getSubServices().remove(subService);
@@ -129,12 +127,12 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 baseRepository.save(subService);
                 technicianService.save(technician);
                 baseRepository.commitTransaction();
-            }else {
-                throw new CustomException("TechnicianDoesntExist","Sub service doesn't have that technician");
+            } else {
+                throw new CustomException("TechnicianDoesntExist", "Sub service doesn't have that technician");
             }
 
 
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
             System.out.println(e.getMessage());
         }
@@ -142,10 +140,10 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     private void checkConditions(String serviceName, String mainServiceName) {
         if (existsByName(serviceName)) {
-            throw new CustomException("4999", "Duplicate sub service name");
+            throw new CustomException("DuplicateSubService", "Sub service already exists in the database");
         }
         if (!mainServicesService.existsByName(mainServiceName)) {
-            throw new CustomException("4404", "Main service not found");
+            throw new CustomException("MainServiceNotFound", "We can not find the main service");
         }
     }
 
@@ -159,6 +157,6 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     private MainServices findMainService(String mainServiceName) {
         return mainServicesService.findByName(mainServiceName).orElseThrow(() ->
-                new CustomException("4004", "Unable to get main service"));
+                new CustomException("MainServiceNotFound", "We can not find the main service"));
     }
 }

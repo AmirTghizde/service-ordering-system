@@ -12,7 +12,7 @@ import ir.maktabSharif101.finalProject.utils.Validation;
 import javax.persistence.PersistenceException;
 
 public class ManagerServiceImpl extends BaseUserServiceImpl<Manager, ManagerRepository>
-implements ManagerService {
+        implements ManagerService {
     public ManagerServiceImpl(ManagerRepository baseRepository) {
         super(baseRepository);
     }
@@ -21,30 +21,30 @@ implements ManagerService {
     public Manager register(RegisterDto registerDto) {
         validateInfo(registerDto);
         checkCondition(registerDto);
-        Manager manager= mapDtoValues(registerDto);
+        Manager manager = mapDtoValues(registerDto);
 
         try {
             return baseRepository.save(manager);
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
         return manager;
     }
+
     private void validateInfo(RegisterDto registerDto) {
-        if (!Validation.isValidName(registerDto.getFirstname())|| !Validation.isValidName(registerDto.getLastname())){
-            throw new CustomException("4422","Invalid usage of numbers in name");
+        if (!Validation.isValidName(registerDto.getFirstname()) || !Validation.isValidName(registerDto.getLastname())) {
+            throw new CustomException("InvalidName", "Names must only contain letters");
         } else if (!Validation.isValidEmail(registerDto.getEmailAddress())) {
-            throw new CustomException("4422","Invalid email");
-        }else if (!Validation.isValidPassword(registerDto.getPassword())) {
-            throw new CustomException("4422","Passwords must contain: \nAt least 1 number\nAt least 1 big letter" +
-                    "\nAt least 1 small letter\nAt least one of these symbols  # $ % &\nAnd at least 8 characters");
+            throw new CustomException("InvalidEmail", "Check the email address it is wrong");
+        } else if (!Validation.isValidPassword(registerDto.getPassword())) {
+            throw new CustomException("InvalidPassword", "Passwords must be a combination of letters and numbers");
         }
     }
 
     protected void checkCondition(RegisterDto registerDto) {
-        if (existsByEmailAddress(registerDto.getEmailAddress())){
-            throw new CustomException("4499","Duplicate email address");
+        if (existsByEmailAddress(registerDto.getEmailAddress())) {
+            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
         }
     }
 

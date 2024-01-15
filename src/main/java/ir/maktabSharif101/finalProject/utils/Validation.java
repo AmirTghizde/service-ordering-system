@@ -5,13 +5,11 @@ import java.util.regex.Pattern;
 public class Validation {
 
     public static boolean isValidPassword(String password) {
-        return validateByPattern(password, "^(?=.*[a-z])(?=.*[A-Z])(?=.*[&%$#@])(?=.*[0-9]).{8,}$");
+        return validateByPattern(password, "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$");
     }
-
     public static boolean isValidEmail(String email){
-        return validateByPattern(email, "^[A-Za-z0-9+_.-]+@gmail.com$");
+        return validateByPattern(email, "^[A-Za-z0-9+_.-]+@(?:gmail\\\\.com|mail\\\\.com)$");
     }
-
     public static boolean isValidName(String name){
         return validateByPattern(name,"^[a-zA-Z]*$");
     }

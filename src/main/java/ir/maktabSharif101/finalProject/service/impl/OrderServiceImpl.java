@@ -41,10 +41,10 @@ implements OrderService {
         validateInfo(orderSubmitDto);
 
         SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
-                new CustomException("SubServiceNotFound", "We can't find the sub service"));
+                new CustomException("SubServiceNotFound", "We can not find the sub service"));
         //todo make this take Customer :/
         Customer customer = customerService.findById(customerId).orElseThrow(() ->
-                new CustomException("CustomerNotFound", "We can't find you :P"));
+                new CustomException("CustomerNotFound", "We can not find you"));
 
         checkCondition(orderSubmitDto,subServices);
         Order order= mapDtoValues(orderSubmitDto);

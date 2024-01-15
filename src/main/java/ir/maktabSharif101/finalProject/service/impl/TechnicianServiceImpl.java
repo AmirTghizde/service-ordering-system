@@ -54,24 +54,18 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
         technician.setStatus(TechnicianStatus.CONFIRMED);
         try {
             baseRepository.save(technician);
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private void validateInfo(RegisterDto registerDto, String imageAddress) {
         if (!Validation.isValidName(registerDto.getFirstname()) || !Validation.isValidName(registerDto.getLastname())) {
-            throw new CustomException("4422", "Invalid usage of numbers in name");
+            throw new CustomException("InvalidName", "Names must only contain letters");
         } else if (!Validation.isValidEmail(registerDto.getEmailAddress())) {
-            throw new CustomException("4422", "Invalid email");
+            throw new CustomException("InvalidEmail", "Check the email address it is wrong");
         } else if (!Validation.isValidPassword(registerDto.getPassword())) {
-            throw new CustomException("4422", """
-                    Passwords must contain:\s
-                    At least 1 number
-                    At least 1 big letter
-                    At least 1 small letter
-                    At least one of these symbols  # $ % &
-                    And at least 8 characters""");
+            throw new CustomException("InvalidPassword", "Passwords must be a combination of letters and numbers");
         }
         //image validation
         try {
@@ -85,12 +79,12 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
                 long imageSize = imageFile.length() / 1024; // Size in KB
 
                 if (!imageType.equalsIgnoreCase("jpeg")) {
-                    throw new CustomException("4422", "Invalid image format");
+                    throw new CustomException("InvalidImage", "The only supported format is JPEG");
                 } else if (imageSize > 300) {
-                    throw new CustomException("4422", "Invalid image size");
+                    throw new CustomException("InvalidImageSize", "Max image size is 300kb");
                 }
             } else {
-                throw new CustomException("4004", "Image file not found");
+                throw new CustomException("ImageNotFound", "We can not find the image");
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -111,7 +105,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
 
     protected void checkCondition(RegisterDto registerDto) {
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
-            throw new CustomException("4499", "Duplicate email address");
+            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
         }
     }
 
