@@ -1,12 +1,9 @@
 package ir.maktabSharif101.finalProject.service.base;
 
 import ir.maktabSharif101.finalProject.base.service.BaseEntityServiceImpl;
-import ir.maktabSharif101.finalProject.entity.Technician;
 import ir.maktabSharif101.finalProject.entity.User;
 import ir.maktabSharif101.finalProject.repository.base.BaseUserRepository;
-import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
-import ir.maktabSharif101.finalProject.utils.Validation;
 
 import javax.persistence.PersistenceException;
 import java.util.Optional;
@@ -28,18 +25,24 @@ public abstract class BaseUserServiceImpl<T extends User, R extends BaseUserRepo
     }
 
     @Override
-    public Optional<T> login(String emailAddress, String password) {
+    public T login(String emailAddress, String password) {
         if (baseRepository.existsByEmailAndPass(emailAddress, password)) {
-            return findByEmailAddress(emailAddress);
+            T user = findByEmailAddress(emailAddress).orElse(null);
+            if (user ==null){
+              throw new CustomException("UserNotFound","We can't find the user");
+            }
+            return user;
         }
-        throw new CustomException("4404", "User not found");
+        throw new CustomException("UserNotFound", "Check email or password");
     }
 
     @Override
     public void editPassword(Long userId, String newPassword) {
-        T t = baseRepository.findById(userId).orElseThrow(() -> new CustomException("4404", "User not found"));
-        t.setPassword(newPassword);
+        T t = baseRepository.findById(userId).orElseThrow(
+                () -> new CustomException("UserNotFound", "We can't find the user"));
+
         try{
+            t.setPassword(newPassword);
             baseRepository.save(t);
         }catch (PersistenceException e){
             System.out.println(e.getMessage());

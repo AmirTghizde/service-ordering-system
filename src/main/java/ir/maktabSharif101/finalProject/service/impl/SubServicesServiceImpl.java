@@ -4,6 +4,7 @@ import ir.maktabSharif101.finalProject.base.service.BaseEntityServiceImpl;
 import ir.maktabSharif101.finalProject.entity.MainServices;
 import ir.maktabSharif101.finalProject.entity.SubServices;
 import ir.maktabSharif101.finalProject.entity.Technician;
+import ir.maktabSharif101.finalProject.entity.enums.TechnicianStatus;
 import ir.maktabSharif101.finalProject.repository.SubServicesRepository;
 import ir.maktabSharif101.finalProject.service.MainServicesService;
 import ir.maktabSharif101.finalProject.service.SubServicesService;
@@ -85,12 +86,15 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     }
 
     @Override
-    public void addTechnician(Long technicianId, Long serviceId) {
+    public void addToSubService(Long technicianId, Long serviceId) {
         try {
             baseRepository.beginTransaction();
             //get the entities
             SubServices subService = findSubServices(serviceId);
             Technician technician = findTechnician(technicianId);
+            if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)){
+                throw new CustomException("InvalidTechnician","Technician must be confirmed first");
+            }
 
             if (!subService.getTechnicians().contains(technician)) {
                 //add them
@@ -111,7 +115,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     }
 
     @Override
-    public void deleteTechnician(Long technicianId, Long serviceId) {
+    public void deleteFromSubService (Long technicianId, Long serviceId) {
         try {
             baseRepository.beginTransaction();
             //get the entities

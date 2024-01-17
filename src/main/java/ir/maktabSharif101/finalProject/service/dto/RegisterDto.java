@@ -17,10 +17,10 @@ import java.io.Serializable;
 public class RegisterDto implements Serializable {
 
     @Size(min = 3, max = 50, message = "firstname size must be between 3 to 50 letters")
-    @Pattern(regexp = "^[^0-9]+$", message = "firstname must not contain numbers")
+    @Pattern(regexp = "^[^0-9]+$", message = "InvalidName")
     String firstname;
 
-    @Pattern(regexp = "^[^0-9]+$", message = "lastname must not contain numbers")
+    @Pattern(regexp = "^[^0-9]+$", message = "InvalidLastname")
     String lastname;
 
     @Email(message = "Invalid Email format")

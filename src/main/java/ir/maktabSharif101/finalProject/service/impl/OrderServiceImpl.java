@@ -7,24 +7,18 @@ import ir.maktabSharif101.finalProject.entity.SubServices;
 import ir.maktabSharif101.finalProject.entity.enums.OrderStatus;
 import ir.maktabSharif101.finalProject.repository.OrderRepository;
 import ir.maktabSharif101.finalProject.service.CustomerService;
-import ir.maktabSharif101.finalProject.service.MainServicesService;
 import ir.maktabSharif101.finalProject.service.OrderService;
 import ir.maktabSharif101.finalProject.service.SubServicesService;
 import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
-import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
-import ir.maktabSharif101.finalProject.utils.Validation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Set;
 
 public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRepository>
@@ -44,11 +38,16 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
     }
 
     @Override
-    public void submitOrder(Customer customer, OrderSubmitDto orderSubmitDto) {
+    public void submitOrder(Long customerId, OrderSubmitDto orderSubmitDto) {
         Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
         if (violations.isEmpty()) {
+
             SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
                     new CustomException("SubServiceNotFound", "We can not find the sub service"));
+
+            Customer customer = customerService.findById(customerId).orElseThrow(
+                    () -> new CustomException("CustomerNotFound", "We can not find this customer"));
+
             checkCondition(orderSubmitDto, subServices);
             Order order = mapDtoValues(orderSubmitDto);
 
@@ -62,6 +61,7 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
                 baseRepository.save(order);
                 subServicesService.save(subServices);
                 baseRepository.commitTransaction();
+                return;
             } catch (PersistenceException e) {
                 baseRepository.rollbackTransaction();
                 System.out.println(e.getMessage());

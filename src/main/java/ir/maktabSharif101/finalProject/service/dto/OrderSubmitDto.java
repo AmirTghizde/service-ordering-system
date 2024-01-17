@@ -25,7 +25,7 @@ public class OrderSubmitDto {
     String date;
 
     @NotBlank(message = "Time must be specified")
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}",message = "The correct date format is (HH:MM) .. pst it European ")
+    @Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d)$",message = "The correct date format is (HH:MM) .. pst it European ")
     String time;
 
     @NotBlank(message = "Address must be specified")
