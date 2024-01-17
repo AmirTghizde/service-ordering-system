@@ -3,12 +3,10 @@ package ir.maktabSharif101.finalProject.entity;
 import com.sun.istack.NotNull;
 import ir.maktabSharif101.finalProject.base.entity.BaseEntity;
 import lombok.*;
-import org.hibernate.type.LocalDateType;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Getter
