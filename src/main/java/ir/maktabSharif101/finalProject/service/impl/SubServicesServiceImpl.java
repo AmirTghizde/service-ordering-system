@@ -10,10 +10,12 @@ import ir.maktabSharif101.finalProject.service.MainServicesService;
 import ir.maktabSharif101.finalProject.service.SubServicesService;
 import ir.maktabSharif101.finalProject.service.TechnicianService;
 import ir.maktabSharif101.finalProject.utils.CustomException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.PersistenceException;
 import java.util.Optional;
 
+@Slf4j
 public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, Long, SubServicesRepository>
         implements SubServicesService {
     private final MainServicesService mainServicesService;
@@ -28,6 +30,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     @Override
     public void addService(String serviceName, double baseWage, String description, String mainServiceName) {
+        log.info("Adding a new sub service named [{}]", serviceName);
         checkConditions(serviceName, mainServiceName);
         SubServices subServices = setValues(serviceName, baseWage, description);
 
@@ -35,6 +38,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 new CustomException("MainServiceNotFound", "We can not find the main service"));
 
         try {
+            log.info("Connecting to {}", baseRepository);
             baseRepository.beginTransaction();
             subServices.setMainServices(mainServices);
             mainServices.getSubServices().add(subServices);
@@ -59,9 +63,8 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     @Override
     public void editBaseWage(Long serviceId, double newWage) {
-
         SubServices subServices = findSubServices(serviceId);
-
+        log.info("Changing [{}] wage from [{}] to [{}]", subServices.getName(), subServices.getBaseWage(), newWage);
         try {
             subServices.setBaseWage(newWage);
             baseRepository.save(subServices);
@@ -73,9 +76,8 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     @Override
     public void editDescription(Long serviceId, String newDescription) {
-
         SubServices subServices = findSubServices(serviceId);
-
+        log.info("Changing [{}] description from [{}] to [{}]", subServices.getName(), subServices.getDescription(), newDescription);
         try {
             subServices.setDescription(newDescription);
             baseRepository.save(subServices);
@@ -92,11 +94,14 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
             //get the entities
             SubServices subService = findSubServices(serviceId);
             Technician technician = findTechnician(technicianId);
-            if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)){
-                throw new CustomException("InvalidTechnician","Technician must be confirmed first");
+            log.info("Adding [{}] to [{}]", technician.getEmailAddress(), subService.getName());
+            if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)) {
+                log.error("[{}] is not confirmed throwing exception ", technician.getEmailAddress());
+                throw new CustomException("InvalidTechnician", "Technician must be confirmed first");
             }
 
             if (!subService.getTechnicians().contains(technician)) {
+                log.info("Connecting to [{}]",baseRepository);
                 //add them
                 subService.getTechnicians().add(technician);
                 technician.getSubServices().add(subService);
@@ -106,6 +111,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 technicianService.save(technician);
                 baseRepository.commitTransaction();
             } else {
+                log.error("[{}] already exists throwing Exception",technician.getEmailAddress());
                 throw new CustomException("TechnicianAlreadyExists", "You already added this technician before");
             }
         } catch (PersistenceException e) {
@@ -115,14 +121,16 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     }
 
     @Override
-    public void deleteFromSubService (Long technicianId, Long serviceId) {
+    public void deleteFromSubService(Long technicianId, Long serviceId) {
         try {
             baseRepository.beginTransaction();
             //get the entities
             SubServices subService = findSubServices(serviceId);
             Technician technician = findTechnician(technicianId);
+            log.info("deleting [{}] from [{}]", technician.getEmailAddress(), subService.getName());
 
             if (subService.getTechnicians().contains(technician)) {
+                log.info("Connecting to [{}]",baseRepository);
                 //add them
                 subService.getTechnicians().remove(technician);
                 technician.getSubServices().remove(subService);
@@ -132,10 +140,9 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 technicianService.save(technician);
                 baseRepository.commitTransaction();
             } else {
+                log.error("[{}] doesn't exists throwing Exception",technician.getEmailAddress());
                 throw new CustomException("TechnicianDoesntExist", "Sub service doesn't have that technician");
             }
-
-
         } catch (PersistenceException e) {
             baseRepository.rollbackTransaction();
             System.out.println(e.getMessage());
@@ -143,15 +150,19 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
     }
 
     private void checkConditions(String serviceName, String mainServiceName) {
+        log.info("Checking conditions");
         if (existsByName(serviceName)) {
+            log.error("[{}] already exists in database throwing exception",serviceName);
             throw new CustomException("DuplicateSubService", "Sub service already exists in the database");
         }
         if (!mainServicesService.existsByName(mainServiceName)) {
+            log.error("[{}] doesnt exist in database throwing exception",mainServiceName);
             throw new CustomException("MainServiceNotFound", "We can not find the main service");
         }
     }
 
     private SubServices setValues(String serviceName, double baseWage, String description) {
+        log.info("Setting sub service values");
         SubServices subServices = new SubServices();
         subServices.setName(serviceName);
         subServices.setBaseWage(baseWage);
@@ -163,6 +174,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
         return technicianService.findById(technicianId).orElseThrow(
                 () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
     }
+
     private SubServices findSubServices(Long serviceId) {
         return findById(serviceId).
                 orElseThrow(() -> new CustomException("SubServiceNotFound", "We can not find the sub service"));

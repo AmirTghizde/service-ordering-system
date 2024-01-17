@@ -13,6 +13,7 @@ import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.PersistenceException;
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
+@Slf4j
 public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRepository>
         implements OrderService {
 
@@ -39,9 +41,10 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
 
     @Override
     public void submitOrder(Long customerId, OrderSubmitDto orderSubmitDto) {
+        log.info("Customer with id [{}] is trying to submit a new order {}", customerId, orderSubmitDto);
         Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
         if (violations.isEmpty()) {
-
+            log.info("Information is validated - commencing registration");
             SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
                     new CustomException("SubServiceNotFound", "We can not find the sub service"));
 
@@ -52,6 +55,7 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
             Order order = mapDtoValues(orderSubmitDto);
 
             try {
+                log.info("Connecting to [{}]", baseRepository);
                 baseRepository.beginTransaction();
                 customer.getOrders().add(order);
                 subServices.getOrders().add(order);
@@ -72,6 +76,7 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
     }
 
     private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
+        log.error("SubmitOrderDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<OrderSubmitDto> violation : violations) {
             messageBuilder.append("\n").append(violation.getMessage());
@@ -80,17 +85,21 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
+        log.info("Checking registration conditions");
         if (orderSubmitDto.getPrice() < subServices.getBaseWage()) {
+            log.error("Price is lower than base wage throwing exception");
             throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
         }
         LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
+            log.error("Date is before now throwing exception");
             throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
         }
     }
 
     protected Order mapDtoValues(OrderSubmitDto orderSubmitDto) {
+        log.info("Mapping [{}] values", orderSubmitDto);
         Order order = new Order();
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_SUGGESTION);
         order.setJobInfo(orderSubmitDto.getJobInfo());
@@ -105,6 +114,7 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
     }
 
     private LocalDateTime convertDateAndTime(String time, String date) {
+        log.info("Converting date and time");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 

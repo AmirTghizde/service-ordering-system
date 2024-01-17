@@ -12,9 +12,10 @@ import javax.persistence.PersistenceException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Set;
 
-
+@Slf4j
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerRepository> implements CustomerService {
 
     private final Validator validator;
@@ -26,11 +27,14 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerR
 
     @Override
     public Customer register(RegisterDto registerDto) {
+        log.info("Registering with this data [{}]", registerDto);
         Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
         if (violations.isEmpty()) {
-        checkCondition(registerDto);
-        Customer customer = mapDtoValues(registerDto);
+            log.info("Information is validated - commencing registration");
+            checkCondition(registerDto);
+            Customer customer = mapDtoValues(registerDto);
             try {
+                log.info("Connecting to [{}]",baseRepository);
                 return baseRepository.save(customer);
             } catch (PersistenceException e) {
                 System.out.println(e.getMessage());
@@ -39,7 +43,9 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerR
         String violationMessages = getViolationMessages(violations);
         throw new CustomException("ValidationException", violationMessages);
     }
+
     private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+        log.error("RegisterDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<RegisterDto> violation : violations) {
             messageBuilder.append("\n").append(violation.getMessage());
@@ -48,11 +54,15 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerR
     }
 
     protected void checkCondition(RegisterDto registerDto) {
+        log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
+            log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
             throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
         }
     }
+
     protected Customer mapDtoValues(RegisterDto registerDto) {
+        log.info("Mapping [{}] values",registerDto);
         Customer customer = new Customer();
         customer.setFirstname(registerDto.getFirstname());
         customer.setLastname(registerDto.getLastname());

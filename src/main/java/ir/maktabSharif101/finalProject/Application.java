@@ -1,6 +1,7 @@
 package ir.maktabSharif101.finalProject;
+import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.service.*;
-import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
+import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 
@@ -13,6 +14,7 @@ public class Application {
         ManagerService managerService = ApplicationContext.getManagerService();
         OrderService orderService = ApplicationContext.getOrderService();
 
+        System.out.println("===========================================================================================================================================");
         try {
 //        mainServicesService.addService("Cleaning");
 
@@ -70,8 +72,6 @@ public class Application {
         |____/ \___| \_/ |_____\___/ \__, |
                                      |___/
         ====================================================================================*/
-        //todo add menu
-        //todo add logs
 
     }
 }
