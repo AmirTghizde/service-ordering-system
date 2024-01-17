@@ -1,19 +1,31 @@
 package ir.maktabSharif101.finalProject.utils;
 
+import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.repository.*;
 import ir.maktabSharif101.finalProject.repository.impl.*;
 import ir.maktabSharif101.finalProject.service.*;
+import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.service.impl.*;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import java.util.Set;
 
 public class ApplicationContext {
     public static final EntityManager ENTITY_MANAGER =
             Persistence.createEntityManagerFactory(
                     "default"
             ).createEntityManager();
-
+    static ValidatorFactory factory = Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(new ParameterMessageInterpolator())
+            .buildValidatorFactory();
+    public static final Validator VALIDATOR = factory.getValidator();
 
     private static CustomerRepository customerRepository;
     private static MainServicesRepository mainServicesRepository;
@@ -84,7 +96,10 @@ public class ApplicationContext {
 
     public static CustomerService getCustomerService() {
         if (customerService == null) {
-            customerService = new CustomerServiceImpl(getCustomerRepository());
+            customerService = new CustomerServiceImpl(
+                    getCustomerRepository(),
+                    VALIDATOR
+            );
         }
         return customerService;
     }
@@ -98,7 +113,10 @@ public class ApplicationContext {
 
     public static ManagerService getManagerService() {
         if (managerService == null) {
-            managerService = new ManagerServiceImpl(getManagerRepository());
+            managerService = new ManagerServiceImpl(
+                    getManagerRepository(),
+                    VALIDATOR
+            );
         }
         return managerService;
     }
@@ -108,7 +126,8 @@ public class ApplicationContext {
             orderService = new OrderServiceImpl(
                     getOrderRepository(),
                     getSubServiceService(),
-                    getCustomerService()
+                    getCustomerService(),
+                    VALIDATOR
             );
         }
         return orderService;
@@ -134,7 +153,10 @@ public class ApplicationContext {
 
     public static TechnicianService getTechnicianService() {
         if (technicianService == null) {
-            technicianService = new TechnicianServiceImpl(getTechnicianRepository());
+            technicianService = new TechnicianServiceImpl(
+                    getTechnicianRepository(),
+                    VALIDATOR
+            );
         }
         return technicianService;
     }

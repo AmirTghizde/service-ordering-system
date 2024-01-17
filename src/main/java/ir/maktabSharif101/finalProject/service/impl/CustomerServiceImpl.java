@@ -7,48 +7,51 @@ import ir.maktabSharif101.finalProject.service.CustomerService;
 import ir.maktabSharif101.finalProject.service.base.BaseUserServiceImpl;
 import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
-import ir.maktabSharif101.finalProject.utils.Validation;
 
 import javax.persistence.PersistenceException;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import java.util.Set;
+
 
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerRepository> implements CustomerService {
-    public CustomerServiceImpl(CustomerRepository baseRepository) {
+
+    private final Validator validator;
+
+    public CustomerServiceImpl(CustomerRepository baseRepository, Validator validator) {
         super(baseRepository);
+        this.validator = validator;
     }
 
     @Override
     public Customer register(RegisterDto registerDto) {
-        validateInfo(registerDto);
+        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
+        if (violations.isEmpty()) {
         checkCondition(registerDto);
-        Customer customer= mapDtoValues(registerDto);
-        
-        try {
-            return baseRepository.save(customer);
-        }catch (PersistenceException e){
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+        Customer customer = mapDtoValues(registerDto);
+            try {
+                return baseRepository.save(customer);
+            } catch (PersistenceException e) {
+                System.out.println(e.getMessage());
+            }
         }
-        return customer;
+        String violationMessages = getViolationMessages(violations);
+        throw new CustomException("ValidationException", violationMessages);
     }
-
-    private void validateInfo(RegisterDto registerDto) {
-        if (!Validation.isValidName(registerDto.getFirstname())|| !Validation.isValidName(registerDto.getLastname())){
-            throw new CustomException("InvalidName","Names must only contain letters");
-        } else if (!Validation.isValidEmail(registerDto.getEmailAddress())) {
-            throw new CustomException("InvalidEmail","Check the email address it is wrong");
-        }else if (!Validation.isValidPassword(registerDto.getPassword())) {
-            throw new CustomException("InvalidPassword","Passwords must be a combination of letters and numbers");
+    private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+        StringBuilder messageBuilder = new StringBuilder();
+        for (ConstraintViolation<RegisterDto> violation : violations) {
+            messageBuilder.append("\n").append(violation.getMessage());
         }
+        return messageBuilder.toString().trim();
     }
 
     protected void checkCondition(RegisterDto registerDto) {
-        if (existsByEmailAddress(registerDto.getEmailAddress())){
-            throw new CustomException("DuplicateEmailAddress","Email address already exists in the database");
+        if (existsByEmailAddress(registerDto.getEmailAddress())) {
+            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
         }
     }
-
-
     protected Customer mapDtoValues(RegisterDto registerDto) {
         Customer customer = new Customer();
         customer.setFirstname(registerDto.getFirstname());

@@ -1,7 +1,9 @@
 package ir.maktabSharif101.finalProject;
 
 import ir.maktabSharif101.finalProject.service.*;
+import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
+import ir.maktabSharif101.finalProject.utils.CustomException;
 
 public class Application {
     public static void main(String[] args) {
@@ -12,6 +14,7 @@ public class Application {
         ManagerService managerService = ApplicationContext.getManagerService();
         OrderService orderService = ApplicationContext.getOrderService();
 
+        try {
 //        mainServicesService.addService("Cleaning");
 
 //        MainServices mainServices = mainServicesService.findByName("Cleaning").orElse(null);
@@ -24,9 +27,9 @@ public class Application {
 
 //        subServiceService.findAll().stream().forEach(subServices -> System.out.println(subServices.getName()));
 
-//        customerService.register(new RegisterDto(
-//                "Ali","Alavi","Ali123@gmail.com","@Ali1234"
-//        ));
+            customerService.register(new RegisterDto(
+                    "Ali", "Alavi", "Ali@gamil.com", "Ali1234"
+            ));
 //        technicianService.register(
 //                new RegisterDto(
 //                        "Alireza","Alavi","Alireza@gmail.com","@Ali1234"
@@ -47,7 +50,11 @@ public class Application {
 //        orderService.submitOrder(3L,new OrderSubmitDto(
 //2L,"Clean home get money🤯","2024-01-17","12:00","Hamin baghala",15000
 //        ));
-
+        }catch (CustomException e){
+            System.out.println("********************************");
+            System.out.println(e.getMessage());
+            System.out.println("********************************");
+        }
         /*
 
          ____             _
@@ -57,7 +64,6 @@ public class Application {
         |____/ \___| \_/ |_____\___/ \__, |
                                      |___/
         ====================================================================================*/
-        //todo change error codes that's dumb
         //todo make it dumb proof
         //todo add menu
         //todo add logs

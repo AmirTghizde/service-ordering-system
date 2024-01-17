@@ -7,67 +7,46 @@ import ir.maktabSharif101.finalProject.service.TechnicianService;
 import ir.maktabSharif101.finalProject.service.base.BaseUserServiceImpl;
 import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
-import ir.maktabSharif101.finalProject.utils.Validation;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.persistence.PersistenceException;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.FileNameMap;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Iterator;
+import java.util.Set;
 
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, TechnicianRepository> implements TechnicianService {
-    public TechnicianServiceImpl(TechnicianRepository baseRepository) {
+
+    private final Validator validator;
+
+    public TechnicianServiceImpl(TechnicianRepository baseRepository, Validator validator) {
         super(baseRepository);
+        this.validator = validator;
     }
 
     @Override
     public Technician register(RegisterDto registerDto, String imageAddress) {
-        validateInfo(registerDto, imageAddress);
-        checkCondition(registerDto);
-        Technician technician = mapDtoValues(registerDto, imageAddress);
-
-        try {
-            return baseRepository.save(technician);
-        } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
+        if (violations.isEmpty()) {
+            validateImage(imageAddress);
+            checkCondition(registerDto);
+            Technician technician = mapDtoValues(registerDto, imageAddress);
+            try {
+                return baseRepository.save(technician);
+            } catch (PersistenceException e) {
+                System.out.println(e.getMessage());
+            }
         }
-        return technician;
+        String violationMessages = getViolationMessages(violations);
+        throw new CustomException("ValidationException", violationMessages);
     }
 
-    @Override
-    public void confirmTechnician(Long technicianId) {
-        Technician technician = findById(technicianId).orElseThrow(() ->
-                new CustomException("TechnicianNotFound", "We can't find the technician"));
-
-        technician.setStatus(TechnicianStatus.CONFIRMED);
-        try {
-            baseRepository.save(technician);
-        } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private void validateInfo(RegisterDto registerDto, String imageAddress) {
-        if (!Validation.isValidName(registerDto.getFirstname()) || !Validation.isValidName(registerDto.getLastname())) {
-            throw new CustomException("InvalidName", "Names must only contain letters");
-        } else if (!Validation.isValidEmail(registerDto.getEmailAddress())) {
-            throw new CustomException("InvalidEmail", "Check the email address it is wrong");
-        } else if (!Validation.isValidPassword(registerDto.getPassword())) {
-            throw new CustomException("InvalidPassword", "Passwords must be a combination of letters and numbers");
-        }
-        //image validation
+    private void validateImage(String imageAddress) {
         try {
             File imageFile = new File(imageAddress);
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(imageFile);
@@ -88,10 +67,30 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
         }
-
     }
+
+    private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+        StringBuilder messageBuilder = new StringBuilder();
+        for (ConstraintViolation<RegisterDto> violation : violations) {
+            messageBuilder.append("\n").append(violation.getMessage());
+        }
+        return messageBuilder.toString().trim();
+    }
+
+    @Override
+    public void confirmTechnician(Long technicianId) {
+        Technician technician = findById(technicianId).orElseThrow(() ->
+                new CustomException("TechnicianNotFound", "We can't find the technician"));
+
+        try {
+            technician.setStatus(TechnicianStatus.CONFIRMED);
+            baseRepository.save(technician);
+        } catch (PersistenceException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     private byte[] imageToBytes(String imageAddress) {
         try {
@@ -101,7 +100,6 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician, Techn
             throw new RuntimeException(e);
         }
     }
-
 
     protected void checkCondition(RegisterDto registerDto) {
         if (existsByEmailAddress(registerDto.getEmailAddress())) {

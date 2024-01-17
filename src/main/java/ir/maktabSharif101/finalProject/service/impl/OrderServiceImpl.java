@@ -14,6 +14,8 @@ import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
 import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 import ir.maktabSharif101.finalProject.utils.Validation;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.PersistenceException;
@@ -23,66 +25,68 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Set;
 
-public class OrderServiceImpl extends BaseEntityServiceImpl<Order,Long, OrderRepository>
-implements OrderService {
+public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRepository>
+        implements OrderService {
 
     private final SubServicesService subServicesService;
     private final CustomerService customerService;
-    public OrderServiceImpl(OrderRepository baseRepository,SubServicesService subServicesService,
-                            CustomerService customerService) {
+    private final Validator validator;
+
+
+    public OrderServiceImpl(OrderRepository baseRepository, SubServicesService subServicesService,
+                            CustomerService customerService, Validator validator) {
         super(baseRepository);
         this.subServicesService = subServicesService;
-        this.customerService=customerService;
+        this.customerService = customerService;
+        this.validator = validator;
     }
 
     @Override
-    public void submitOrder(Long customerId,OrderSubmitDto orderSubmitDto) {
-        validateInfo(orderSubmitDto);
+    public void submitOrder(Customer customer, OrderSubmitDto orderSubmitDto) {
+        Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
+        if (violations.isEmpty()) {
+            SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
+                    new CustomException("SubServiceNotFound", "We can not find the sub service"));
+            checkCondition(orderSubmitDto, subServices);
+            Order order = mapDtoValues(orderSubmitDto);
 
-        SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
-                new CustomException("SubServiceNotFound", "We can not find the sub service"));
-        //todo make this take Customer :/
-        Customer customer = customerService.findById(customerId).orElseThrow(() ->
-                new CustomException("CustomerNotFound", "We can not find you"));
-
-        checkCondition(orderSubmitDto,subServices);
-        Order order= mapDtoValues(orderSubmitDto);
-
-        try {
-            baseRepository.beginTransaction();
-            customer.getOrders().add(order);
-            subServices.getOrders().add(order);
-            order.setSubServices(subServices);
-            order.setCustomer(customer);
-            customerService.save(customer);
-            baseRepository.save(order);
-            subServicesService.save(subServices);
-            baseRepository.commitTransaction();
-        }catch (PersistenceException e){
-            baseRepository.rollbackTransaction();
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            try {
+                baseRepository.beginTransaction();
+                customer.getOrders().add(order);
+                subServices.getOrders().add(order);
+                order.setSubServices(subServices);
+                order.setCustomer(customer);
+                customerService.save(customer);
+                baseRepository.save(order);
+                subServicesService.save(subServices);
+                baseRepository.commitTransaction();
+            } catch (PersistenceException e) {
+                baseRepository.rollbackTransaction();
+                System.out.println(e.getMessage());
+            }
         }
-    }
-    private void validateInfo(OrderSubmitDto orderSubmitDto) {
-        if (!Validation.isValidDate(orderSubmitDto.getDate())){
-            throw new CustomException("InvalidDate","Correct format is (YYYY-MM-DD)");
-        } else if (!Validation.isValidTime(orderSubmitDto.getTime())) {
-            throw new CustomException("InvalidTime","Correct format is (HH:MM)");
-        } else if (StringUtils.isBlank(orderSubmitDto.getAddress())) {
-            throw new CustomException("EmptyAddress","Can't leave this field empty");
-        }
+        String violationMessages = getViolationMessages(violations);
+        throw new CustomException("ValidationException", violationMessages);
     }
 
-    protected void checkCondition(OrderSubmitDto orderSubmitDto,SubServices subServices) {
-        if (orderSubmitDto.getPrice()<subServices.getBaseWage()){
-            throw new CustomException("InvalidPrice","Price can't be lower than base wage");
+    private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
+        StringBuilder messageBuilder = new StringBuilder();
+        for (ConstraintViolation<OrderSubmitDto> violation : violations) {
+            messageBuilder.append("\n").append(violation.getMessage());
         }
-        LocalDateTime localDateTime=convertDateAndTime(orderSubmitDto.getTime(),orderSubmitDto.getDate());
+        return messageBuilder.toString().trim();
+    }
+
+    protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
+        if (orderSubmitDto.getPrice() < subServices.getBaseWage()) {
+            throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
+        }
+        LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
-            throw new CustomException("InvalidDateAndTime","Date and time can't be before now");
+            throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
         }
     }
 
@@ -92,9 +96,8 @@ implements OrderService {
         order.setJobInfo(orderSubmitDto.getJobInfo());
         order.setAddress(orderSubmitDto.getAddress());
         order.setPrice(orderSubmitDto.getPrice());
-        order.setPoint(order.getPoint());
+        order.setPoint(0);
 
-        //The date and time conversion
         LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
 
         order.setDateAndTime(localDateTime);

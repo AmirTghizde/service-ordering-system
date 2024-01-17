@@ -1,5 +1,9 @@
 package ir.maktabSharif101.finalProject.service.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,12 +16,20 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterDto implements Serializable {
 
+    @Size(min = 3, max = 50, message = "firstname size must be between 3 to 50 letters")
+    @Pattern(regexp = "^[^0-9]+$", message = "firstname must not contain numbers")
     String firstname;
 
+    @Pattern(regexp = "^[^0-9]+$", message = "lastname must not contain numbers")
     String lastname;
 
+    @Email(message = "Invalid Email format")
+//    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@gmail.com$",message="Invalid email format")
     String emailAddress;
 
+    @NotBlank(message = "password must not be empty")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
+            , message = "password must be a combination of letters and numbers")
     String password;
 
 }

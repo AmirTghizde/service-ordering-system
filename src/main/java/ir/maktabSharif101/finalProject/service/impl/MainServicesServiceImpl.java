@@ -19,8 +19,8 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
     @Override
     public void addService(String serviceName) {
         checkConditions(serviceName);
-        MainServices mainServices = setValues(serviceName);
         try {
+            MainServices mainServices = setValues(serviceName);
             baseRepository.save(mainServices);
         } catch (PersistenceException e) {
             System.out.println(e.getMessage());
@@ -46,7 +46,4 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
     private MainServices setValues(String serviceName) {
         MainServices mainServices = new MainServices();
         mainServices.setName(serviceName);
-        mainServices.setSubServices(new ArrayList<>());
-        return mainServices;
-    }
-}
+        return mainServices;}}
