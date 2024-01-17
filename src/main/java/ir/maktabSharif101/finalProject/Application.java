@@ -1,5 +1,8 @@
 package ir.maktabSharif101.finalProject;
+import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.service.*;
+import ir.maktabSharif101.finalProject.service.dto.OrderSubmitDto;
+import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 
@@ -14,6 +17,10 @@ public class Application {
 
         System.out.println("===========================================================================================================================================");
         try {
+//            managerService.register(new RegisterDto(
+//                    "MohamadReza","Alavi","Admin@gmail.com","Admin1234"
+//            ));
+
 //        mainServicesService.addService("Cleaning");
 
 //        MainServices mainServices = mainServicesService.findByName("Cleaning").orElse(null);
@@ -31,16 +38,20 @@ public class Application {
 //        subServices.getTechnicians().forEach(technician ->
 //                System.out.println(technician.getFirstname()+" "+technician.getLastname() ));
 
+//            subServiceService.editBaseWage(2L,100);
+
+//            subServiceService.editDescription(2L,"test");
+
 //            Customer customer = customerService.register(new RegisterDto(
-//                    "Ali", "Alavi", "Aldwi@gamil.com", "Ali1234"
+//                    "Ali", "Alavi", "Aldwi@gmail.com", "Ali1234"
 //            ));
 
 //        technicianService.register(
 //                new RegisterDto(
-//                        "Morteza","Alavi","Mori@gmail.com","Mori1234"
+//                        "Ali","Alavi","Ali1@gmail.com","Ali1234"
 //                ), "D:\\Java\\Maktab\\HW\\HwFinal\\src\\main\\resources\\images\\Untitled2.jpg");
 
-//        technicianService.editPassword(3L,"@Alireza1234");
+//        technicianService.editPassword(2L,"Ali1234");
 
 //        technicianService.confirmTechnician(3L);
 //
@@ -48,12 +59,8 @@ public class Application {
 
 //        subServiceService.deleteFromSubService(3L,2L);
 
-//        managerService.register(new RegisterDto(
-//                "GholamReza","Alavi","Admin@gmail.com","Admin1234"
-//        ));
-
-//        orderService.submitOrder(7L,new OrderSubmitDto(
-//2L,"Clean home get money🤯","2024-01-20","12:00","Hamin baghala",15000
+//        orderService.submitOrder(4L,new OrderSubmitDto(
+//2L,"Clean home get money🤯","2024-01-20","12:00","Hamin baghala",0
 //        ));
 
         }catch (CustomException e){

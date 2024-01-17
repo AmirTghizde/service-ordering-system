@@ -6,6 +6,7 @@ import ir.maktabSharif101.finalProject.repository.MainServicesRepository;
 import ir.maktabSharif101.finalProject.service.MainServicesService;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.PersistenceException;
 import java.util.Optional;
@@ -48,6 +49,9 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception",serviceName);
             throw new CustomException("DuplicateMainService", "Main service already exists in the database");
+        }if (StringUtils.isBlank(serviceName)){
+            log.error("Main service is blank throwing exception");
+            throw new CustomException("InvalidServiceName", "Main service must not be blank");
         }
     }
 
