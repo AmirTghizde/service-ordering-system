@@ -41,7 +41,7 @@ public class OrderServiceImpl extends BaseEntityServiceImpl<Order, Long, OrderRe
 
     @Override
     public void submitOrder(Long customerId, OrderSubmitDto orderSubmitDto) {
-        log.info("Customer with id [{}] is trying to submit a new order {}", customerId, orderSubmitDto);
+        log.info("Customer with id [{}] is trying to submit a new order [{}]", customerId, orderSubmitDto);
         Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
         if (violations.isEmpty()) {
             log.info("Information is validated - commencing registration");

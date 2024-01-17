@@ -2,7 +2,6 @@ package ir.maktabSharif101.finalProject.entity;
 
 import ir.maktabSharif101.finalProject.base.entity.BaseEntity;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.util.ArrayList;

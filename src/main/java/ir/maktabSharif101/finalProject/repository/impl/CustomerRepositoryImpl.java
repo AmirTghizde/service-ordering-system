@@ -2,7 +2,6 @@ package ir.maktabSharif101.finalProject.repository.impl;
 
 import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.repository.CustomerRepository;
-import ir.maktabSharif101.finalProject.repository.base.BaseUserRepository;
 import ir.maktabSharif101.finalProject.repository.base.BaseUserRepositoryImpl;
 
 import javax.persistence.EntityManager;

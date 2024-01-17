@@ -37,6 +37,7 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer, CustomerR
                 log.info("Connecting to [{}]",baseRepository);
                 return baseRepository.save(customer);
             } catch (PersistenceException e) {
+                log.error("PersistenceException occurred printing ... ");
                 System.out.println(e.getMessage());
             }
         }

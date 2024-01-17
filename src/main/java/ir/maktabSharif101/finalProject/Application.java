@@ -1,7 +1,5 @@
 package ir.maktabSharif101.finalProject;
-import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.service.*;
-import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.utils.ApplicationContext;
 import ir.maktabSharif101.finalProject.utils.CustomException;
 
@@ -63,16 +61,6 @@ public class Application {
             System.out.println(e.getMessage());
             System.out.println("********************************");
         }
-        /*
-
-         ____             _
-        |  _ \  _____   _| |    ___   __ _
-        | | | |/ _ \ \ / / |   / _ \ / _` |
-        | |_| |  __/\ V /| |__| (_) | (_| |
-        |____/ \___| \_/ |_____\___/ \__, |
-                                     |___/
-        ====================================================================================*/
-
     }
 }
 

@@ -1,7 +1,6 @@
 package ir.maktabSharif101.finalProject.repository.impl;
 
 import ir.maktabSharif101.finalProject.base.repository.BaseEntityRepositoryImpl;
-import ir.maktabSharif101.finalProject.entity.MainServices;
 import ir.maktabSharif101.finalProject.entity.SubServices;
 import ir.maktabSharif101.finalProject.repository.SubServicesRepository;
 

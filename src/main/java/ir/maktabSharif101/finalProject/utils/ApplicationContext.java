@@ -1,20 +1,15 @@
 package ir.maktabSharif101.finalProject.utils;
 
-import ir.maktabSharif101.finalProject.entity.Customer;
 import ir.maktabSharif101.finalProject.repository.*;
 import ir.maktabSharif101.finalProject.repository.impl.*;
 import ir.maktabSharif101.finalProject.service.*;
-import ir.maktabSharif101.finalProject.service.dto.RegisterDto;
 import ir.maktabSharif101.finalProject.service.impl.*;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import java.util.Set;
 
 public class ApplicationContext {
     public static final EntityManager ENTITY_MANAGER =

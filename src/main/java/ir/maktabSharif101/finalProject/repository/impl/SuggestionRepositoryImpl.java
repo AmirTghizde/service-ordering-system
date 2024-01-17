@@ -3,7 +3,6 @@ package ir.maktabSharif101.finalProject.repository.impl;
 import ir.maktabSharif101.finalProject.base.repository.BaseEntityRepositoryImpl;
 import ir.maktabSharif101.finalProject.entity.Suggestion;
 import ir.maktabSharif101.finalProject.repository.SuggestionRepository;
-import jdk.jshell.SourceCodeAnalysis;
 
 import javax.persistence.EntityManager;
 

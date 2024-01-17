@@ -29,7 +29,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager, ManagerRepo
         log.info("Registering with this data [{}]", registerDto);
         Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
         if (violations.isEmpty()) {
-            log.info("Information's are validated - commencing registration");
+            log.info("Information is validated - commencing registration");
             checkCondition(registerDto);
             Manager manager = mapDtoValues(registerDto);
             try {
@@ -55,7 +55,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager, ManagerRepo
     protected void checkCondition(RegisterDto registerDto) {
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
-            log.error("{} already exists in the database throwing exception", registerDto.getEmailAddress());
+            log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
             throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
         }
     }

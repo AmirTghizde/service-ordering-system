@@ -8,7 +8,6 @@ import ir.maktabSharif101.finalProject.utils.CustomException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.PersistenceException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Slf4j
@@ -27,17 +26,20 @@ public class MainServicesServiceImpl extends BaseEntityServiceImpl<MainServices,
             log.info("Connecting to [{}]",baseRepository);
             baseRepository.save(mainServices);
         } catch (PersistenceException e) {
+            log.error("PersistenceException occurred printing ... ");
             System.out.println(e.getMessage());
         }
     }
 
     @Override
     public Optional<MainServices> findByName(String mainServiceName) {
+        log.info("trying to find [{}]",mainServiceName);
         return baseRepository.findByName(mainServiceName);
     }
 
     @Override
     public boolean existsByName(String mainServiceName) {
+        log.info("trying to check if [{}] exists",mainServiceName);
         return baseRepository.existsByName(mainServiceName);
     }
 

@@ -38,7 +38,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
                 new CustomException("MainServiceNotFound", "We can not find the main service"));
 
         try {
-            log.info("Connecting to {}", baseRepository);
+            log.info("Connecting to [{}]", baseRepository);
             baseRepository.beginTransaction();
             subServices.setMainServices(mainServices);
             mainServices.getSubServices().add(subServices);
@@ -53,11 +53,13 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
 
     @Override
     public Optional<SubServices> findByName(String subServiceName) {
+        log.info("trying to find [{}]",subServiceName);
         return baseRepository.findByName(subServiceName);
     }
 
     @Override
     public boolean existsByName(String subServiceName) {
+        log.info("trying to check if [{}] exists",subServiceName);
         return baseRepository.existsByName(subServiceName);
     }
 
@@ -66,6 +68,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
         SubServices subServices = findSubServices(serviceId);
         log.info("Changing [{}] wage from [{}] to [{}]", subServices.getName(), subServices.getBaseWage(), newWage);
         try {
+            log.info("Connecting to [{}]", baseRepository);
             subServices.setBaseWage(newWage);
             baseRepository.save(subServices);
         } catch (PersistenceException e) {
@@ -79,6 +82,7 @@ public class SubServicesServiceImpl extends BaseEntityServiceImpl<SubServices, L
         SubServices subServices = findSubServices(serviceId);
         log.info("Changing [{}] description from [{}] to [{}]", subServices.getName(), subServices.getDescription(), newDescription);
         try {
+            log.info("Connecting to [{}]", baseRepository);
             subServices.setDescription(newDescription);
             baseRepository.save(subServices);
         } catch (PersistenceException e) {
