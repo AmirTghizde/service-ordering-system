@@ -36,11 +36,14 @@ public class Order  {
     private double point;
 
     @ManyToOne
+    @ToString.Exclude
     private Customer customer;
 
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "order")
+    @ToString.Exclude
     private List<Suggestion> suggestions= new ArrayList<>();
 
     @ManyToOne
+    @ToString.Exclude
     private SubServices subServices;
 }

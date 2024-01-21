@@ -3,11 +3,13 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
+import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.SubServicesService;
+import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
@@ -22,6 +24,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -31,14 +35,17 @@ public class OrderServiceImpl implements OrderService {
     private final SubServicesService subServicesService;
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
+    private final TechnicianService technicianService;
     private final Validator validator;
 
     @Autowired
     public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
-                            OrderRepository orderRepository, Validator validator) {
+                            OrderRepository orderRepository, TechnicianService technicianService,
+                            Validator validator) {
         this.subServicesService = subServicesService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
+        this.technicianService = technicianService;
         this.validator = validator;
     }
 
@@ -75,6 +82,21 @@ public class OrderServiceImpl implements OrderService {
         }
         String violationMessages = getViolationMessages(violations);
         throw new CustomException("ValidationException", violationMessages);
+    }
+
+    @Override
+    @Transactional
+    public List<Order> findAwaitingOrdersByTechnician(Long technicianId) {
+        Technician technician = technicianService.findById(technicianId).orElseThrow(() ->
+                new CustomException("TechnicianNotFound", "We can't find the technician"));
+
+        List<SubServices> subServices = technician.getSubServices();
+
+        List<OrderStatus> orderStatuses = Arrays.asList(
+                OrderStatus.AWAITING_TECHNICIAN_SUGGESTION,
+                OrderStatus.AWAITING_TECHNICIAN_SELECTION
+        );
+        return orderRepository.findBySubServicesInAndOrderStatusIn(subServices,orderStatuses);
     }
 
     private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {

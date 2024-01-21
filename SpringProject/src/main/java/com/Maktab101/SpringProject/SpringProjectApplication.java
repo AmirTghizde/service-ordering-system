@@ -27,7 +27,7 @@ public class SpringProjectApplication {
 //                    "MohamadReza","Alavi","Admin@gmail.com","Admin1234"
 //            ));
 
-        mainServicesService.addService("Cleaning");
+//        mainServicesService.addService("Cleaning");
 
 //            System.out.println(mainServicesService.findAll());
 
@@ -69,6 +69,8 @@ public class SpringProjectApplication {
 //        orderService.submitOrder(1L,new OrderSubmitDto(
 //2L,"Clean home get money🤯","2025-01-20","12:00","Hamin baghala", 700
 //        ));
+
+            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
         } catch (CustomException e) {
             System.out.println("********************************");
