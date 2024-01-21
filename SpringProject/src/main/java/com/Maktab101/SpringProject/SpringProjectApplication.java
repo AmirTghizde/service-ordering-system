@@ -76,9 +76,9 @@ public class SpringProjectApplication {
 
 //            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
-            suggestionService.sendSuggestion(2L,new SuggestionDto(
-                    1L,500,"03:00","2025-01-22","00:55"
-            ));
+//            suggestionService.sendSuggestion(2L,new SuggestionDto(
+//                    1L,500,"03:00","2025-01-22","00:55"
+//            ));
 
         } catch (CustomException e) {
             System.out.println("********************************");
@@ -95,7 +95,6 @@ public class SpringProjectApplication {
                                      |___/
         ====================================================================================*/
         //todo fix manger code
-        //todo add the suggestion part
         //todo use builder...?
     }
 }

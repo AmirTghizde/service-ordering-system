@@ -5,6 +5,7 @@ import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.SuggestionRepository;
 import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.SubServicesService;
@@ -69,6 +70,7 @@ public class SuggestionServiceImpl implements SuggestionService {
             try {
                 log.info("Connecting to [{}]", suggestionRepository);
                 order.getSuggestions().add(suggestion);
+                order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_SELECTION);
                 orderService.save(order);
                 suggestion.setOrder(order);
                 suggestionRepository.save(suggestion);
