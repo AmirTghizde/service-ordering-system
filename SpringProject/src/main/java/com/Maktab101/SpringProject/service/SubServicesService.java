@@ -13,6 +13,6 @@ public interface SubServicesService {
     void editDescription(Long serviceId,String newDescription);
     void addToSubService(Long technicianId, Long serviceId);
     void deleteFromSubService(Long technicianId, Long serviceId);
-    Optional<SubServices> findById(Long subServiceId);
+    SubServices findById(Long subServiceId);
     SubServices save(SubServices subServices);
 }

@@ -4,6 +4,8 @@ package com.Maktab101.SpringProject.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -19,13 +21,13 @@ public class Suggestion {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Date suggestionDate;
+    private LocalDateTime Date;
 
     private double suggestedPrice;
 
-    private LocalTime suggestedTime;
+    private LocalDateTime suggestedDate;
 
-    private String Duration;
+    private LocalTime Duration;
 
     @ManyToOne
     private Technician technician;

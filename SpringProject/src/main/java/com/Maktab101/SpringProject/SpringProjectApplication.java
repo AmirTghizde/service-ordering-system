@@ -1,9 +1,12 @@
 package com.Maktab101.SpringProject;
 
 
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.MainServices;
 import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
+import com.Maktab101.SpringProject.service.dto.RegisterDto;
+import com.Maktab101.SpringProject.service.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,6 +24,7 @@ public class SpringProjectApplication {
         MainServicesService mainServicesService = context.getBean(MainServicesService.class);
         SubServicesService subServicesService = context.getBean(SubServicesService.class);
         OrderService orderService = context.getBean(OrderService.class);
+        SuggestionService suggestionService = context.getBean(SuggestionService.class);
         System.out.println("====================================================================================================");
         try {
 //            managerService.register(new RegisterDto(
@@ -70,7 +74,11 @@ public class SpringProjectApplication {
 //2L,"Clean home get money🤯","2025-01-20","12:00","Hamin baghala", 700
 //        ));
 
-            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
+//            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
+
+            suggestionService.sendSuggestion(2L,new SuggestionDto(
+                    1L,500,"03:00","2025-01-22","00:55"
+            ));
 
         } catch (CustomException e) {
             System.out.println("********************************");

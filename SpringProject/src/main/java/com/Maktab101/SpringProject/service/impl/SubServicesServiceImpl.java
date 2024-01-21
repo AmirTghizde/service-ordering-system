@@ -69,7 +69,7 @@ public class SubServicesServiceImpl implements SubServicesService {
 
     @Override
     public void editBaseWage(Long serviceId, double newWage) {
-        SubServices subServices = findSubServices(serviceId);
+        SubServices subServices = findById(serviceId);
         log.info("Changing [{}] wage from [{}] to [{}]", subServices.getName(), subServices.getBaseWage(), newWage);
         try {
             log.info("Connecting to [{}]", subServicesRepository);
@@ -82,7 +82,7 @@ public class SubServicesServiceImpl implements SubServicesService {
 
     @Override
     public void editDescription(Long serviceId, String newDescription) {
-        SubServices subServices = findSubServices(serviceId);
+        SubServices subServices = findById(serviceId);
         log.info("Changing [{}] description from [{}] to [{}]", subServices.getName(), subServices.getDescription(), newDescription);
         try {
             log.info("Connecting to [{}]", subServicesRepository);
@@ -98,8 +98,8 @@ public class SubServicesServiceImpl implements SubServicesService {
     public void addToSubService(Long technicianId, Long serviceId) {
         try {
             //get the entities
-            SubServices subService = findSubServices(serviceId);
-            Technician technician = findTechnician(technicianId);
+            SubServices subService = findById(serviceId);
+            Technician technician = technicianService.findById(technicianId);
             log.info("Adding [{}] to [{}]", technician.getEmail(), subService.getName());
             if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)) {
                 log.error("[{}] is not confirmed throwing exception ", technician.getEmail());
@@ -129,8 +129,8 @@ public class SubServicesServiceImpl implements SubServicesService {
     public void deleteFromSubService(Long technicianId, Long serviceId) {
         try {
             //get the entities
-            SubServices subService = findSubServices(serviceId);
-            Technician technician = findTechnician(technicianId);
+            SubServices subService = findById(serviceId);
+            Technician technician = technicianService.findById(technicianId);
             log.info("deleting [{}] from [{}]", technician.getEmail(), subService.getName());
 
             if (subService.getTechnicians().contains(technician)) {
@@ -152,8 +152,9 @@ public class SubServicesServiceImpl implements SubServicesService {
     }
 
     @Override
-    public Optional<SubServices> findById(Long subServiceId) {
-        return subServicesRepository.findById(subServiceId);
+    public SubServices findById(Long subServiceId) {
+        return subServicesRepository.findById(subServiceId).
+                orElseThrow(() -> new CustomException("SubServiceNotFound", "We can not find the sub service"));
     }
 
     @Override
@@ -180,15 +181,5 @@ public class SubServicesServiceImpl implements SubServicesService {
         subServices.setBaseWage(baseWage);
         subServices.setDescription(description);
         return subServices;
-    }
-
-    private Technician findTechnician(Long technicianId) {
-        return technicianService.findById(technicianId).orElseThrow(
-                () -> new CustomException("TechnicianNotFound", "We can't find that technician"));
-    }
-
-    private SubServices findSubServices(Long serviceId) {
-        return findById(serviceId).
-                orElseThrow(() -> new CustomException("SubServiceNotFound", "We can not find the sub service"));
     }
 }

@@ -71,8 +71,9 @@ public abstract class BaseUserServiceImpl<T extends User>
     }
 
     @Override
-    public Optional<T> findById(Long userId) {
-        return baseRepository.findById(userId);
+    public T findById(Long userId) {
+        return baseRepository.findById(userId).orElseThrow(
+                ()->new CustomException("UserNotFound","We can't find the user with the id: "+userId));
     }
 
     @Override

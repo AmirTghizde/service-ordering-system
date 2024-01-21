@@ -57,11 +57,9 @@ public class OrderServiceImpl implements OrderService {
         Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
         if (violations.isEmpty()) {
             log.info("Information is validated - commencing registration");
-            SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId()).orElseThrow(() ->
-                    new CustomException("SubServiceNotFound", "We can not find the sub service"));
+            SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId());
 
-            Customer customer = customerService.findById(customerId).orElseThrow(
-                    () -> new CustomException("CustomerNotFound", "We can not find this customer"));
+            Customer customer = customerService.findById(customerId);
 
             checkCondition(orderSubmitDto, subServices);
             Order order = mapDtoValues(orderSubmitDto);
@@ -87,8 +85,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<Order> findAwaitingOrdersByTechnician(Long technicianId) {
-        Technician technician = technicianService.findById(technicianId).orElseThrow(() ->
-                new CustomException("TechnicianNotFound", "We can't find the technician"));
+        Technician technician = technicianService.findById(technicianId);
 
         List<SubServices> subServices = technician.getSubServices();
 
@@ -97,6 +94,17 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatus.AWAITING_TECHNICIAN_SELECTION
         );
         return orderRepository.findBySubServicesInAndOrderStatusIn(subServices,orderStatuses);
+    }
+
+    @Override
+    public Order findById(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(()->
+                new CustomException("OrderNotFound", "We can not find the order"));
+    }
+
+    @Override
+    public Order save(Order order) {
+        return orderRepository.save(order);
     }
 
     private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
@@ -109,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
-        log.info("Checking registration conditions");
+        log.info("Checking order conditions");
         if (orderSubmitDto.getPrice() < subServices.getBaseWage()) {
             log.error("Price is lower than base wage throwing exception");
             throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
@@ -138,7 +146,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private LocalDateTime convertDateAndTime(String time, String date) {
-        log.info("Converting date and time");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
