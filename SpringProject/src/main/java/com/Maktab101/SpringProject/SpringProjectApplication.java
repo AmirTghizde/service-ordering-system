@@ -77,15 +77,15 @@ public class SpringProjectApplication {
 
 //            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
-//            orderSuggestionService.sendSuggestion(2L,new SuggestionDto(
-//                    1L,600,"03:00","2025-01-22","00:55"
-//            ));
+            orderSuggestionService.sendSuggestion(2L,new SuggestionDto(
+                    1L,600,"03:00","2025-01-22","00:55"
+            ));
 
 //
-//            System.out.println(orderService.getSuggestionByPrice(1L, true));
+//            System.out.println(orderSuggestionService.getSuggestionByPrice(1L, true));
 //            System.out.println(orderService.getSuggestionByTechnicianPoint(1L, false));
 
-//            orderSuggestionService.selectSugestion(1L,1L);
+//            orderSuggestionService.selectSugestion(1L,52L);
 //            orderService.startOrder(1L);
 //            orderService.finishOrder(1L);
 

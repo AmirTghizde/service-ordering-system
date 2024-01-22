@@ -43,21 +43,21 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         this.technicianService = technicianService;
         this.validator = validator;
     }
+
     @Override
     @Transactional
     public void selectSugestion(Long orderId, Long suggestionId) {
         Suggestion suggestion = suggestionService.findById(suggestionId);
         Order order = orderService.findById(orderId);
 
-        if (!order.getSuggestions().contains(suggestion)){
-            throw new CustomException("InvalidSuggestion","No suggestion found with that info");
-        } else if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_SELECTION)) {
-            throw new CustomException("InvalidAction","You can't select a suggestion");
+        if (!order.getSuggestions().contains(suggestion)) {
+            throw new CustomException("InvalidSuggestion", "We can't find that suggestion in your order");
         }
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
         orderService.save(order);
     }
+
 
     @Override
     @Transactional
@@ -72,9 +72,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
             SubServices subServices = subServicesService.findById(order.getSubServices().getId());
             Technician technician = technicianService.findById(technicianId);
 
-
-            checkCondition(technician,suggestionDto,subServices);
-            Suggestion suggestion = mapDtoValues(technician,suggestionDto);
+            checkCondition(technician, suggestionDto, subServices, order);
+            Suggestion suggestion = mapDtoValues(technician, suggestionDto);
 
             try {
                 log.info("Connecting to [{}]", suggestionService);
@@ -91,6 +90,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         String violationMessages = getViolationMessages(violations);
         throw new CustomException("ValidationException", violationMessages);
     }
+
     @Override
     public List<Suggestion> getSuggestionByTechnicianPoint(Long orderId, boolean ascending) {
         Order order = orderService.findById(orderId);
@@ -109,29 +109,35 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         Order order = orderService.findById(orderId);
         List<Suggestion> suggestions = order.getSuggestions();
         Comparator<Suggestion> priceComparing = Comparator.comparing(Suggestion::getSuggestedPrice);
-        if (!ascending){
+        if (!ascending) {
             priceComparing = priceComparing.reversed();
         }
         suggestions.sort(priceComparing);
         return suggestions;
     }
-    protected void checkCondition(Technician technician,SuggestionDto suggestionDto, SubServices subServices) {
+
+    protected void checkCondition(Technician technician, SuggestionDto suggestionDto, SubServices subServices, Order order) {
         log.info("Checking suggestion conditions");
+        switch (order.getOrderStatus()) {
+            case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID ->
+                    throw new CustomException("InvalidAction", "You can't send a suggestion for this order");
+        }
         List<Technician> technicians = subServices.getTechnicians();
-        if (!technicians.contains(technician)){
+        if (!technicians.contains(technician)) {
             throw new CustomException("WrongSubService", "You don't have this sub service");
         }
         if (suggestionDto.getSuggestedPrice() < subServices.getBaseWage()) {
             log.error("SuggestedPrice is lower than base wage throwing exception");
             throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
         }
-        LocalDateTime localDateTime = convertDateAndTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
+        LocalDateTime localDateTime = toLocalDateTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
             log.error("Date is before now throwing exception");
             throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
         }
     }
+
     private String getViolationMessages(Set<ConstraintViolation<SuggestionDto>> violations) {
         log.error("SuggestionDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
@@ -141,7 +147,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         return messageBuilder.toString().trim();
     }
 
-    private LocalDateTime convertDateAndTime(String time, String date) {
+    private LocalDateTime toLocalDateTime(String time, String date) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -150,17 +156,19 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
         return localDate.atTime(localTime);
     }
+
     private LocalTime convertTime(String duration) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalTime.parse(duration, timeFormatter);
     }
-    private Suggestion mapDtoValues(Technician technician,SuggestionDto suggestionDto) {
+
+    private Suggestion mapDtoValues(Technician technician, SuggestionDto suggestionDto) {
         Suggestion suggestion = new Suggestion();
         suggestion.setDate(LocalDateTime.now());
         suggestion.setSuggestedPrice(suggestionDto.getSuggestedPrice());
         suggestion.setTechnician(technician);
 
-        LocalDateTime localDateTime = convertDateAndTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
+        LocalDateTime localDateTime = toLocalDateTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
         suggestion.setSuggestedDate(localDateTime);
 
         suggestion.setDuration(convertTime(suggestionDto.getDuration()));
