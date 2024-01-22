@@ -15,4 +15,7 @@ public interface OrderService {
     Order save(Order order);
     List<Suggestion> getSuggestionByTechnicianPoint(Long orderId,boolean ascending);
     List<Suggestion> getSuggestionByPrice(Long orderId,boolean ascending);
+    void selectSugestion(Long orderId,Long suggestionId);
+    void startOrder(Long orderId);
+    void finishOrder(Long orderId);
 }

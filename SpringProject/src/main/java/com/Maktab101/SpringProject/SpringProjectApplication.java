@@ -31,14 +31,14 @@ public class SpringProjectApplication {
 //                    "MohamadReza","Alavi","Admin@gmail.com","Admin1234"
 //            ));
 
-//        mainServicesService.addService("Cleaning");
+        mainServicesService.addService("Cleaning");
 
 //            System.out.println(mainServicesService.findAll());
 
 //            System.out.println(mainServicesService.findSubServiceNames(1L));
 //
-//        subServicesService.addService("HouseCleaning",500,"blah blah blah",
-//                "Cleaning");
+        subServicesService.addService("HouseCleaning",500,"blah blah blah",
+                "Cleaning");
 
 //        subServiceService.findAll().stream().forEach(subServices -> System.out.println(subServices.getName()));
 
@@ -50,35 +50,35 @@ public class SpringProjectApplication {
 
 //            subServicesService.editDescription(2L,"homee");
 
-//            Customer customer = customerService.register(new RegisterDto(
-//                    "Ali", "Alavi", "Aldwi@gmail.com", "Ali1234"
-//            ));
+            Customer customer = customerService.register(new RegisterDto(
+                    "Ali", "Alavi", "Aldwi@gmail.com", "Ali1234"
+            ));
 
-//            technicianService.register(
-//                    new RegisterDto(
-//                            "Ali", "Alavi", "Ali1@gmail.com", "Ali1234"
-//                    ));
+            technicianService.register(
+                    new RegisterDto(
+                            "Ali", "Alavi", "Ali1@gmail.com", "Ali1234"
+                    ));
 
 //        technicianService.saveImage(2L,
 //                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled1.jpg");
 
 //        customerService.editPassword(1L,"test1234");
 
-//        technicianService.confirmTechnician(2L);
+        technicianService.confirmTechnician(2L);
 //
-//            subServicesService.addToSubService(2L,1L);
+            subServicesService.addToSubService(2L,1L);
 
 //        subServicesService.deleteFromSubService(2L,1L);
 
-//        orderService.submitOrder(1L,new OrderSubmitDto(
-//2L,"Clean home get money🤯","2025-01-20","12:00","Hamin baghala", 700
-//        ));
+        orderService.submitOrder(1L,new OrderSubmitDto(
+1L,"Clean home get money🤯","2025-01-20","12:00","Hamin baghala", 700
+        ));
 
 //            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
-//            suggestionService.sendSuggestion(2L,new SuggestionDto(
-//                    1L,600,"03:00","2025-01-22","00:55"
-//            ));
+            suggestionService.sendSuggestion(2L,new SuggestionDto(
+                    1L,600,"03:00","2025-01-22","00:55"
+            ));
 
 //            System.out.println(orderService.getSuggestionByPrice(1L, true));
 //            System.out.println(orderService.getSuggestionByTechnicianPoint(1L, false));
@@ -98,6 +98,7 @@ public class SpringProjectApplication {
                                      |___/
         ====================================================================================*/
         //todo fix manger code
+        //todo add logs
         //todo use builder...?
     }
 }

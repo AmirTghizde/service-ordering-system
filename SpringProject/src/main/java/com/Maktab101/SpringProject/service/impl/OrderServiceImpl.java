@@ -3,10 +3,7 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
-import com.Maktab101.SpringProject.service.CustomerService;
-import com.Maktab101.SpringProject.service.OrderService;
-import com.Maktab101.SpringProject.service.SubServicesService;
-import com.Maktab101.SpringProject.service.TechnicianService;
+import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
@@ -28,16 +25,18 @@ import java.util.*;
 public class OrderServiceImpl implements OrderService {
 
     private final SubServicesService subServicesService;
+    private final SuggestionService suggestionService;
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
     private final TechnicianService technicianService;
     private final Validator validator;
 
     @Autowired
-    public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
-                            OrderRepository orderRepository, TechnicianService technicianService,
-                            Validator validator) {
+    public OrderServiceImpl(SubServicesService subServicesService, SuggestionService suggestionService,
+                            CustomerService customerService, OrderRepository orderRepository,
+                            TechnicianService technicianService, Validator validator) {
         this.subServicesService = subServicesService;
+        this.suggestionService = suggestionService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
         this.technicianService = technicianService;
@@ -125,6 +124,42 @@ public class OrderServiceImpl implements OrderService {
         }
         suggestions.sort(priceComparing);
         return suggestions;
+    }
+
+    @Override
+    @Transactional
+    public void selectSugestion(Long orderId, Long suggestionId) {
+        Suggestion suggestion = suggestionService.findById(suggestionId);
+        Order order = findById(orderId);
+
+        if (!order.getSuggestions().contains(suggestion)){
+            throw new CustomException("InvalidSuggestion","No suggestion found with that info");
+        } else if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_SELECTION)) {
+            throw new CustomException("InvalidAction","You can't select a suggestion");
+        }
+
+        order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
+        orderRepository.save(order);
+    }
+
+    @Override
+    public void startOrder(Long orderId) {
+        Order order = findById(orderId);
+        if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)){
+            throw new CustomException("InvalidAction","You can't start an order");
+        }
+        order.setOrderStatus(OrderStatus.STARTED);
+        save(order);
+    }
+
+    @Override
+    public void finishOrder(Long orderId) {
+        Order order = findById(orderId);
+        if (!order.getOrderStatus().equals(OrderStatus.STARTED)){
+            throw new CustomException("InvalidAction","You can't finish an order");
+        }
+        order.setOrderStatus(OrderStatus.FINISHED);
+        save(order);
     }
 
     private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {

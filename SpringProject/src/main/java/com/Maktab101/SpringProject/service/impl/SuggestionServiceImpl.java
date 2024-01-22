@@ -82,6 +82,13 @@ public class SuggestionServiceImpl implements SuggestionService {
         throw new CustomException("ValidationException", violationMessages);
     }
 
+    @Override
+    public Suggestion findById(Long suggestionId) {
+        return suggestionRepository.findById(suggestionId).orElseThrow(
+                ()->new CustomException("SuggestionNotFound","We can't find that suggestion")
+        );
+    }
+
     protected void checkCondition(Technician technician,SuggestionDto suggestionDto, SubServices subServices) {
         log.info("Checking suggestion conditions");
         List<Technician> technicians = subServices.getTechnicians();
