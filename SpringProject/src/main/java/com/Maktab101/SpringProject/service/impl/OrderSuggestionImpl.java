@@ -46,12 +46,19 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
     @Override
     @Transactional
-    public void selectSugestion(Long orderId, Long suggestionId) {
+    public void selectSuggestion(Long orderId, Long suggestionId) {
+        log.info("Customer with order [{}] Selecting suggestion [{}]", orderId, suggestionId);
         Suggestion suggestion = suggestionService.findById(suggestionId);
         Order order = orderService.findById(orderId);
 
         if (!order.getSuggestions().contains(suggestion)) {
+            log.error("Suggestion isn't for this order throwing exception");
             throw new CustomException("InvalidSuggestion", "We can't find that suggestion in your order");
+        }
+        switch (order.getOrderStatus()) {
+            case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
+                log.error("Invalid order status throwing exception");
+                throw new CustomException("InvalidAction", "You can't select suggestions anymore");}
         }
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
@@ -93,6 +100,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
     @Override
     public List<Suggestion> getSuggestionByTechnicianPoint(Long orderId, boolean ascending) {
+        log.info("Getting suggestions ordered by technicianPoints for order [{}]", orderId);
         Order order = orderService.findById(orderId);
         List<Suggestion> suggestions = order.getSuggestions();
         Comparator<Suggestion> scoreComparing = Comparator.comparingDouble(s -> s.getTechnician().getScore());
@@ -106,6 +114,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     @Override
     @Transactional
     public List<Suggestion> getSuggestionByPrice(Long orderId, boolean ascending) {
+        log.info("Getting suggestions ordered by price for order [{}]", orderId);
         Order order = orderService.findById(orderId);
         List<Suggestion> suggestions = order.getSuggestions();
         Comparator<Suggestion> priceComparing = Comparator.comparing(Suggestion::getSuggestedPrice);
@@ -119,11 +128,14 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     protected void checkCondition(Technician technician, SuggestionDto suggestionDto, SubServices subServices, Order order) {
         log.info("Checking suggestion conditions");
         switch (order.getOrderStatus()) {
-            case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID ->
-                    throw new CustomException("InvalidAction", "You can't send a suggestion for this order");
+            case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
+                log.error("Invalid order status throwing exception");
+                throw new CustomException("InvalidAction", "You can't send a suggestion for this order");
+            }
         }
         List<Technician> technicians = subServices.getTechnicians();
         if (!technicians.contains(technician)) {
+            log.error("Technician doesn't have this service throwing exception");
             throw new CustomException("WrongSubService", "You don't have this sub service");
         }
         if (suggestionDto.getSuggestedPrice() < subServices.getBaseWage()) {
@@ -163,6 +175,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     }
 
     private Suggestion mapDtoValues(Technician technician, SuggestionDto suggestionDto) {
+        log.info("Mapping Dto values [{}]", suggestionDto);
         Suggestion suggestion = new Suggestion();
         suggestion.setDate(LocalDateTime.now());
         suggestion.setSuggestedPrice(suggestionDto.getSuggestedPrice());

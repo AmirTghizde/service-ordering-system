@@ -77,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<Order> findAwaitingOrdersByTechnician(Long technicianId) {
+        log.info("Finding orders for technician[{}]",technicianId);
         Technician technician = technicianService.findById(technicianId);
 
         List<SubServices> subServices = technician.getSubServices();
@@ -101,9 +102,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void startOrder(Long orderId) {
+        log.info("Starting order [{}]",orderId);
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)){
-            throw new CustomException("InvalidAction","You can't start an order");
+            log.error("Invalid order status throwing exception");
+            throw new CustomException("InvalidAction","You can't start this order");
         }
         order.setOrderStatus(OrderStatus.STARTED);
         save(order);
@@ -111,9 +114,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void finishOrder(Long orderId) {
+        log.info("Finishing order [{}]",orderId);
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.STARTED)){
-            throw new CustomException("InvalidAction","You can't finish an order");
+            log.error("Invalid order status throwing exception");
+            throw new CustomException("InvalidAction","You can't finish this order");
         }
         order.setOrderStatus(OrderStatus.FINISHED);
         save(order);

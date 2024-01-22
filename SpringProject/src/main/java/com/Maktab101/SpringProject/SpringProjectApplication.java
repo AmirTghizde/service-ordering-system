@@ -1,12 +1,7 @@
 package com.Maktab101.SpringProject;
 
 
-import com.Maktab101.SpringProject.model.Customer;
-import com.Maktab101.SpringProject.model.MainServices;
 import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
-import com.Maktab101.SpringProject.service.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +10,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableTransactionManagement
+@SuppressWarnings("unused")
 public class SpringProjectApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(SpringProjectApplication.class, args);
@@ -77,15 +73,15 @@ public class SpringProjectApplication {
 
 //            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
-            orderSuggestionService.sendSuggestion(2L,new SuggestionDto(
-                    1L,600,"03:00","2025-01-22","00:55"
-            ));
+//            orderSuggestionService.sendSuggestion(2L,new SuggestionDto(
+//                    1L,600,"03:00","2025-01-22","00:55"
+//            ));
 
 //
 //            System.out.println(orderSuggestionService.getSuggestionByPrice(1L, true));
 //            System.out.println(orderService.getSuggestionByTechnicianPoint(1L, false));
 
-//            orderSuggestionService.selectSugestion(1L,52L);
+//            orderSuggestionService.selectSuggestion(1L,52L);
 //            orderService.startOrder(1L);
 //            orderService.finishOrder(1L);
 
@@ -104,7 +100,6 @@ public class SpringProjectApplication {
                                      |___/
         ====================================================================================*/
         //todo fix manger code
-        //todo add logs
-        //todo use builder...?
+        //todo right unit tests
     }
 }
