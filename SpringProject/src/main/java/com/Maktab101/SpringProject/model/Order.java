@@ -39,7 +39,7 @@ public class Order  {
     @ToString.Exclude
     private Customer customer;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "order")
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "order")
     @ToString.Exclude
     private List<Suggestion> suggestions= new ArrayList<>();
 

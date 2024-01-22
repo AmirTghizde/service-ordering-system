@@ -30,8 +30,10 @@ public class Suggestion {
     private LocalTime Duration;
 
     @ManyToOne
+    @ToString.Exclude
     private Technician technician;
 
     @ManyToOne
+    @ToString.Exclude
     private Order order;
 }

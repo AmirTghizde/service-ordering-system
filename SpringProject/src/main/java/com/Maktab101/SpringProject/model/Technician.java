@@ -28,7 +28,7 @@ public class Technician extends User {
     @Column(name = "image_data", columnDefinition = "bytea")
     private byte[] imageData;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "Technician_SubServices",
             joinColumns = @JoinColumn(name = "Technician_id"),

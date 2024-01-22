@@ -1,9 +1,6 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.model.Customer;
-import com.Maktab101.SpringProject.model.Order;
-import com.Maktab101.SpringProject.model.SubServices;
-import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
@@ -24,9 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -105,6 +100,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order save(Order order) {
         return orderRepository.save(order);
+    }
+
+    @Override
+    public List<Suggestion> getSuggestionByTechnicianPoint(Long orderId, boolean ascending) {
+        Order order = findById(orderId);
+        List<Suggestion> suggestions = order.getSuggestions();
+        Comparator<Suggestion> scoreComparing = Comparator.comparingDouble(s -> s.getTechnician().getScore());
+        if (!ascending) {
+            scoreComparing = scoreComparing.reversed();
+        }
+        suggestions.sort(scoreComparing);
+        return suggestions;
+    }
+
+    @Override
+    @Transactional
+    public List<Suggestion> getSuggestionByPrice(Long orderId, boolean ascending) {
+        Order order = findById(orderId);
+        List<Suggestion> suggestions = order.getSuggestions();
+        Comparator<Suggestion> priceComparing = Comparator.comparing(Suggestion::getSuggestedPrice);
+        if (!ascending){
+            priceComparing = priceComparing.reversed();
+        }
+        suggestions.sort(priceComparing);
+        return suggestions;
     }
 
     private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {

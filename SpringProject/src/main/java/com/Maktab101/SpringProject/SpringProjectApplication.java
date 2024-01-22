@@ -77,8 +77,11 @@ public class SpringProjectApplication {
 //            System.out.println(orderService.findAwaitingOrdersByTechnician(2L));
 
 //            suggestionService.sendSuggestion(2L,new SuggestionDto(
-//                    1L,500,"03:00","2025-01-22","00:55"
+//                    1L,600,"03:00","2025-01-22","00:55"
 //            ));
+
+//            System.out.println(orderService.getSuggestionByPrice(1L, true));
+//            System.out.println(orderService.getSuggestionByTechnicianPoint(1L, false));
 
         } catch (CustomException e) {
             System.out.println("********************************");

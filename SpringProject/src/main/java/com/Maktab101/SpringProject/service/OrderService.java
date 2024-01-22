@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject.service;
 
 
 import com.Maktab101.SpringProject.model.Order;
+import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface OrderService {
     List<Order> findAwaitingOrdersByTechnician(Long technicianId);
     Order findById(Long orderId);
     Order save(Order order);
+    List<Suggestion> getSuggestionByTechnicianPoint(Long orderId,boolean ascending);
+    List<Suggestion> getSuggestionByPrice(Long orderId,boolean ascending);
 }

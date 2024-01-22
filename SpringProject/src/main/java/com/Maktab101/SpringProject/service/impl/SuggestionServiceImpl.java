@@ -65,7 +65,6 @@ public class SuggestionServiceImpl implements SuggestionService {
 
             checkCondition(technician,suggestionDto,subServices);
             Suggestion suggestion = mapDtoValues(technician,suggestionDto);
-            System.out.println(suggestion.getDuration());
 
             try {
                 log.info("Connecting to [{}]", suggestionRepository);
