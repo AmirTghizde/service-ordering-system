@@ -13,6 +13,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 import java.util.Set;
 
 @Slf4j
@@ -64,12 +65,17 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
     }
 
     protected Manager mapDtoValues(RegisterDto registerDto) {
+        Random random = new Random();
         log.info("Mapping [{}] values",registerDto);
         Manager manager = new Manager();
         manager.setFirstname(registerDto.getFirstname());
         manager.setLastname(registerDto.getLastname());
         manager.setEmail(registerDto.getEmailAddress());
         manager.setPassword(registerDto.getPassword());
+
+        int number = random.nextInt(90000) + 10000;
+        manager.setManagerCode("M"+number);
+
         return manager;
     }
 }

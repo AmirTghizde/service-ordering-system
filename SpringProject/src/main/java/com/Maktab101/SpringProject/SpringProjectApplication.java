@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject;
 
 
 import com.Maktab101.SpringProject.service.*;
+import com.Maktab101.SpringProject.service.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -99,7 +100,6 @@ public class SpringProjectApplication {
         |____/ \___| \_/ |_____\___/ \__, |
                                      |___/
         ====================================================================================*/
-        //todo fix manger code
-        //todo right unit tests
+        //todo write unit tests
     }
 }
