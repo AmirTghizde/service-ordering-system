@@ -13,9 +13,6 @@ public interface OrderService {
     List<Order> findAwaitingOrdersByTechnician(Long technicianId);
     Order findById(Long orderId);
     Order save(Order order);
-    List<Suggestion> getSuggestionByTechnicianPoint(Long orderId,boolean ascending);
-    List<Suggestion> getSuggestionByPrice(Long orderId,boolean ascending);
-    void selectSugestion(Long orderId,Long suggestionId);
     void startOrder(Long orderId);
     void finishOrder(Long orderId);
 }

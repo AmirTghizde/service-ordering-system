@@ -25,18 +25,16 @@ import java.util.*;
 public class OrderServiceImpl implements OrderService {
 
     private final SubServicesService subServicesService;
-    private final SuggestionService suggestionService;
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
     private final TechnicianService technicianService;
     private final Validator validator;
 
     @Autowired
-    public OrderServiceImpl(SubServicesService subServicesService, SuggestionService suggestionService,
-                            CustomerService customerService, OrderRepository orderRepository,
-                            TechnicianService technicianService, Validator validator) {
+    public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
+                            OrderRepository orderRepository, TechnicianService technicianService,
+                            Validator validator) {
         this.subServicesService = subServicesService;
-        this.suggestionService = suggestionService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
         this.technicianService = technicianService;
@@ -99,47 +97,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order save(Order order) {
         return orderRepository.save(order);
-    }
-
-    @Override
-    public List<Suggestion> getSuggestionByTechnicianPoint(Long orderId, boolean ascending) {
-        Order order = findById(orderId);
-        List<Suggestion> suggestions = order.getSuggestions();
-        Comparator<Suggestion> scoreComparing = Comparator.comparingDouble(s -> s.getTechnician().getScore());
-        if (!ascending) {
-            scoreComparing = scoreComparing.reversed();
-        }
-        suggestions.sort(scoreComparing);
-        return suggestions;
-    }
-
-    @Override
-    @Transactional
-    public List<Suggestion> getSuggestionByPrice(Long orderId, boolean ascending) {
-        Order order = findById(orderId);
-        List<Suggestion> suggestions = order.getSuggestions();
-        Comparator<Suggestion> priceComparing = Comparator.comparing(Suggestion::getSuggestedPrice);
-        if (!ascending){
-            priceComparing = priceComparing.reversed();
-        }
-        suggestions.sort(priceComparing);
-        return suggestions;
-    }
-
-    @Override
-    @Transactional
-    public void selectSugestion(Long orderId, Long suggestionId) {
-        Suggestion suggestion = suggestionService.findById(suggestionId);
-        Order order = findById(orderId);
-
-        if (!order.getSuggestions().contains(suggestion)){
-            throw new CustomException("InvalidSuggestion","No suggestion found with that info");
-        } else if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_SELECTION)) {
-            throw new CustomException("InvalidAction","You can't select a suggestion");
-        }
-
-        order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
-        orderRepository.save(order);
     }
 
     @Override
