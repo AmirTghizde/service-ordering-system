@@ -40,14 +40,15 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
                 log.info("Connecting to [{}]",baseRepository);
                 return baseRepository.save(manager);
             } catch (PersistenceException e) {
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
         throw new CustomException("ValidationException", violationMessages);
     }
 
-    private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
         log.error("RegisterDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<RegisterDto> violation : violations) {

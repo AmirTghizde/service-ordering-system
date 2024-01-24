@@ -1,7 +1,9 @@
 package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.Customer;
-import com.Maktab101.SpringProject.repository.CustomerRepository;
+import com.Maktab101.SpringProject.model.Manager;
+import com.Maktab101.SpringProject.repository.ManagerRepository;
+import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
@@ -17,26 +19,32 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerServiceImplTest {
+class ManagerServiceImplTest {
+
     @Mock
-    private CustomerRepository customerRepository;
+    private ManagerRepository managerRepository;
     @Mock
     private Validator validator;
-    private CustomerServiceImpl customerService;
+    @InjectMocks
+    private ManagerServiceImpl managerService;
 
     @BeforeEach
     void setUp() {
-        customerService = new CustomerServiceImpl(customerRepository, validator);
+        managerService = new ManagerServiceImpl(managerRepository, validator);
     }
 
 
+
     @Test
-    void testRegister_ValidInfo_ReturnsCustomer() {
+    void testRegister_ValidInfo_ReturnsManager() {
         // Given
         RegisterDto registerDto = new RegisterDto();
         registerDto.setFirstname("Ali");
@@ -47,18 +55,17 @@ class CustomerServiceImplTest {
 
 
         when(validator.validate(registerDto)).thenReturn(violations);
-        Customer expectedCustomer = customerService.mapDtoValues(registerDto);
+        Manager expectedManager = managerService.mapDtoValues(registerDto);
 
-        when(customerRepository.save(any(Customer.class))).thenReturn(expectedCustomer);
+        when(managerRepository.save(any(Manager.class))).thenReturn(expectedManager);
 
         // When
-        Customer actualCustomer = customerService.register(registerDto);
+        Manager actualManager = managerService.register(registerDto);
 
         // Then
-        assertThat(actualCustomer).isEqualTo(expectedCustomer);
-        verify(customerRepository).save(any(Customer.class));
+        assertThat(actualManager).isEqualTo(expectedManager);
+        verify(managerRepository).save(any(Manager.class));
     }
-
     @Test
     void testRegister_InvalidInfo_ThrowsException() {
         // Given
@@ -74,15 +81,14 @@ class CustomerServiceImplTest {
         when(validator.validate(registerDto)).thenReturn(violations);
 
         // When/Then
-        assertThatThrownBy(() -> customerService.register(registerDto))
+        assertThatThrownBy(() -> managerService.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: ValidationException\n" +
                         "\uD83D\uDCC3DESC:\n" +
                         "invalid Password");
-        verifyNoMoreInteractions(customerRepository);
+        verifyNoMoreInteractions(managerRepository);
     }
-
     @Test
     void testRegister_CatchesPersistenceException_WhenThrown() {
         // Given
@@ -94,17 +100,17 @@ class CustomerServiceImplTest {
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
         when(validator.validate(registerDto)).thenReturn(violations);
-        doThrow(new PersistenceException("PersistenceException Message")).when(customerRepository).save(any(Customer.class));
+        doThrow(new PersistenceException("PersistenceException Message")).when(managerRepository).save(any(Manager.class));
 
         // When/Then
-        assertThatThrownBy(() -> customerService.register(registerDto))
+        assertThatThrownBy(() -> managerService.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: PersistenceException\n" +
                         "\uD83D\uDCC3DESC:\n" +
                         "PersistenceException Message");
 
-        verify(customerRepository).save(any(Customer.class));
+        verify(managerRepository).save(any(Manager.class));
     }
 
     @Test
@@ -120,11 +126,11 @@ class CustomerServiceImplTest {
         violations.add(mockedViolation2);
 
         // When
-        String violationMessages = customerService.getViolationMessages(violations);
+        String violationMessages = managerService.getViolationMessages(violations);
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoMoreInteractions(customerRepository);
+        verifyNoMoreInteractions(managerRepository);
     }
 
     @Test
@@ -136,14 +142,14 @@ class CustomerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(customerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(false);
+        when(managerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(false);
 
         // When
-        customerService.checkCondition(registerDto);
+        managerService.checkCondition(registerDto);
 
         // Then
-        verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
-        verifyNoMoreInteractions(customerRepository);
+        verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(managerRepository);
     }
 
     @Test
@@ -155,10 +161,10 @@ class CustomerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(customerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
+        when(managerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
 
         // When/Then
-        assertThatThrownBy(() -> customerService.checkCondition(registerDto))
+        assertThatThrownBy(() -> managerService.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
     }
 
@@ -172,14 +178,14 @@ class CustomerServiceImplTest {
         registerDto.setPassword("Ali1234");
 
         // When
-        Customer customer = customerService.mapDtoValues(registerDto);
+        Manager manager = managerService.mapDtoValues(registerDto);
 
         // Then
-        assertThat(customer).isNotNull();
-        assertThat(customer.getFirstname()).isEqualTo(registerDto.getFirstname());
-        assertThat(customer.getLastname()).isEqualTo(registerDto.getLastname());
-        assertThat(customer.getEmail()).isEqualTo(registerDto.getEmailAddress());
-        assertThat(customer.getPassword()).isEqualTo(registerDto.getPassword());
-        verifyNoMoreInteractions(customerRepository);
+        assertThat(manager).isNotNull();
+        assertThat(manager.getFirstname()).isEqualTo(registerDto.getFirstname());
+        assertThat(manager.getLastname()).isEqualTo(registerDto.getLastname());
+        assertThat(manager.getEmail()).isEqualTo(registerDto.getEmailAddress());
+        assertThat(manager.getPassword()).isEqualTo(registerDto.getPassword());
+        verifyNoMoreInteractions(managerRepository);
     }
 }
