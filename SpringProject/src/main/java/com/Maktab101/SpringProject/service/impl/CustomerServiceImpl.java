@@ -37,15 +37,15 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implement
                 log.info("Connecting to [{}]",baseRepository);
                 return baseRepository.save(customer);
             } catch (PersistenceException e) {
-                log.error("PersistenceException occurred printing ... ");
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
         throw new CustomException("ValidationException", violationMessages);
     }
 
-    private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
         log.error("RegisterDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<RegisterDto> violation : violations) {
