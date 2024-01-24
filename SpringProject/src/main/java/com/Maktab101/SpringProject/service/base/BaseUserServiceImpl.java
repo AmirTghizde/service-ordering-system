@@ -52,8 +52,7 @@ public abstract class BaseUserServiceImpl<T extends User>
     @Override
     public void editPassword(Long userId, String newPassword) {
 
-        T t = baseRepository.findById(userId).orElseThrow(
-                () -> new CustomException("UserNotFound", "We can't find the user"));
+        T t = findById(userId);
         log.info("[{}] is trying to change password from [{}] to [{}]",
                 t.getEmail(), t.getPassword(), newPassword);
         if (!StringUtils.isBlank(newPassword)) {
