@@ -7,7 +7,6 @@ import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,7 +17,6 @@ import java.util.Optional;
 import static org.aspectj.bridge.MessageUtil.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 
@@ -52,6 +50,7 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(result).isTrue();
         verify(baseRepository).existsByEmail(email);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -66,6 +65,7 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(result).isFalse();
         verify(baseRepository).existsByEmail(email);
+        verifyNoMoreInteractions(baseRepository);
     }
 
 
@@ -76,7 +76,6 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail(email);
         customer.setPassword("Ali1234");
-        userService.save(customer);
 
         when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
 
@@ -86,8 +85,8 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(optionalUser).isPresent();
         assertThat(optionalUser.get()).isEqualTo(customer);
-
         verify(baseRepository).findByEmail(email);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -102,6 +101,7 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(optionalUser).isEmpty();
         verify(baseRepository).findByEmail(email);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -112,7 +112,6 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail(email);
         customer.setPassword(password);
-        userService.save(customer);
 
         when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(true);
         when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
@@ -121,10 +120,10 @@ class BaseUserServiceImplTest {
         User loggedUser = userService.login(email, password);
 
         // Then
-        assertThat(loggedUser).isNotNull();
         assertThat(loggedUser).isEqualTo(customer);
         verify(baseRepository).findByEmail(email);
         verify(baseRepository).existsByEmailAndPassword(email, password);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -150,7 +149,6 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail(email);
         customer.setPassword(password);
-        userService.save(customer);
 
         when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(true);
         when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
@@ -161,6 +159,7 @@ class BaseUserServiceImplTest {
                 .isInstanceOf(CustomException.class);
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verify(baseRepository).findByEmail(email);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -172,7 +171,6 @@ class BaseUserServiceImplTest {
         customer.setId(1L);
         customer.setEmail("Ali123@Gmail.com");
         customer.setPassword("Ali1234");
-        userService.save(customer);
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
 
         // When
@@ -181,7 +179,8 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(customer.getPassword()).isEqualTo(newPassword);
         verify(baseRepository).findById(id);
-        verify(baseRepository,times(2)).save(customer);
+        verify(baseRepository).save(customer);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -192,7 +191,6 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail("Ali123@Gmail.com");
         customer.setPassword("Ali1234");
-        userService.save(customer);
 
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
 
@@ -201,6 +199,7 @@ class BaseUserServiceImplTest {
                 .isInstanceOf(CustomException.class);
 
         verify(baseRepository).findById(id);
+        verifyNoMoreInteractions(baseRepository);
     }
     @Test
     void testEditPassword_ShouldCatchPersistenceException() {
@@ -210,7 +209,6 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail("Ali123@Gmail.com");
         customer.setPassword("Ali1234");
-        userService.save(customer);
 
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
         doThrow(PersistenceException.class).when(baseRepository).save(customer);
@@ -223,7 +221,7 @@ class BaseUserServiceImplTest {
             //Exception gets caught
         }
         verify(baseRepository).findById(id);
-        verify(baseRepository,times(2)).save(customer);
+        verify(baseRepository).save(customer);
         verifyNoMoreInteractions(baseRepository);
     }
 
@@ -235,7 +233,6 @@ class BaseUserServiceImplTest {
         expectedCustomer.setId(id);
         expectedCustomer.setEmail("Ali123@Gmail.com");
         expectedCustomer.setPassword("Ali1234");
-        userService.save(expectedCustomer);
         when(baseRepository.findById(id)).thenReturn(Optional.of(expectedCustomer));
 
         // When
@@ -244,16 +241,20 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(actualCustomer).isEqualTo(expectedCustomer);
         verify(baseRepository).findById(id);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
     void testFindById_UserNotFound() {
         // Given
         Long id = 1L;
+        when(baseRepository.findById(id)).thenReturn(Optional.empty());
 
         // When/Then
         assertThatThrownBy(()->userService.findById(id))
                 .isInstanceOf(CustomException.class);
+        verify(baseRepository).findById(id);
+        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
