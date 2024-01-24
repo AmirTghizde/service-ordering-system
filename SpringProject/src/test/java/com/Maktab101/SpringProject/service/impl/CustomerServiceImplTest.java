@@ -147,7 +147,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void testCheckCondition_ConditionsNotMet() {
+    void testCheckCondition_ConditionsNotMet_ThrowsException() {
         // Given
         RegisterDto registerDto = new RegisterDto();
         registerDto.setFirstname("Ali");
@@ -163,7 +163,7 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void testMapDtoValues() {
+    void testMapDtoValues_ReturnsCustomer() {
         // Given
         RegisterDto registerDto = new RegisterDto();
         registerDto.setFirstname("Ali");

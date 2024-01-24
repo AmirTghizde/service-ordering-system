@@ -153,7 +153,7 @@ class ManagerServiceImplTest {
     }
 
     @Test
-    void testCheckCondition_ConditionsNotMet() {
+    void testCheckCondition_ConditionsNotMet_ThrowsException() {
         // Given
         RegisterDto registerDto = new RegisterDto();
         registerDto.setFirstname("Ali");
@@ -169,7 +169,7 @@ class ManagerServiceImplTest {
     }
 
     @Test
-    void testMapDtoValues() {
+    void testMapDtoValues_ReturnsManager() {
         // Given
         RegisterDto registerDto = new RegisterDto();
         registerDto.setFirstname("Ali");
