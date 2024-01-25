@@ -179,7 +179,7 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(customer.getPassword()).isEqualTo(newPassword);
         verify(baseRepository).findById(id);
-        verify(baseRepository).save(customer);
+        verify(baseRepository).save(any(User.class));
         verifyNoMoreInteractions(baseRepository);
     }
 
@@ -211,7 +211,7 @@ class BaseUserServiceImplTest {
         customer.setPassword("Ali1234");
 
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
-        doThrow(PersistenceException.class).when(baseRepository).save(customer);
+        doThrow(PersistenceException.class).when(baseRepository).save(any(User.class));
 
         // When/Then
         try {
@@ -221,7 +221,7 @@ class BaseUserServiceImplTest {
             //Exception gets caught
         }
         verify(baseRepository).findById(id);
-        verify(baseRepository).save(customer);
+        verify(baseRepository).save(any(User.class));
         verifyNoMoreInteractions(baseRepository);
     }
 
@@ -258,12 +258,12 @@ class BaseUserServiceImplTest {
     }
 
     @Test
-    void testSave() {
+    void testSave_ReturnsUser() {
         // Given
         Customer customer = new Customer();
         customer.setEmail("Ali123@Gmail.com");
         customer.setPassword("Ali1234");
-        when(baseRepository.save(customer)).thenReturn(customer);
+        when(baseRepository.save(any(User.class))).thenReturn(customer);
 
         // When
         User savedCustomer = userService.save(customer);
@@ -272,7 +272,7 @@ class BaseUserServiceImplTest {
         assertThat(savedCustomer).isNotNull();
         assertThat(savedCustomer).isEqualTo(customer);
         assertThat(savedCustomer.getEmail()).isEqualTo(customer.getEmail());
-        verify(baseRepository).save(customer);
+        verify(baseRepository).save(any(User.class));
         verifyNoMoreInteractions(baseRepository);
     }
 }

@@ -57,6 +57,8 @@ class CustomerServiceImplTest {
         // Then
         assertThat(actualCustomer).isEqualTo(expectedCustomer);
         verify(customerRepository).save(any(Customer.class));
+        verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(customerRepository);
     }
 
     @Test
@@ -80,7 +82,7 @@ class CustomerServiceImplTest {
                         "❗ERROR: ValidationException\n" +
                         "\uD83D\uDCC3DESC:\n" +
                         "invalid Password");
-        verifyNoMoreInteractions(customerRepository);
+        verifyNoInteractions(customerRepository);
     }
 
     @Test
@@ -124,7 +126,7 @@ class CustomerServiceImplTest {
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoMoreInteractions(customerRepository);
+        verifyNoInteractions(customerRepository);
     }
 
     @Test
@@ -136,7 +138,7 @@ class CustomerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(customerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(false);
+        when(customerRepository.existsByEmail(registerDto.getEmailAddress())).thenReturn(false);
 
         // When
         customerService.checkCondition(registerDto);
@@ -155,11 +157,13 @@ class CustomerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(customerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
+        when(customerRepository.existsByEmail(registerDto.getEmailAddress())).thenReturn(true);
 
         // When/Then
         assertThatThrownBy(() -> customerService.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
+        verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(customerRepository);
     }
 
     @Test
@@ -180,6 +184,6 @@ class CustomerServiceImplTest {
         assertThat(customer.getLastname()).isEqualTo(registerDto.getLastname());
         assertThat(customer.getEmail()).isEqualTo(registerDto.getEmailAddress());
         assertThat(customer.getPassword()).isEqualTo(registerDto.getPassword());
-        verifyNoMoreInteractions(customerRepository);
+        verifyNoInteractions(customerRepository);
     }
 }

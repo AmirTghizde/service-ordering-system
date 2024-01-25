@@ -65,6 +65,8 @@ class ManagerServiceImplTest {
         // Then
         assertThat(actualManager).isEqualTo(expectedManager);
         verify(managerRepository).save(any(Manager.class));
+        verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(managerRepository);
     }
     @Test
     void testRegister_InvalidInfo_ThrowsException() {
@@ -87,7 +89,7 @@ class ManagerServiceImplTest {
                         "❗ERROR: ValidationException\n" +
                         "\uD83D\uDCC3DESC:\n" +
                         "invalid Password");
-        verifyNoMoreInteractions(managerRepository);
+        verifyNoInteractions(managerRepository);
     }
     @Test
     void testRegister_CatchesPersistenceException_WhenThrown() {
@@ -111,6 +113,8 @@ class ManagerServiceImplTest {
                         "PersistenceException Message");
 
         verify(managerRepository).save(any(Manager.class));
+        verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(managerRepository);
     }
 
     @Test
@@ -130,7 +134,7 @@ class ManagerServiceImplTest {
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoMoreInteractions(managerRepository);
+        verifyNoInteractions(managerRepository);
     }
 
     @Test
@@ -166,6 +170,8 @@ class ManagerServiceImplTest {
         // When/Then
         assertThatThrownBy(() -> managerService.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
+        verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(managerRepository);
     }
 
     @Test
@@ -186,6 +192,7 @@ class ManagerServiceImplTest {
         assertThat(manager.getLastname()).isEqualTo(registerDto.getLastname());
         assertThat(manager.getEmail()).isEqualTo(registerDto.getEmailAddress());
         assertThat(manager.getPassword()).isEqualTo(registerDto.getPassword());
-        verifyNoMoreInteractions(managerRepository);
+        assertThat(manager.getManagerCode()).isNotNull();
+        verifyNoInteractions(managerRepository);
     }
 }
