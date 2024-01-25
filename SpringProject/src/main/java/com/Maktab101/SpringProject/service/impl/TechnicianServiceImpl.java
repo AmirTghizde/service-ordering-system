@@ -83,7 +83,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         }
     }
 
-    private String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
+    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
         log.error("RegisterDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<RegisterDto> violation : violations) {
@@ -103,7 +103,8 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             technician.setStatus(TechnicianStatus.CONFIRMED);
             baseRepository.save(technician);
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -120,12 +121,13 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         try {
             baseRepository.save(technician);
         }catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
 
-    private byte[] imageToBytes(String imageAddress) {
+    protected byte[] imageToBytes(String imageAddress) {
         log.info("Converting image to bytes");
         try {
             File imageFile = new File(imageAddress);
