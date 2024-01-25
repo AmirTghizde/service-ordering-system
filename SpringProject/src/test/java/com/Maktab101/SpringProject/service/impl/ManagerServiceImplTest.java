@@ -1,9 +1,7 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.repository.ManagerRepository;
-import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
@@ -21,7 +19,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -34,11 +31,11 @@ class ManagerServiceImplTest {
     @Mock
     private Validator validator;
     @InjectMocks
-    private ManagerServiceImpl managerService;
+    private ManagerServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        managerService = new ManagerServiceImpl(managerRepository, validator);
+        underTest = new ManagerServiceImpl(managerRepository, validator);
     }
 
 
@@ -55,12 +52,12 @@ class ManagerServiceImplTest {
 
 
         when(validator.validate(registerDto)).thenReturn(violations);
-        Manager expectedManager = managerService.mapDtoValues(registerDto);
+        Manager expectedManager = underTest.mapDtoValues(registerDto);
 
         when(managerRepository.save(any(Manager.class))).thenReturn(expectedManager);
 
         // When
-        Manager actualManager = managerService.register(registerDto);
+        Manager actualManager = underTest.register(registerDto);
 
         // Then
         assertThat(actualManager).isEqualTo(expectedManager);
@@ -83,7 +80,7 @@ class ManagerServiceImplTest {
         when(validator.validate(registerDto)).thenReturn(violations);
 
         // When/Then
-        assertThatThrownBy(() -> managerService.register(registerDto))
+        assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: ValidationException\n" +
@@ -105,7 +102,7 @@ class ManagerServiceImplTest {
         doThrow(new PersistenceException("PersistenceException Message")).when(managerRepository).save(any(Manager.class));
 
         // When/Then
-        assertThatThrownBy(() -> managerService.register(registerDto))
+        assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: PersistenceException\n" +
@@ -130,7 +127,7 @@ class ManagerServiceImplTest {
         violations.add(mockedViolation2);
 
         // When
-        String violationMessages = managerService.getViolationMessages(violations);
+        String violationMessages = underTest.getViolationMessages(violations);
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
@@ -146,10 +143,10 @@ class ManagerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(managerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(false);
+        when(underTest.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(false);
 
         // When
-        managerService.checkCondition(registerDto);
+        underTest.checkCondition(registerDto);
 
         // Then
         verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
@@ -165,10 +162,10 @@ class ManagerServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(managerService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
+        when(underTest.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
 
         // When/Then
-        assertThatThrownBy(() -> managerService.checkCondition(registerDto))
+        assertThatThrownBy(() -> underTest.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
         verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(managerRepository);
@@ -184,7 +181,7 @@ class ManagerServiceImplTest {
         registerDto.setPassword("Ali1234");
 
         // When
-        Manager manager = managerService.mapDtoValues(registerDto);
+        Manager manager = underTest.mapDtoValues(registerDto);
 
         // Then
         assertThat(manager).isNotNull();

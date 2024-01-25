@@ -55,7 +55,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         throw new CustomException("ValidationException", violationMessages);
     }
 
-    private void validateImage(String imageAddress) {
+    protected void validateImage(String imageAddress) {
         log.info("Validating image [{}]",imageAddress);
         try {
             File imageFile = new File(imageAddress);

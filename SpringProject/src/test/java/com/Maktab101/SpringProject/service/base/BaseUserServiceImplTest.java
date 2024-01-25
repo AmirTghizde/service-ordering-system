@@ -25,11 +25,11 @@ class BaseUserServiceImplTest {
 
     @Mock
     private BaseUserRepository<User> baseRepository;
-    private BaseUserServiceImpl<User> userService;
+    private BaseUserServiceImpl<User> underTest;
 
     @BeforeEach
     void setUp() {
-        userService = new TestUserServiceImpl(baseRepository);
+        underTest = new TestUserServiceImpl(baseRepository);
     }
 
     static class TestUserServiceImpl extends BaseUserServiceImpl<User> {
@@ -45,7 +45,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.existsByEmail(email)).thenReturn(true);
 
         // When
-        boolean result = userService.existsByEmailAddress(email);
+        boolean result = underTest.existsByEmailAddress(email);
 
         // Then
         assertThat(result).isTrue();
@@ -60,7 +60,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.existsByEmail(email)).thenReturn(false);
 
         // When
-        boolean result = userService.existsByEmailAddress(email);
+        boolean result = underTest.existsByEmailAddress(email);
 
         // Then
         assertThat(result).isFalse();
@@ -80,7 +80,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
 
         // When
-        Optional<User> optionalUser = userService.findByEmailAddress(email);
+        Optional<User> optionalUser = underTest.findByEmailAddress(email);
 
         // Then
         assertThat(optionalUser).isPresent();
@@ -96,7 +96,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // When
-        Optional<User> optionalUser = userService.findByEmailAddress(email);
+        Optional<User> optionalUser = underTest.findByEmailAddress(email);
 
         // Then
         assertThat(optionalUser).isEmpty();
@@ -117,7 +117,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
 
         // When
-        User loggedUser = userService.login(email, password);
+        User loggedUser = underTest.login(email, password);
 
         // Then
         assertThat(loggedUser).isEqualTo(customer);
@@ -135,7 +135,7 @@ class BaseUserServiceImplTest {
 
 
         // When/Then
-        assertThatThrownBy(() -> userService.login(email, password))
+        assertThatThrownBy(() -> underTest.login(email, password))
                 .isInstanceOf(CustomException.class);
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verifyNoMoreInteractions(baseRepository);
@@ -155,7 +155,7 @@ class BaseUserServiceImplTest {
 
 
         // When/Then
-        assertThatThrownBy(() -> userService.login(email, password))
+        assertThatThrownBy(() -> underTest.login(email, password))
                 .isInstanceOf(CustomException.class);
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verify(baseRepository).findByEmail(email);
@@ -174,7 +174,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
 
         // When
-        userService.editPassword(id,newPassword);
+        underTest.editPassword(id,newPassword);
 
         // Then
         assertThat(customer.getPassword()).isEqualTo(newPassword);
@@ -195,7 +195,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
 
         // When/Then
-        assertThatThrownBy(()->userService.editPassword(id,newPassword))
+        assertThatThrownBy(()-> underTest.editPassword(id,newPassword))
                 .isInstanceOf(CustomException.class);
 
         verify(baseRepository).findById(id);
@@ -215,7 +215,7 @@ class BaseUserServiceImplTest {
 
         // When/Then
         try {
-            userService.editPassword(id, newPassword);
+            underTest.editPassword(id, newPassword);
             fail("Expected PersistenceException to be caught");
         } catch (PersistenceException e) {
             //Exception gets caught
@@ -236,7 +236,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findById(id)).thenReturn(Optional.of(expectedCustomer));
 
         // When
-        User actualCustomer = userService.findById(id);
+        User actualCustomer = underTest.findById(id);
 
         // Then
         assertThat(actualCustomer).isEqualTo(expectedCustomer);
@@ -251,7 +251,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.findById(id)).thenReturn(Optional.empty());
 
         // When/Then
-        assertThatThrownBy(()->userService.findById(id))
+        assertThatThrownBy(()-> underTest.findById(id))
                 .isInstanceOf(CustomException.class);
         verify(baseRepository).findById(id);
         verifyNoMoreInteractions(baseRepository);
@@ -266,7 +266,7 @@ class BaseUserServiceImplTest {
         when(baseRepository.save(any(User.class))).thenReturn(customer);
 
         // When
-        User savedCustomer = userService.save(customer);
+        User savedCustomer = underTest.save(customer);
 
         // Then
         assertThat(savedCustomer).isNotNull();

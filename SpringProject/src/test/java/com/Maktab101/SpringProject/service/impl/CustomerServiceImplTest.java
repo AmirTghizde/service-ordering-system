@@ -10,7 +10,6 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -27,11 +26,11 @@ class CustomerServiceImplTest {
     private CustomerRepository customerRepository;
     @Mock
     private Validator validator;
-    private CustomerServiceImpl customerService;
+    private CustomerServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        customerService = new CustomerServiceImpl(customerRepository, validator);
+        underTest = new CustomerServiceImpl(customerRepository, validator);
     }
 
 
@@ -47,12 +46,12 @@ class CustomerServiceImplTest {
 
 
         when(validator.validate(registerDto)).thenReturn(violations);
-        Customer expectedCustomer = customerService.mapDtoValues(registerDto);
+        Customer expectedCustomer = underTest.mapDtoValues(registerDto);
 
         when(customerRepository.save(any(Customer.class))).thenReturn(expectedCustomer);
 
         // When
-        Customer actualCustomer = customerService.register(registerDto);
+        Customer actualCustomer = underTest.register(registerDto);
 
         // Then
         assertThat(actualCustomer).isEqualTo(expectedCustomer);
@@ -76,7 +75,7 @@ class CustomerServiceImplTest {
         when(validator.validate(registerDto)).thenReturn(violations);
 
         // When/Then
-        assertThatThrownBy(() -> customerService.register(registerDto))
+        assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: ValidationException\n" +
@@ -99,7 +98,7 @@ class CustomerServiceImplTest {
         doThrow(new PersistenceException("PersistenceException Message")).when(customerRepository).save(any(Customer.class));
 
         // When/Then
-        assertThatThrownBy(() -> customerService.register(registerDto))
+        assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("(×_×;）\n" +
                         "❗ERROR: PersistenceException\n" +
@@ -122,7 +121,7 @@ class CustomerServiceImplTest {
         violations.add(mockedViolation2);
 
         // When
-        String violationMessages = customerService.getViolationMessages(violations);
+        String violationMessages = underTest.getViolationMessages(violations);
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
@@ -141,7 +140,7 @@ class CustomerServiceImplTest {
         when(customerRepository.existsByEmail(registerDto.getEmailAddress())).thenReturn(false);
 
         // When
-        customerService.checkCondition(registerDto);
+        underTest.checkCondition(registerDto);
 
         // Then
         verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
@@ -160,7 +159,7 @@ class CustomerServiceImplTest {
         when(customerRepository.existsByEmail(registerDto.getEmailAddress())).thenReturn(true);
 
         // When/Then
-        assertThatThrownBy(() -> customerService.checkCondition(registerDto))
+        assertThatThrownBy(() -> underTest.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
         verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(customerRepository);
@@ -176,7 +175,7 @@ class CustomerServiceImplTest {
         registerDto.setPassword("Ali1234");
 
         // When
-        Customer customer = customerService.mapDtoValues(registerDto);
+        Customer customer = underTest.mapDtoValues(registerDto);
 
         // Then
         assertThat(customer).isNotNull();

@@ -15,11 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +25,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,17 +35,11 @@ class TechnicianServiceImplTest {
     private TechnicianRepository technicianRepository;
     @Mock
     private Validator validator;
-    @Mock
-    private File imageFile;
-
-    @Mock
-    private Path path;
-
-    private TechnicianServiceImpl technicianService;
+    private TechnicianServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        technicianService = new TechnicianServiceImpl(technicianRepository, validator);
+        underTest = new TechnicianServiceImpl(technicianRepository, validator);
     }
 
     @Test
@@ -56,6 +47,26 @@ class TechnicianServiceImplTest {
         // Given
         // When
         // Then
+    }
+
+    @Test
+    @Disabled
+    void testValidateImage_ValidImage_DoesNothing() throws IOException {
+        // Given
+        String imageAddress =
+                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled.jpg";
+
+        File imageFile = new File(imageAddress);
+
+        // When
+        underTest.validateImage(imageAddress);
+
+//        // Then
+//        verifyStatic(ImageIO.class, times(1));
+//        ImageIO.createImageInputStream(imageFile);
+//
+//        // Verify that the ImageInputStream is closed
+//        verify(imageInputStream).close();
     }
 
     @Test
@@ -71,7 +82,7 @@ class TechnicianServiceImplTest {
         when(technicianRepository.findById(id)).thenReturn(Optional.of(technician));
 
         // When
-        technicianService.confirmTechnician(id);
+        underTest.confirmTechnician(id);
 
         // Then
         assertThat(technician.getStatus()).isEqualTo(status);
@@ -93,7 +104,7 @@ class TechnicianServiceImplTest {
         when(technicianRepository.findById(id)).thenReturn(Optional.empty());
 
         // When/Then
-        assertThatThrownBy(() -> technicianService.confirmTechnician(id))
+        assertThatThrownBy(() -> underTest.confirmTechnician(id))
                 .isInstanceOf(CustomException.class);
 
         // Then
@@ -106,7 +117,6 @@ class TechnicianServiceImplTest {
     void testConfirmTechnician_CatchesPersistenceException_WhenThrown() {
         // Given
         Long id = 1L;
-        TechnicianStatus status = TechnicianStatus.CONFIRMED;
         Technician technician = new Technician();
         technician.setId(id);
         technician.setEmail("Ali@gmail.com");
@@ -117,12 +127,13 @@ class TechnicianServiceImplTest {
 
 
         // When/Then
-        assertThatThrownBy(() -> technicianService.confirmTechnician(id))
+        assertThatThrownBy(() -> underTest.confirmTechnician(id))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: PersistenceException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "PersistenceException Message");
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
 
         verify(technicianRepository).save(any(Technician.class));
         verify(technicianRepository).findById(id);
@@ -140,7 +151,7 @@ class TechnicianServiceImplTest {
         technician.setId(technicianId);
         technician.setEmail("technician@example.com");
 
-        byte[] bytes = {1, 2, 3}; // Mock image data
+        byte[] bytes = {1, 2, 3};
 
         TechnicianServiceImpl technicianServiceSpy = Mockito.spy(new TechnicianServiceImpl(technicianRepository,validator));
 
@@ -167,21 +178,17 @@ class TechnicianServiceImplTest {
         technician.setId(id);
         technician.setEmail("technician@example.com");
 
-        byte[] bytes = {1, 2, 3}; // Mock image data
-
-        TechnicianServiceImpl technicianServiceSpy = Mockito.spy(new TechnicianServiceImpl(technicianRepository,validator));
-
         when(technicianRepository.findById(id)).thenReturn(Optional.of(technician));
         doThrow(new PersistenceException("PersistenceException Message")).when(technicianRepository).save(any(Technician.class));
 
-
         // When/Then
-        assertThatThrownBy(() -> technicianService.saveImage(id,imageAddress))
+        assertThatThrownBy(() -> underTest.saveImage(id,imageAddress))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: PersistenceException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "PersistenceException Message");
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
 
         verify(technicianRepository).save(any(Technician.class));
         verify(technicianRepository).findById(id);
@@ -196,7 +203,7 @@ class TechnicianServiceImplTest {
         byte[] expectedBytes = Files.readAllBytes(new File(imagePath).toPath());
 
         // When
-        byte[] actualBytes = technicianService.imageToBytes(imagePath);
+        byte[] actualBytes = underTest.imageToBytes(imagePath);
 
         // Then
         assertThat(actualBytes).isEqualTo(expectedBytes);
@@ -209,10 +216,7 @@ class TechnicianServiceImplTest {
 
     }
 
-    @Test
-    void testSaveImage_ValidImage_AddsImageToTechnician() {
 
-    }
 
     @Test
     void testGetViolationMessages() {
@@ -227,7 +231,7 @@ class TechnicianServiceImplTest {
         violations.add(mockedViolation2);
 
         // When
-        String violationMessages = technicianService.getViolationMessages(violations);
+        String violationMessages = underTest.getViolationMessages(violations);
 
         // Then
         assertThat(violationMessages).contains("Violation1", "Violation2");
@@ -246,7 +250,7 @@ class TechnicianServiceImplTest {
         when(technicianRepository.existsByEmail(registerDto.getEmailAddress())).thenReturn(false);
 
         // When
-        technicianService.checkCondition(registerDto);
+        underTest.checkCondition(registerDto);
 
         // Then
         verify(technicianRepository).existsByEmail(registerDto.getEmailAddress());
@@ -262,10 +266,10 @@ class TechnicianServiceImplTest {
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
 
-        when(technicianService.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
+        when(underTest.existsByEmailAddress(registerDto.getEmailAddress())).thenReturn(true);
 
         // When/Then
-        assertThatThrownBy(() -> technicianService.checkCondition(registerDto))
+        assertThatThrownBy(() -> underTest.checkCondition(registerDto))
                 .isInstanceOf(CustomException.class);
         verify(technicianRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(technicianRepository);
@@ -281,7 +285,7 @@ class TechnicianServiceImplTest {
         registerDto.setPassword("Ali1234");
 
         // When
-        Technician technician = technicianService.mapDtoValues(registerDto);
+        Technician technician = underTest.mapDtoValues(registerDto);
 
         // Then
         assertThat(technician).isNotNull();
