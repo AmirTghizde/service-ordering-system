@@ -95,8 +95,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     @Override
     public void confirmTechnician(Long technicianId) {
         log.info("Confirming technician");
-        Technician technician = baseRepository.findById(technicianId).orElseThrow(() ->
-                new CustomException("TechnicianNotFound", "We can't find the technician"));
+        Technician technician = findById(technicianId);
 
         try {
             log.info("Connecting to [{}]",baseRepository);
@@ -110,8 +109,8 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
     @Override
     public void saveImage(Long technicianId,String imageAddress) {
-        Technician technician = baseRepository.findById(technicianId).orElseThrow(() ->
-                new CustomException("TechnicianNotFound", "We can't find the technician"));
+
+        Technician technician = findById(technicianId);
 
         log.info("Adding image to [{}] profile",technician.getEmail());
 
