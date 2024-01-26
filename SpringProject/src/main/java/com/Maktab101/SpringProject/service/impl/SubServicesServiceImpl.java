@@ -51,7 +51,8 @@ public class SubServicesServiceImpl implements SubServicesService {
             mainServicesService.save(mainServices);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -76,7 +77,8 @@ public class SubServicesServiceImpl implements SubServicesService {
             subServices.setBaseWage(newWage);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -89,7 +91,8 @@ public class SubServicesServiceImpl implements SubServicesService {
             subServices.setDescription(newDescription);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 

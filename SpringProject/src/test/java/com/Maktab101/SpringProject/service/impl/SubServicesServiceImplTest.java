@@ -1,17 +1,17 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.model.MainServices;
-import com.Maktab101.SpringProject.model.SubServices;
-import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.SubServicesRepository;
 import com.Maktab101.SpringProject.service.MainServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -39,38 +39,250 @@ class SubServicesServiceImplTest {
     }
 
     @Test
-    void testAddService() {
+    void testAddService_AddsSubServiceToService() {
         // Given
+        String subServiceName = "HouseCleaning";
+        String description = "TestDescription";
+        double baseWage = 50;
+
+        ArgumentCaptor<SubServices> subServicesCaptor = ArgumentCaptor.forClass(SubServices.class);
+
+        MainServices mainServices = new MainServices();
+        mainServices.setName("Cleaning");
+
+        when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
+        when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.of(mainServices));
+
+
         // When
+        underTest.addService(subServiceName, baseWage, description, mainServices.getName());
+        verify(subServicesRepository).save(subServicesCaptor.capture());
+
         // Then
+        SubServices savedSubServices = subServicesCaptor.getValue();
+        assertThat(mainServices.getSubServices()).contains(savedSubServices);
+        assertThat(savedSubServices.getName()).isEqualTo(subServiceName);
+        assertThat(savedSubServices.getDescription()).isEqualTo(description);
+        assertThat(savedSubServices.getBaseWage()).isEqualTo(baseWage);
+
+        verify(subServicesRepository).existsByName(subServiceName);
+        verify(mainServicesService).existsByName(mainServices.getName());
+        verify(mainServicesService).findByName(mainServices.getName());
+        verify(mainServicesService).save(mainServices);
+        verify(subServicesRepository).save(savedSubServices);
+        verifyNoMoreInteractions(mainServicesService);
+        verifyNoMoreInteractions(subServicesRepository);
+    }
+    @Test
+    void testAddService_CatchesPersistenceException_WhenThrown() {
+        // Given
+        String subServiceName = "HouseCleaning";
+        String description = "TestDescription";
+        double baseWage = 50;
+
+        MainServices mainServices = new MainServices();
+        mainServices.setName("Cleaning");
+
+        when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
+        when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.of(mainServices));
+        doThrow(new PersistenceException("PersistenceException Message")).when(subServicesRepository).save(any(SubServices.class));
+
+
+        // When/Then
+        assertThatThrownBy(()->underTest.addService(subServiceName,baseWage,description, mainServices.getName()))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
+
+        verify(subServicesRepository).existsByName(subServiceName);
+        verify(mainServicesService).existsByName(mainServices.getName());
+        verify(mainServicesService).findByName(mainServices.getName());
+        verify(mainServicesService).save(mainServices);
+        verifyNoMoreInteractions(mainServicesService);
+    }
+    @Test
+    void testAddService_MainServiceNotFound_ThrowsException() {
+        // Given
+        String subServiceName = "HouseCleaning";
+        String description = "TestDescription";
+        double baseWage = 50;
+
+        MainServices mainServices = new MainServices();
+        mainServices.setName("Cleaning");
+
+        when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
+        when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(()->underTest.addService(subServiceName,baseWage,description, mainServices.getName()))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: MainServiceNotFound
+                        \uD83D\uDCC3DESC:
+                        We can not find the main service""");
+
+        verify(subServicesRepository).existsByName(subServiceName);
+        verify(mainServicesService).existsByName(mainServices.getName());
+        verify(mainServicesService).findByName(mainServices.getName());
+        verifyNoMoreInteractions(mainServicesService);
     }
 
     @Test
-    void testFindByName() {
+    void testFindByName_ReturnsServiceOptional() {
         // Given
+        String subServiceName="HouseCleaning";
+        SubServices expectedSubService = new SubServices();
+        expectedSubService.setName(subServiceName);
+        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.of(expectedSubService));
+
         // When
+        Optional<SubServices> actualSubService = underTest.findByName(subServiceName);
+
         // Then
+        assertThat(actualSubService).isEqualTo(Optional.of(expectedSubService));
+        verify(subServicesRepository).findByName(subServiceName);
+        verifyNoMoreInteractions(subServicesRepository);
+    }
+    @Test
+    void testFindByName_ReturnsEmptyOptional() {
+        // Given
+        String subServiceName = "UnSavedSubService";
+        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.empty());
+
+        // When
+        Optional<SubServices> actualService = underTest.findByName(subServiceName);
+
+        // Then
+        assertThat(actualService).isEmpty();
+        verify(subServicesRepository).findByName(subServiceName);
+        verifyNoMoreInteractions(subServicesRepository);
     }
 
     @Test
-    void testExistsByName() {
+    void testExistsByName_ReturnsTrue() {
         // Given
+        String subServiceName = "HouseCleaning";
+        when(subServicesRepository.existsByName(subServiceName)).thenReturn(true);
+
         // When
+        boolean results = underTest.existsByName(subServiceName);
+
         // Then
+        assertThat(results).isEqualTo(true);
+        verify(subServicesRepository).existsByName(subServiceName);
+        verifyNoMoreInteractions(subServicesRepository);
+    }
+    @Test
+    void testExistsByName_ReturnsFalse() {
+        // Given
+        String subServiceName = "HouseCleaning";
+        when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
+
+        // When
+        boolean results = underTest.existsByName(subServiceName);
+
+        // Then
+        assertThat(results).isEqualTo(false);
+        verify(subServicesRepository).existsByName(subServiceName);
+        verifyNoMoreInteractions(subServicesRepository);
     }
 
     @Test
-    void testEditBaseWage() {
+    void testEditBaseWage_ChangesBaseWage() {
         // Given
+        Long id = 1L;
+        double newWage = 100;
+        SubServices subServices = new SubServices();
+        subServices.setId(1L);
+        subServices.setName("Cleaning");
+        subServices.setBaseWage(50);
+        when(subServicesRepository.findById(id)).thenReturn(Optional.of(subServices));
+
         // When
+        underTest.editBaseWage(id,newWage);
+
         // Then
+        assertThat(subServices.getBaseWage()).isEqualTo(newWage);
+        verify(subServicesRepository).findById(id);
+        verify(subServicesRepository).save(any(SubServices.class));
+        verifyNoMoreInteractions(subServicesRepository);
+    }
+    @Test
+    void testEditBaseWage_CatchesPersistenceException_WhenThrown() {
+        // Given
+        Long id = 1L;
+        double newWage = 100;
+        SubServices subServices = new SubServices();
+        subServices.setId(1L);
+        subServices.setName("Cleaning");
+        subServices.setBaseWage(50);
+        when(subServicesRepository.findById(id)).thenReturn(Optional.of(subServices));
+        doThrow(new PersistenceException("PersistenceException Message")).when(subServicesRepository).save(any(SubServices.class));
+
+        // When/Then
+        assertThatThrownBy(()->underTest.editBaseWage(id,newWage))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
+
+        verify(subServicesRepository).findById(id);
+        verify(subServicesRepository).save(any(SubServices.class));
+        verifyNoMoreInteractions(subServicesRepository);
     }
 
     @Test
-    void testEditDescription() {
+    void testEditDescription_ChangesDescription() {
         // Given
+        Long id = 1L;
+        String newDescription = "NewDescription";
+        SubServices subServices = new SubServices();
+        subServices.setId(1L);
+        subServices.setName("Cleaning");
+        subServices.setDescription("OldDescription");
+        when(subServicesRepository.findById(id)).thenReturn(Optional.of(subServices));
+
         // When
+        underTest.editDescription(id,newDescription);
+
         // Then
+        assertThat(subServices.getDescription()).isEqualTo(newDescription);
+        verify(subServicesRepository).findById(id);
+        verify(subServicesRepository).save(any(SubServices.class));
+        verifyNoMoreInteractions(subServicesRepository);
+    }
+    @Test
+    void testEditDescription_CatchesPersistenceException_WhenThrown() {
+        // Given
+        Long id = 1L;
+        String newDescription = "NewDescription";
+        SubServices subServices = new SubServices();
+        subServices.setId(1L);
+        subServices.setName("Cleaning");
+        subServices.setDescription("OldDescription");
+        when(subServicesRepository.findById(id)).thenReturn(Optional.of(subServices));
+        doThrow(new PersistenceException("PersistenceException Message")).when(subServicesRepository).save(any(SubServices.class));
+        // When/Then
+        assertThatThrownBy(()->underTest.editDescription(id,newDescription))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
+
+        verify(subServicesRepository).findById(id);
+        verify(subServicesRepository).save(any(SubServices.class));
+        verifyNoMoreInteractions(subServicesRepository);
     }
 
     @Test
