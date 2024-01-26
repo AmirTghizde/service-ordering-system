@@ -120,7 +120,8 @@ public class SubServicesServiceImpl implements SubServicesService {
                 throw new CustomException("TechnicianAlreadyExists", "You already added this technician before");
             }
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -135,7 +136,7 @@ public class SubServicesServiceImpl implements SubServicesService {
 
             if (subService.getTechnicians().contains(technician)) {
                 log.info("Connecting to [{}]",subServicesRepository);
-                //add them
+                //remove them
                 subService.getTechnicians().remove(technician);
                 technician.getSubServices().remove(subService);
 
@@ -147,7 +148,8 @@ public class SubServicesServiceImpl implements SubServicesService {
                 throw new CustomException("TechnicianDoesntExist", "Sub service doesn't have that technician");
             }
         } catch (PersistenceException e) {
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -162,7 +164,7 @@ public class SubServicesServiceImpl implements SubServicesService {
         return subServicesRepository.save(subServices);
     }
 
-    private void checkConditions(String serviceName, String mainServiceName) {
+    protected void checkConditions(String serviceName, String mainServiceName) {
         log.info("Checking conditions");
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception",serviceName);
@@ -174,7 +176,7 @@ public class SubServicesServiceImpl implements SubServicesService {
         }
     }
 
-    private SubServices setValues(String serviceName, double baseWage, String description) {
+    protected SubServices setValues(String serviceName, double baseWage, String description) {
         log.info("Setting sub service values");
         SubServices subServices = new SubServices();
         subServices.setName(serviceName);

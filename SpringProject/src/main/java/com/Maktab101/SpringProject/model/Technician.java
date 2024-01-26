@@ -34,6 +34,7 @@ public class Technician extends User {
             joinColumns = @JoinColumn(name = "Technician_id"),
             inverseJoinColumns = @JoinColumn(name = "SubService_id")
     )
+    @ToString.Exclude
     private List<SubServices> subServices = new ArrayList<>();
 
 }
