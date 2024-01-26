@@ -35,8 +35,8 @@ public class MainServicesServiceImpl implements MainServicesService {
             log.info("Connecting to [{}]",mainServicesRepository);
             mainServicesRepository.save(mainServices);
         } catch (PersistenceException e) {
-            log.error("PersistenceException occurred printing ... ");
-            System.out.println(e.getMessage());
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException("PersistenceException", e.getMessage());
         }
     }
 
@@ -72,7 +72,7 @@ public class MainServicesServiceImpl implements MainServicesService {
                 .collect(Collectors.toList());
     }
 
-    private void checkConditions(String serviceName) {
+    protected void checkConditions(String serviceName) {
         log.info("Checking main service conditions");
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception",serviceName);
@@ -83,7 +83,7 @@ public class MainServicesServiceImpl implements MainServicesService {
         }
     }
 
-    private MainServices setValues(String serviceName) {
+    protected MainServices setValues(String serviceName) {
         log.info("Setting main services values");
         MainServices mainServices = new MainServices();
         mainServices.setName(serviceName);
