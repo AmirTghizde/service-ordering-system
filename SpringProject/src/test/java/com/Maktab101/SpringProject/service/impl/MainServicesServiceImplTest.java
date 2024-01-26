@@ -33,7 +33,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestAddService_SavesService() {
+    void testAddService_SavesService() {
         // Given
         String serviceName = "Cleaning";
 
@@ -46,7 +46,7 @@ class MainServicesServiceImplTest {
         verifyNoMoreInteractions(mainServicesRepository);
     }
     @Test
-    void testTestAddService_CatchesPersistenceException_WhenThrown() {
+    void testAddService_CatchesPersistenceException_WhenThrown() {
         // Given
         String serviceName = "Cleaning";
         MainServices mainServices = new MainServices();
@@ -68,7 +68,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestFindByName_ReturnsServiceOptional() {
+    void testFindByName_ReturnsServiceOptional() {
         // Given
         String serviceName="Cleaning";
         MainServices expectedService = new MainServices();
@@ -99,7 +99,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestExistsByName_ReturnsTrue() {
+    void testExistsByName_ReturnsTrue() {
         // Given
         String serviceName = "Cleaning";
         when(mainServicesRepository.existsByName(serviceName)).thenReturn(true);
@@ -114,7 +114,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestExistsByName_ReturnsFalse() {
+    void testExistsByName_ReturnsFalse() {
         // Given
         String serviceName = "Cleaning";
         when(mainServicesRepository.existsByName(serviceName)).thenReturn(false);
@@ -129,7 +129,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestSave_ReturnsMainServices() {
+    void testSave_ReturnsMainServices() {
         // Given
         MainServices expectedService = new MainServices();
         expectedService.setName("Cleaning");
@@ -145,7 +145,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestFindAll_ReturnsListOfMainServices() {
+    void testFindAll_ReturnsListOfMainServices() {
         // Given
         List<MainServices> excpectedList = new ArrayList<>();
 
@@ -168,7 +168,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestFindSubServiceNames_ReturnsListOfSubServicesNames() {
+    void testFindSubServiceNames_ReturnsListOfSubServicesNames() {
         // Given
         Long mainServiceId = 1L;
         MainServices expectedService = new MainServices();
@@ -195,7 +195,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testTestFindSubServiceNames_ServiceNotFound() {
+    void testFindSubServiceNames_ServiceNotFound() {
         // Given
         Long mainServiceId = 1L;
         MainServices expectedService = new MainServices();
