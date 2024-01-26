@@ -18,13 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,30 +41,152 @@ class TechnicianServiceImplTest {
     }
 
     @Test
-    void testRegister() {
+    void testRegister_ValidInfo_ReturnsTechnician() {
         // Given
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setFirstname("Ali");
+        registerDto.setLastname("Alavi");
+        registerDto.setEmailAddress("Ali@gmail.com");
+        registerDto.setPassword("Ali1234");
+        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
+
+
+        when(validator.validate(registerDto)).thenReturn(violations);
+        Technician expectedTechnician = underTest.mapDtoValues(registerDto);
+
+        when(technicianRepository.save(any(Technician.class))).thenReturn(expectedTechnician);
+
         // When
+        Technician actualTechnician = underTest.register(registerDto);
+
         // Then
+        assertThat(actualTechnician).isEqualTo(expectedTechnician);
+        verify(technicianRepository).save(any(Technician.class));
+        verify(technicianRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(technicianRepository);
+    }
+    @Test
+    void testRegister_InvalidInfo_ThrowsException() {
+        // Given
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setFirstname("Ali");
+        registerDto.setLastname("Alavi");
+        registerDto.setEmailAddress("Ali@gmail.com");
+        registerDto.setPassword("Aliiii");
+        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
+        ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
+        when(mockedViolation1.getMessage()).thenReturn("invalid Password");
+        violations.add(mockedViolation1);
+        when(validator.validate(registerDto)).thenReturn(violations);
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.register(registerDto))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("(×_×;）\n" +
+                        "❗ERROR: ValidationException\n" +
+                        "\uD83D\uDCC3DESC:\n" +
+                        "invalid Password");
+        verifyNoInteractions(technicianRepository);
+    }
+    @Test
+    void testRegister_CatchesPersistenceException_WhenThrown() {
+        // Given
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setFirstname("Ali");
+        registerDto.setLastname("Alavi");
+        registerDto.setEmailAddress("Ali@gmail.com");
+        registerDto.setPassword("Ali1234");
+        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
+
+        when(validator.validate(registerDto)).thenReturn(violations);
+        doThrow(new PersistenceException("PersistenceException Message")).when(technicianRepository).save(any(Technician.class));
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.register(registerDto))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("(×_×;）\n" +
+                        "❗ERROR: PersistenceException\n" +
+                        "\uD83D\uDCC3DESC:\n" +
+                        "PersistenceException Message");
+
+        verify(technicianRepository).save(any(Technician.class));
+        verify(technicianRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(technicianRepository);
+    }
+
+    @Test
+    void testValidateImage_ValidImage_DoesNothing() {
+        // Given
+        String validImage =
+                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled.jpg";
+
+        // When/Then
+        assertDoesNotThrow(() -> underTest.validateImage(validImage));
+        verifyNoInteractions(technicianRepository);
+    }
+
+    @Test
+    void testValidateImage_ValidImage_ThrowsExceptionAboutSize() {
+        // Given
+        String validImage =
+                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled4.jpg";
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.validateImage(validImage))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: InvalidImageSize
+                        📃DESC:
+                        Max image size is 300kb""");
+        verifyNoInteractions(technicianRepository);
+    }
+
+    @Test
+    void testValidateImage_InvalidValidImage_ThrowsExceptionAboutFormat() {
+        // Given
+        String invalidImage =
+                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled5.png";
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.validateImage(invalidImage))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: InvalidImage
+                        📃DESC:
+                        The only supported format is JPEG""");
+        verifyNoInteractions(technicianRepository);
+    }
+
+    @Test
+    void testValidateImage_ImageNotFound_ThrowsCustomException() {
+        // Given
+        String invalidImage = "NonExistingImagePath";
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.validateImage(invalidImage))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: ImageNotFound
+                        📃DESC:
+                        We can not find the image""");
+        verifyNoInteractions(technicianRepository);
     }
 
     @Test
     @Disabled
-    void testValidateImage_ValidImage_DoesNothing() throws IOException {
-        // Given
-        String imageAddress =
-                "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\Untitled.jpg";
-
-        File imageFile = new File(imageAddress);
-
-        // When
-        underTest.validateImage(imageAddress);
-
-//        // Then
-//        verifyStatic(ImageIO.class, times(1));
-//        ImageIO.createImageInputStream(imageFile);
+    void testValidateImage_ThrowsIOException() {
+//        // Given
+//        String validImage = "path/to/valid/image.jpg";
 //
-//        // Verify that the ImageInputStream is closed
-//        verify(imageInputStream).close();
+//        TechnicianServiceImpl underTest = new TechnicianServiceImpl() {
+//
+//        };
+//
+//        // When/Then
+//        Assertions.assertThrows(IOException.class, () -> underTest.validateImage(validImage));
     }
 
     @Test
@@ -153,7 +273,7 @@ class TechnicianServiceImplTest {
 
         byte[] bytes = {1, 2, 3};
 
-        TechnicianServiceImpl technicianServiceSpy = Mockito.spy(new TechnicianServiceImpl(technicianRepository,validator));
+        TechnicianServiceImpl technicianServiceSpy = Mockito.spy(new TechnicianServiceImpl(technicianRepository, validator));
 
         when(technicianRepository.findById(technicianId)).thenReturn(Optional.of(technician));
         doReturn(bytes).when(technicianServiceSpy).imageToBytes(imageAddress);
@@ -167,8 +287,9 @@ class TechnicianServiceImplTest {
         verify(technicianRepository).save(technician);
         verifyNoMoreInteractions(technicianRepository);
     }
+
     @Test
-    void testSaveImage_ThrowsException() {
+    void testSaveImage_CatchesPersistenceException_WhenThrown() {
         // Given
         Long id = 1L;
         String imageAddress =
@@ -182,7 +303,7 @@ class TechnicianServiceImplTest {
         doThrow(new PersistenceException("PersistenceException Message")).when(technicianRepository).save(any(Technician.class));
 
         // When/Then
-        assertThatThrownBy(() -> underTest.saveImage(id,imageAddress))
+        assertThatThrownBy(() -> underTest.saveImage(id, imageAddress))
                 .isInstanceOf(CustomException.class)
                 .hasMessage("""
                         (×_×;）
@@ -217,9 +338,8 @@ class TechnicianServiceImplTest {
     }
 
 
-
     @Test
-    void testGetViolationMessages() {
+    void testGetViolationMessages_ShouldContainTheErrorMessage() {
         // Given
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
         ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
@@ -294,6 +414,7 @@ class TechnicianServiceImplTest {
         assertThat(technician.getEmail()).isEqualTo(registerDto.getEmailAddress());
         assertThat(technician.getPassword()).isEqualTo(registerDto.getPassword());
         assertThat(technician.getStatus()).isEqualTo(TechnicianStatus.NEW);
+        assertThat(technician.getBalance()).isEqualTo(0);
         verifyNoInteractions(technicianRepository);
     }
 }

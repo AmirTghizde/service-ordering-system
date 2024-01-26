@@ -48,7 +48,8 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
                 log.info("Connecting to [{}]",baseRepository);
                 return baseRepository.save(technician);
             } catch (PersistenceException e) {
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);

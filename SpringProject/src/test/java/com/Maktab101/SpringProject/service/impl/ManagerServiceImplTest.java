@@ -82,10 +82,11 @@ class ManagerServiceImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: ValidationException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "invalid Password");
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: ValidationException
+                        \uD83D\uDCC3DESC:
+                        invalid Password""");
         verifyNoInteractions(managerRepository);
     }
     @Test
@@ -104,10 +105,11 @@ class ManagerServiceImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: PersistenceException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "PersistenceException Message");
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
 
         verify(managerRepository).save(any(Manager.class));
         verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
