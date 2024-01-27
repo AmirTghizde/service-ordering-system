@@ -8,7 +8,9 @@ import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
 import com.Maktab101.SpringProject.service.dto.RegisterDto;
+import com.Maktab101.SpringProject.service.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.CustomException;
+import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,69 +52,185 @@ class OrderServiceImplTest {
 
     @Test
     void testSubmitOrder_ValidInfo_SubmitsOrder() {
-//        // Given
-//        Long subServiceId= 1L;
-//        Long customerId= 2L;
-//
-//        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
-//        List<Order> customerOrderList = new ArrayList<>();
-//        List<Order> subServiceOrderList = new ArrayList<>();
-//
-//
-//        OrderSubmitDto orderDto = new OrderSubmitDto();
-//        orderDto.setSubServiceId(subServiceId);
-//        orderDto.setJobInfo("InfoTest");
-//        orderDto.setDate("2025-01-20");
-//        orderDto.setTime("12:05");
-//        orderDto.setAddress("AddressTest");
-//        orderDto.setPrice(50);
-//        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
-//        Order order = underTest.mapDtoValues(orderDto);
-//        order.setId(5L);
-//        customerOrderList.add(order);
-//        subServiceOrderList.add(order);
-//
-//        SubServices subServices = new SubServices();
-//        subServices.setId(subServiceId);
-//        subServices.setName("HouseCleaning");
-//        subServices.setBaseWage(10);
-//        subServices.setOrders(subServiceOrderList);
-//
-//        Customer customer = new Customer();
-//        customer.setId(customerId);
-//        customer.setEmail("Ali@gmail.com");
-//        customer.setPassword("Ali12345");
-//        customer.setOrders(customerOrderList);
-//
-//        when(validator.validate(orderDto)).thenReturn(violations);
-//        when(subServicesService.findById(subServiceId)).thenReturn(subServices);
-//        when(customerService.findById(customerId)).thenReturn(customer);
-//        when(orderRepository.save(any(Order.class))).thenReturn(order);
-//
-//        // When
-//        underTest.submitOrder(customerId,orderDto);
-//        order = verify(orderRepository).save(orderCaptor.capture());
-//
-//        // Then
-//        assertThat(customer.getOrders()).contains(order);
-//        assertThat(subServices.getOrders()).contains(order);
-//        assertThat(order.getSubServices()).isEqualTo(subServices);
-//        assertThat(order.getCustomer()).isEqualTo(customer);
-//        verify(customerService).findById(customerId);
-//        verify(subServicesService).findById(subServiceId);
-//        verify(validator).validate(orderDto);
-//        verify(orderRepository).save(order);
-//        verify(subServicesService).save(subServices);
-//        verify(customerService).save(customer);
-//        verifyNoMoreInteractions(subServicesService);
-//        verifyNoMoreInteractions(customerService);
-//        verifyNoMoreInteractions(orderRepository);
+        // Given
+        Long subServiceId = 1L;
+        Long customerId = 2L;
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+
+        List<Order> customerOrderList = new ArrayList<>();
+        List<Order> subServiceOrderList = new ArrayList<>();
+
+
+        OrderSubmitDto orderDto = new OrderSubmitDto();
+        orderDto.setSubServiceId(subServiceId);
+        orderDto.setJobInfo("InfoTest");
+        orderDto.setDate("2025-01-20");
+        orderDto.setTime("12:05");
+        orderDto.setAddress("AddressTest");
+        orderDto.setPrice(50);
+        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
+        Order order = underTest.mapDtoValues(orderDto);
+        order.setId(5L);
+        customerOrderList.add(order);
+        subServiceOrderList.add(order);
+
+        SubServices subServices = new SubServices();
+        subServices.setId(subServiceId);
+        subServices.setName("HouseCleaning");
+        subServices.setBaseWage(10);
+        subServices.setOrders(subServiceOrderList);
+
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setEmail("Ali@gmail.com");
+        customer.setPassword("Ali12345");
+        customer.setOrders(customerOrderList);
+
+        when(validator.validate(orderDto)).thenReturn(violations);
+        when(subServicesService.findById(subServiceId)).thenReturn(subServices);
+        when(customerService.findById(customerId)).thenReturn(customer);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        // When
+        underTest.submitOrder(customerId, orderDto);
+        verify(orderRepository).save(orderCaptor.capture());
+
+        // Then
+        Order savedOrder = orderCaptor.getValue();
+        assertThat(customer.getOrders()).contains(savedOrder);
+        assertThat(subServices.getOrders()).contains(savedOrder);
+        assertThat(savedOrder.getSubServices()).isEqualTo(subServices);
+        assertThat(savedOrder.getCustomer()).isEqualTo(customer);
+        verify(customerService).findById(customerId);
+        verify(subServicesService).findById(subServiceId);
+        verify(validator).validate(orderDto);
+        verify(orderRepository).save(savedOrder);
+        verify(subServicesService).save(subServices);
+        verify(customerService).save(customer);
+        verifyNoMoreInteractions(subServicesService);
+        verifyNoMoreInteractions(customerService);
+        verifyNoMoreInteractions(orderRepository);
     }
     @Test
-    void testSubmitOrder_ValidInfo_ThrowsException() {
+    void testSubmitOrder_invalidValidInfo_ThrowsException() {
         // Given
-        // When
+        Long subServiceId = 1L;
+        Long customerId = 2L;
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+
+        List<Order> customerOrderList = new ArrayList<>();
+        List<Order> subServiceOrderList = new ArrayList<>();
+
+        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
+        ConstraintViolation<OrderSubmitDto> mockedViolation1 = mock(ConstraintViolation.class);
+        when(mockedViolation1.getMessage()).thenReturn("invalid Date");
+        violations.add(mockedViolation1);
+
+        OrderSubmitDto orderDto = new OrderSubmitDto();
+        orderDto.setSubServiceId(subServiceId);
+        orderDto.setJobInfo("InfoTest");
+        orderDto.setDate("2025-01-20");
+        orderDto.setTime("12:05");
+        orderDto.setAddress("AddressTest");
+        orderDto.setPrice(50);
+
+        Order order = underTest.mapDtoValues(orderDto);
+        order.setId(5L);
+        customerOrderList.add(order);
+        subServiceOrderList.add(order);
+
+        SubServices subServices = new SubServices();
+        subServices.setId(subServiceId);
+        subServices.setName("HouseCleaning");
+        subServices.setBaseWage(10);
+        subServices.setOrders(subServiceOrderList);
+
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setEmail("Ali@gmail.com");
+        customer.setPassword("Ali12345");
+        customer.setOrders(customerOrderList);
+
+        when(validator.validate(orderDto)).thenReturn(violations);
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.submitOrder(customerId,orderDto))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: ValidationException
+                        \uD83D\uDCC3DESC:
+                        invalid Date""");
+
         // Then
+        verifyNoInteractions(technicianService);
+        verifyNoInteractions(subServicesService);
+        verifyNoInteractions(customerService);
+        verifyNoInteractions(orderRepository);
+    }
+    @Test
+    void testSubmitOrder_CatchesPersistenceException_WhenThrown() {
+        // Given
+        Long subServiceId = 1L;
+        Long customerId = 2L;
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+
+        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
+
+        List<Order> customerOrderList = new ArrayList<>();
+        List<Order> subServiceOrderList = new ArrayList<>();
+
+
+        OrderSubmitDto orderDto = new OrderSubmitDto();
+        orderDto.setSubServiceId(subServiceId);
+        orderDto.setJobInfo("InfoTest");
+        orderDto.setDate("2025-01-20");
+        orderDto.setTime("12:05");
+        orderDto.setAddress("AddressTest");
+        orderDto.setPrice(50);
+
+        Order order = underTest.mapDtoValues(orderDto);
+        order.setId(5L);
+        customerOrderList.add(order);
+        subServiceOrderList.add(order);
+
+        SubServices subServices = new SubServices();
+        subServices.setId(subServiceId);
+        subServices.setName("HouseCleaning");
+        subServices.setBaseWage(10);
+        subServices.setOrders(subServiceOrderList);
+
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setEmail("Ali@gmail.com");
+        customer.setPassword("Ali12345");
+        customer.setOrders(customerOrderList);
+
+        when(validator.validate(orderDto)).thenReturn(violations);
+        when(subServicesService.findById(subServiceId)).thenReturn(subServices);
+        when(customerService.findById(customerId)).thenReturn(customer);
+        doThrow(new PersistenceException("PersistenceException Message"))
+                .when(orderRepository).save(any(Order.class));
+
+        // When/Then
+        assertThatThrownBy(() -> underTest.submitOrder(customerId,orderDto))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
+
+        // Then
+
+        verify(customerService).findById(customerId);
+        verify(subServicesService).findById(subServiceId);
+        verify(validator).validate(orderDto);
+        verify(orderRepository).save(any(Order.class));
+        verify(customerService).save(customer);
     }
 
     @Test
