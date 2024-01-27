@@ -91,7 +91,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
                 suggestionService.save(suggestion);
                 return;
             } catch (PersistenceException e) {
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
@@ -150,7 +151,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         }
     }
 
-    private String getViolationMessages(Set<ConstraintViolation<SuggestionDto>> violations) {
+    protected String getViolationMessages(Set<ConstraintViolation<SuggestionDto>> violations) {
         log.error("SuggestionDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<SuggestionDto> violation : violations) {
@@ -159,7 +160,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         return messageBuilder.toString().trim();
     }
 
-    private LocalDateTime toLocalDateTime(String time, String date) {
+    protected LocalDateTime toLocalDateTime(String time, String date) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -169,12 +170,12 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         return localDate.atTime(localTime);
     }
 
-    private LocalTime convertTime(String duration) {
+    protected LocalTime convertTime(String duration) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         return LocalTime.parse(duration, timeFormatter);
     }
 
-    private Suggestion mapDtoValues(Technician technician, SuggestionDto suggestionDto) {
+    protected Suggestion mapDtoValues(Technician technician, SuggestionDto suggestionDto) {
         log.info("Mapping Dto values [{}]", suggestionDto);
         Suggestion suggestion = new Suggestion();
         suggestion.setDate(LocalDateTime.now());
