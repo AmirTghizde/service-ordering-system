@@ -67,7 +67,8 @@ public class OrderServiceImpl implements OrderService {
                 subServicesService.save(subServices);
                 return;
             } catch (PersistenceException e) {
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
@@ -124,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
         save(order);
     }
 
-    private String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
+    protected String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
         log.error("SubmitOrderDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
         for (ConstraintViolation<OrderSubmitDto> violation : violations) {
@@ -162,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    private LocalDateTime convertDateAndTime(String time, String date) {
+    protected LocalDateTime convertDateAndTime(String time, String date) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
