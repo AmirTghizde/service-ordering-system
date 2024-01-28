@@ -41,7 +41,7 @@ class MainServicesServiceImplTest {
         underTest.addService(serviceName);
 
         // Then
-        verify(mainServicesRepository, times(1)).save(any(MainServices.class));
+        verify(mainServicesRepository).save(any(MainServices.class));
         verify(mainServicesRepository).existsByName(serviceName);
         verifyNoMoreInteractions(mainServicesRepository);
     }
@@ -49,8 +49,6 @@ class MainServicesServiceImplTest {
     void testAddService_CatchesPersistenceException_WhenThrown() {
         // Given
         String serviceName = "Cleaning";
-        MainServices mainServices = new MainServices();
-        mainServices.setName(serviceName);
         doThrow(new PersistenceException("PersistenceException Message")).when(mainServicesRepository).save(any(MainServices.class));
 
         // When/Then
@@ -68,7 +66,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testFindByName_ReturnsServiceOptional() {
+    void testFindByName_ReturnsOptionalMainService() {
         // Given
         String serviceName="Cleaning";
         MainServices expectedService = new MainServices();
@@ -152,6 +150,7 @@ class MainServicesServiceImplTest {
         MainServices mainServices1 = new MainServices();
         mainServices1.setName("Cleaning");
         excpectedList.add(mainServices1);
+
         MainServices mainServices2 = new MainServices();
         mainServices2.setName("Moving");
         excpectedList.add(mainServices2);
@@ -195,7 +194,7 @@ class MainServicesServiceImplTest {
     }
 
     @Test
-    void testFindSubServiceNames_ServiceNotFound() {
+    void testFindSubServiceNames_ServiceNotFound_ThrowsException() {
         // Given
         Long mainServiceId = 1L;
         MainServices expectedService = new MainServices();
@@ -217,7 +216,7 @@ class MainServicesServiceImplTest {
         verifyNoMoreInteractions(mainServicesRepository);
     }
     @Test
-    void testCheckConditions_ConditionsAreMet() {
+    void testCheckConditions_ConditionsAreMet_DoesNothing() {
         // Given
         String serviceName = "Cleaning";
         when(underTest.existsByName(serviceName)).thenReturn(false);
@@ -269,6 +268,7 @@ class MainServicesServiceImplTest {
     void testSetValues_ReturnsMainServices() {
         // Given
         String serviceName = "Cleaning";
+
         // When
         MainServices mainServices = underTest.setValues(serviceName);
 
