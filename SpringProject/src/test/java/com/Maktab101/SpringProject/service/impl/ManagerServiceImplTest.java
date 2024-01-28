@@ -30,15 +30,12 @@ class ManagerServiceImplTest {
     private ManagerRepository managerRepository;
     @Mock
     private Validator validator;
-    @InjectMocks
     private ManagerServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
         underTest = new ManagerServiceImpl(managerRepository, validator);
     }
-
-
 
     @Test
     void testRegister_ValidInfo_ReturnsManager() {
@@ -48,12 +45,11 @@ class ManagerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
+        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
         when(validator.validate(registerDto)).thenReturn(violations);
         Manager expectedManager = underTest.mapDtoValues(registerDto);
-
         when(managerRepository.save(any(Manager.class))).thenReturn(expectedManager);
 
         // When
@@ -73,10 +69,12 @@ class ManagerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Aliiii");
+
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
         ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("invalid Password");
         violations.add(mockedViolation1);
+
         when(validator.validate(registerDto)).thenReturn(violations);
 
         // When/Then
@@ -97,6 +95,7 @@ class ManagerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
+
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
         when(validator.validate(registerDto)).thenReturn(violations);
@@ -117,9 +116,10 @@ class ManagerServiceImplTest {
     }
 
     @Test
-    void testGetViolationMessages() {
+    void testGetViolationMessages_ReturnsViolationMessage() {
         // Given
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
+
         ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("Violation1");
         violations.add(mockedViolation1);
