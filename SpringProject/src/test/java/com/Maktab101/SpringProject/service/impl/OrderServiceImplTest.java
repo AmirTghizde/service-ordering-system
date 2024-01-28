@@ -61,7 +61,6 @@ class OrderServiceImplTest {
         List<Order> customerOrderList = new ArrayList<>();
         List<Order> subServiceOrderList = new ArrayList<>();
 
-
         OrderSubmitDto orderDto = new OrderSubmitDto();
         orderDto.setSubServiceId(subServiceId);
         orderDto.setJobInfo("InfoTest");
@@ -69,7 +68,9 @@ class OrderServiceImplTest {
         orderDto.setTime("12:05");
         orderDto.setAddress("AddressTest");
         orderDto.setPrice(50);
+
         Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
+
         Order order = underTest.mapDtoValues(orderDto);
         order.setId(5L);
         customerOrderList.add(order);
@@ -117,8 +118,6 @@ class OrderServiceImplTest {
         // Given
         Long subServiceId = 1L;
         Long customerId = 2L;
-
-        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
 
         List<Order> customerOrderList = new ArrayList<>();
         List<Order> subServiceOrderList = new ArrayList<>();
@@ -176,8 +175,6 @@ class OrderServiceImplTest {
         Long subServiceId = 1L;
         Long customerId = 2L;
 
-        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
-
         Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
 
         List<Order> customerOrderList = new ArrayList<>();
@@ -234,7 +231,7 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void testFindAwaitingOrdersByTechnician() {
+    void testFindAwaitingOrdersByTechnician_ReturnsOrderList() {
         // Given
         Long technicianId= 1L;
 
@@ -260,11 +257,10 @@ class OrderServiceImplTest {
         expectedOrders.add(order1);
         expectedOrders.add(order2);
 
-
         List<OrderStatus> orderStatuses = Arrays.asList(
                 OrderStatus.AWAITING_TECHNICIAN_SUGGESTION,
-                OrderStatus.AWAITING_TECHNICIAN_SELECTION
-        );
+                OrderStatus.AWAITING_TECHNICIAN_SELECTION);
+
         when(technicianService.findById(technicianId)).thenReturn(technician);
         when(orderRepository.findBySubServicesInAndOrderStatusIn(subServicesList,orderStatuses))
                 .thenReturn(expectedOrders);
