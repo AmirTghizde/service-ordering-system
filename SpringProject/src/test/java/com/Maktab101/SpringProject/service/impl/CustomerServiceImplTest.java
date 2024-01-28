@@ -42,8 +42,8 @@ class CustomerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
+        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
         when(validator.validate(registerDto)).thenReturn(violations);
         Customer expectedCustomer = underTest.mapDtoValues(registerDto);
@@ -68,10 +68,12 @@ class CustomerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Aliiii");
+
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
         ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("invalid Password");
         violations.add(mockedViolation1);
+
         when(validator.validate(registerDto)).thenReturn(violations);
 
         // When/Then
@@ -92,6 +94,7 @@ class CustomerServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
+
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
         when(validator.validate(registerDto)).thenReturn(violations);
@@ -100,18 +103,22 @@ class CustomerServiceImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.register(registerDto))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: PersistenceException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "PersistenceException Message");
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
 
         verify(customerRepository).save(any(Customer.class));
+        verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
+        verifyNoMoreInteractions(customerRepository);
     }
 
     @Test
-    void testGetViolationMessages() {
+    void testGetViolationMessages_ReturnsViolationMessage() {
         // Given
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
+
         ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("Violation1");
         violations.add(mockedViolation1);
@@ -160,7 +167,12 @@ class CustomerServiceImplTest {
 
         // When/Then
         assertThatThrownBy(() -> underTest.checkCondition(registerDto))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: DuplicateEmailAddress
+                        \uD83D\uDCC3DESC:
+                        Email address already exists in the database""");
         verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(customerRepository);
     }
