@@ -1,6 +1,5 @@
 package com.Maktab101.SpringProject.service.base;
 
-
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
@@ -14,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.aspectj.bridge.MessageUtil.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -84,7 +82,7 @@ class BaseUserServiceImplTest {
 
         // Then
         assertThat(optionalUser).isPresent();
-        assertThat(optionalUser.get()).isEqualTo(customer);
+        assertThat(optionalUser).isEqualTo(Optional.of(customer));
         verify(baseRepository).findByEmail(email);
         verifyNoMoreInteractions(baseRepository);
     }
@@ -133,10 +131,14 @@ class BaseUserServiceImplTest {
         String password = "Ali1234";
         when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(false);
 
-
         // When/Then
         assertThatThrownBy(() -> underTest.login(email, password))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: UserNotFound
+                        \uD83D\uDCC3DESC:
+                        Check email or password""");
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verifyNoMoreInteractions(baseRepository);
     }
@@ -156,7 +158,12 @@ class BaseUserServiceImplTest {
 
         // When/Then
         assertThatThrownBy(() -> underTest.login(email, password))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: UserNotFound
+                        \uD83D\uDCC3DESC:
+                        We can't find the user""");
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verify(baseRepository).findByEmail(email);
         verifyNoMoreInteractions(baseRepository);
@@ -179,7 +186,7 @@ class BaseUserServiceImplTest {
         // Then
         assertThat(customer.getPassword()).isEqualTo(newPassword);
         verify(baseRepository).findById(id);
-        verify(baseRepository).save(any(User.class));
+        verify(baseRepository).save(customer);
         verifyNoMoreInteractions(baseRepository);
     }
 
@@ -211,15 +218,17 @@ class BaseUserServiceImplTest {
         customer.setPassword("Ali1234");
 
         when(baseRepository.findById(id)).thenReturn(Optional.of(customer));
-        doThrow(PersistenceException.class).when(baseRepository).save(any(User.class));
+        doThrow(new PersistenceException("PersistenceException Message")).when(baseRepository).save(any(User.class));
 
         // When/Then
-        try {
-            underTest.editPassword(id, newPassword);
-            fail("Expected PersistenceException to be caught");
-        } catch (PersistenceException e) {
-            //Exception gets caught
-        }
+        assertThatThrownBy(()-> underTest.editPassword(id,newPassword))
+                .isInstanceOf(CustomException.class)
+                .hasMessage("""
+                        (×_×;）
+                        ❗ERROR: PersistenceException
+                        \uD83D\uDCC3DESC:
+                        PersistenceException Message""");
+
         verify(baseRepository).findById(id);
         verify(baseRepository).save(any(User.class));
         verifyNoMoreInteractions(baseRepository);
@@ -263,7 +272,7 @@ class BaseUserServiceImplTest {
         Customer customer = new Customer();
         customer.setEmail("Ali123@Gmail.com");
         customer.setPassword("Ali1234");
-        when(baseRepository.save(any(User.class))).thenReturn(customer);
+        when(baseRepository.save(customer)).thenReturn(customer);
 
         // When
         User savedCustomer = underTest.save(customer);

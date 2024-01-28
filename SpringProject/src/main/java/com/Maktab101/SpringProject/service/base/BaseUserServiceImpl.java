@@ -60,7 +60,8 @@ public abstract class BaseUserServiceImpl<T extends User>
                 t.setPassword(newPassword);
                 baseRepository.save(t);
             } catch (PersistenceException e) {
-                System.out.println(e.getMessage());
+                log.error("PersistenceException occurred throwing CustomException ... ");
+                throw new CustomException("PersistenceException", e.getMessage());
             }
         } else {
             log.error("Password is empty throwing exception");
