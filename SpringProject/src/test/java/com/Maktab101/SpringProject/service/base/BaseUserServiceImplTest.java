@@ -3,7 +3,7 @@ package com.Maktab101.SpringProject.service.base;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

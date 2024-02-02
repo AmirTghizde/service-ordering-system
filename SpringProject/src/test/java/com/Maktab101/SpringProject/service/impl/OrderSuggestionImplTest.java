@@ -8,7 +8,7 @@ import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.SuggestionService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.dto.SuggestionDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

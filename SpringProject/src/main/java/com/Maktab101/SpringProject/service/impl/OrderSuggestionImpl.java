@@ -7,7 +7,7 @@ import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.dto.SuggestionDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -53,12 +53,12 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
         if (!order.getSuggestions().contains(suggestion)) {
             log.error("Suggestion isn't for this order throwing exception");
-            throw new CustomException("InvalidSuggestion", "We can't find that suggestion in your order");
+            throw new CustomException("We can't find that suggestion in your order");
         }
         switch (order.getOrderStatus()) {
             case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
                 log.error("Invalid order status throwing exception");
-                throw new CustomException("InvalidAction", "You can't select suggestions anymore");}
+                throw new CustomException("You can't select suggestions anymore");}
         }
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
@@ -92,11 +92,11 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
                 return;
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -131,23 +131,23 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         switch (order.getOrderStatus()) {
             case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
                 log.error("Invalid order status throwing exception");
-                throw new CustomException("InvalidAction", "You can't send a suggestion for this order");
+                throw new CustomException("You can't send a suggestion for this order");
             }
         }
         List<Technician> technicians = subServices.getTechnicians();
         if (!technicians.contains(technician)) {
             log.error("Technician doesn't have this service throwing exception");
-            throw new CustomException("WrongSubService", "You don't have this sub service");
+            throw new CustomException("You don't have this sub service");
         }
         if (suggestionDto.getSuggestedPrice() < subServices.getBaseWage()) {
             log.error("SuggestedPrice is lower than base wage throwing exception");
-            throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
+            throw new CustomException("Price can't be lower than base wage");
         }
         LocalDateTime localDateTime = toLocalDateTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
             log.error("Date is before now throwing exception");
-            throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
+            throw new CustomException("Date and time can't be before now");
         }
     }
 

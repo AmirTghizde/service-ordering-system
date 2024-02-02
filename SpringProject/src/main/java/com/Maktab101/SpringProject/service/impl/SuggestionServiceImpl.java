@@ -3,7 +3,8 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.repository.SuggestionRepository;
 import com.Maktab101.SpringProject.service.SuggestionService;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     @Override
     public Suggestion findById(Long suggestionId) {
         return suggestionRepository.findById(suggestionId).orElseThrow(
-                ()->new CustomException("SuggestionNotFound","We can't find that suggestion")
+                ()->new NotFoundException("Suggestion: "+suggestionId)
         );
     }
 

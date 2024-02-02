@@ -2,7 +2,8 @@ package com.Maktab101.SpringProject.service.base;
 
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +42,12 @@ public abstract class BaseUserServiceImpl<T extends User>
         if (baseRepository.existsByEmailAndPassword(emailAddress, password)) {
             T user = findByEmailAddress(emailAddress).orElse(null);
             if (user == null) {
-                throw new CustomException("UserNotFound", "We can't find the user");
+                throw new NotFoundException("User");
             }
             log.info("[{}] successfully longed in", user.getEmail());
             return user;
         }
-        throw new CustomException("UserNotFound", "Check email or password");
+        throw new NotFoundException("User");
     }
 
     @Override
@@ -61,11 +62,11 @@ public abstract class BaseUserServiceImpl<T extends User>
                 baseRepository.save(t);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         } else {
             log.error("Password is empty throwing exception");
-            throw new CustomException("invalidPassword", "Password must not be blank");
+            throw new CustomException("Password must not be blank");
         }
 
     }
@@ -73,7 +74,7 @@ public abstract class BaseUserServiceImpl<T extends User>
     @Override
     public T findById(Long userId) {
         return baseRepository.findById(userId).orElseThrow(
-                ()->new CustomException("UserNotFound","We can't find the user with the id: "+userId));
+                () -> new NotFoundException("UserId: " + userId));
     }
 
     @Override

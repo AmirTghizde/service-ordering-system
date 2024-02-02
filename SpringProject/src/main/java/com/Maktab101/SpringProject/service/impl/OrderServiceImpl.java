@@ -5,7 +5,8 @@ import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.dto.OrderSubmitDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -68,11 +69,11 @@ public class OrderServiceImpl implements OrderService {
                 return;
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findById(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(()->
-                new CustomException("OrderNotFound", "We can not find the order"));
+                new NotFoundException("Order: "+ orderId));
     }
 
     @Override
@@ -107,7 +108,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)){
             log.error("Invalid order status throwing exception");
-            throw new CustomException("InvalidAction","You can't start this order");
+            throw new CustomException("You can't start this order");
         }
         order.setOrderStatus(OrderStatus.STARTED);
         save(order);
@@ -119,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.STARTED)){
             log.error("Invalid order status throwing exception");
-            throw new CustomException("InvalidAction","You can't finish this order");
+            throw new CustomException("You can't finish this order");
         }
         order.setOrderStatus(OrderStatus.FINISHED);
         save(order);
@@ -138,13 +139,13 @@ public class OrderServiceImpl implements OrderService {
         log.info("Checking order conditions");
         if (orderSubmitDto.getPrice() < subServices.getBaseWage()) {
             log.error("Price is lower than base wage throwing exception");
-            throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
+            throw new CustomException("Price can't be lower than base wage");
         }
         LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
             log.error("Date is before now throwing exception");
-            throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
+            throw new CustomException("Date and time can't be before now");
         }
     }
 

@@ -5,9 +5,9 @@ import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.SubServicesRepository;
 import com.Maktab101.SpringProject.service.MainServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +52,7 @@ class SubServicesServiceImplTest {
 
         when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
         when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
-        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.of(mainServices));
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(mainServices);
 
 
         // When
@@ -86,7 +86,7 @@ class SubServicesServiceImplTest {
 
         when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
         when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
-        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.of(mainServices));
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(mainServices);
         doThrow(new PersistenceException("PersistenceException Message")).when(subServicesRepository).save(any(SubServices.class));
 
 
@@ -117,16 +117,12 @@ class SubServicesServiceImplTest {
 
         when(subServicesRepository.existsByName(subServiceName)).thenReturn(false);
         when(mainServicesService.existsByName(mainServices.getName())).thenReturn(true);
-        when(mainServicesService.findByName(mainServices.getName())).thenReturn(Optional.empty());
+        when(mainServicesService.findByName(mainServices.getName())).thenReturn(null);
 
         // When/Then
         assertThatThrownBy(()->underTest.addService(subServiceName,baseWage,description, mainServices.getName()))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: MainServiceNotFound
-                        \uD83D\uDCC3DESC:
-                        We can not find the main service""");
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("The resource  was not found");
 
         verify(subServicesRepository).existsByName(subServiceName);
         verify(mainServicesService).existsByName(mainServices.getName());

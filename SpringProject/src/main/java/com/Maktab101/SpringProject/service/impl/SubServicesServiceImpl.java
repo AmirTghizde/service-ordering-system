@@ -9,7 +9,9 @@ import com.Maktab101.SpringProject.repository.SubServicesRepository;
 import com.Maktab101.SpringProject.service.MainServicesService;
 import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +43,7 @@ public class SubServicesServiceImpl implements SubServicesService {
         checkConditions(serviceName, mainServiceName);
         SubServices subServices = setValues(serviceName, baseWage, description);
 
-        MainServices mainServices = mainServicesService.findByName(mainServiceName).orElseThrow(() ->
-                new CustomException("MainServiceNotFound", "We can not find the main service"));
+        MainServices mainServices = mainServicesService.findByName(mainServiceName);
 
         try {
             log.info("Connecting to [{}]", subServicesRepository);
@@ -52,7 +53,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -78,7 +79,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -92,7 +93,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -106,7 +107,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             log.info("Adding [{}] to [{}]", technician.getEmail(), subService.getName());
             if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)) {
                 log.error("[{}] is not confirmed throwing exception ", technician.getEmail());
-                throw new CustomException("InvalidTechnician", "Technician must be confirmed first");
+                throw new CustomException("Technician must be confirmed first");
             }
 
             if (!subService.getTechnicians().contains(technician)) {
@@ -120,11 +121,11 @@ public class SubServicesServiceImpl implements SubServicesService {
                 technicianService.save(technician);
             } else {
                 log.error("[{}] already exists throwing Exception",technician.getEmail());
-                throw new CustomException("TechnicianAlreadyExists", "You already added this technician before");
+                throw new DuplicateValueException("You already added this technician before");
             }
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -148,18 +149,18 @@ public class SubServicesServiceImpl implements SubServicesService {
                 technicianService.save(technician);
             } else {
                 log.error("[{}] doesn't exists throwing Exception",technician.getEmail());
-                throw new CustomException("TechnicianDoesntExist", "Sub service doesn't have that technician");
+                throw new NotFoundException("Technician: "+technician.getEmail());
             }
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
     @Override
     public SubServices findById(Long subServiceId) {
         return subServicesRepository.findById(subServiceId).
-                orElseThrow(() -> new CustomException("SubServiceNotFound", "We can not find the sub service"));
+                orElseThrow(() -> new NotFoundException("SubService: "+subServiceId));
     }
 
     @Override
@@ -171,11 +172,11 @@ public class SubServicesServiceImpl implements SubServicesService {
         log.info("Checking conditions");
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception",serviceName);
-            throw new CustomException("DuplicateSubService", "Sub service already exists in the database");
+            throw new DuplicateValueException("Sub service already exists in the database");
         }
         if (!mainServicesService.existsByName(mainServiceName)) {
             log.error("[{}] doesnt exist in database throwing exception",mainServiceName);
-            throw new CustomException("MainServiceNotFound", "We can not find the main service");
+            throw new NotFoundException("MainService: "+mainServiceName);
         }
     }
 

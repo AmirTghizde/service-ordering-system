@@ -1,8 +1,6 @@
 package com.Maktab101.SpringProject;
 
 
-import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.utils.CustomException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;

@@ -6,7 +6,8 @@ import com.Maktab101.SpringProject.repository.ManagerRepository;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.RegisterDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -41,11 +42,11 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
                 return baseRepository.save(manager);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        throw new CustomException(violationMessages);
     }
 
     protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
@@ -61,7 +62,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
+            throw new DuplicateValueException("Email address already exists in the database");
         }
     }
 

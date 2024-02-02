@@ -7,7 +7,9 @@ import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.RegisterDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -49,11 +51,11 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
                 return baseRepository.save(technician);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         }
         String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        throw new CustomException(violationMessages);
     }
 
     protected void validateImage(String imageAddress) {
@@ -70,14 +72,14 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
                 if (!imageType.equalsIgnoreCase("jpeg")) {
                     log.error("Image format [{}] is invalid throwing exception",imageType);
-                    throw new CustomException("InvalidImage", "The only supported format is JPEG");
+                    throw new CustomException("The only supported format is JPEG");
                 } else if (imageSize > 300) {
                     log.error("Image size [{}] is more than 300kb throwing exception",imageSize);
-                    throw new CustomException("InvalidImageSize", "Max image size is 300kb");
+                    throw new CustomException("Max image size is 300kb");
                 }
             } else {
                 log.error("Can't find image throwing exception");
-                throw new CustomException("ImageNotFound", "We can not find the image");
+                throw new NotFoundException("ImageAddress: "+imageAddress);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -104,7 +106,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             baseRepository.save(technician);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -122,7 +124,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             baseRepository.save(technician);
         }catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
-            throw new CustomException("PersistenceException", e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -141,7 +143,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
+            throw new DuplicateValueException("Email address already exists in the database");
         }
     }
 
