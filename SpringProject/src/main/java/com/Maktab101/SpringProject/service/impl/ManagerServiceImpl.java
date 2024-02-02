@@ -5,7 +5,7 @@ import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.repository.ManagerRepository;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;

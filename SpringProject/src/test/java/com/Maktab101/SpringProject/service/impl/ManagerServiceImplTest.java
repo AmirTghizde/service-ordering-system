@@ -2,7 +2,7 @@ package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.repository.ManagerRepository;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
@@ -10,7 +10,6 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 

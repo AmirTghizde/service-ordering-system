@@ -4,7 +4,7 @@ import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;

@@ -6,7 +6,7 @@ import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.service.dto.SuggestionDto;
+import com.Maktab101.SpringProject.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;

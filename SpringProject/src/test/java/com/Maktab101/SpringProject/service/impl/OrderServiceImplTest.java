@@ -6,9 +6,7 @@ import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
-import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
-import com.Maktab101.SpringProject.service.dto.SuggestionDto;
+import com.Maktab101.SpringProject.dto.OrderSubmitDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
@@ -25,7 +23,6 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.InstanceOfAssertFactories.optional;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 

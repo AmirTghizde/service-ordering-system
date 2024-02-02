@@ -1,7 +1,7 @@
 package com.Maktab101.SpringProject.service;
 
 import com.Maktab101.SpringProject.model.Suggestion;
-import com.Maktab101.SpringProject.service.dto.SuggestionDto;
+import com.Maktab101.SpringProject.dto.SuggestionDto;
 
 import java.util.List;
 

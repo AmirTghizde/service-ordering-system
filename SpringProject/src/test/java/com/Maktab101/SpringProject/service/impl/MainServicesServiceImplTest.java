@@ -1,13 +1,10 @@
 package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.MainServices;
-import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.repository.MainServicesRepository;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
 import com.Maktab101.SpringProject.utils.CustomException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

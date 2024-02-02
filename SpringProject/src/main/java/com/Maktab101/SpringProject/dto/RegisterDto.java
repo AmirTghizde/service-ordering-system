@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.service.dto;
+package com.Maktab101.SpringProject.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
