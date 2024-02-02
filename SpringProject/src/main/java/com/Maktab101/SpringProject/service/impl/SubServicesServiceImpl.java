@@ -58,9 +58,11 @@ public class SubServicesServiceImpl implements SubServicesService {
     }
 
     @Override
-    public Optional<SubServices> findByName(String subServiceName) {
+    public SubServices findByName(String subServiceName) {
         log.info("trying to find [{}]",subServiceName);
-        return subServicesRepository.findByName(subServiceName);
+        return subServicesRepository.findByName(subServiceName).orElseThrow(
+                ()->new NotFoundException(subServiceName)
+        );
     }
 
     @Override

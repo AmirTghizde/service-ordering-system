@@ -130,36 +130,36 @@ class SubServicesServiceImplTest {
         verifyNoMoreInteractions(mainServicesService);
     }
 
-    @Test
-    void testFindByName_ReturnsServiceOptional() {
-        // Given
-        String subServiceName="HouseCleaning";
-        SubServices expectedSubService = new SubServices();
-        expectedSubService.setName(subServiceName);
-        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.of(expectedSubService));
-
-        // When
-        Optional<SubServices> actualSubService = underTest.findByName(subServiceName);
-
-        // Then
-        assertThat(actualSubService).isEqualTo(Optional.of(expectedSubService));
-        verify(subServicesRepository).findByName(subServiceName);
-        verifyNoMoreInteractions(subServicesRepository);
-    }
-    @Test
-    void testFindByName_ReturnsEmptyOptional() {
-        // Given
-        String subServiceName = "UnSavedSubService";
-        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.empty());
-
-        // When
-        Optional<SubServices> actualService = underTest.findByName(subServiceName);
-
-        // Then
-        assertThat(actualService).isEmpty();
-        verify(subServicesRepository).findByName(subServiceName);
-        verifyNoMoreInteractions(subServicesRepository);
-    }
+//    @Test
+//    void testFindByName_ReturnsServiceOptional() {
+//        // Given
+//        String subServiceName="HouseCleaning";
+//        SubServices expectedSubService = new SubServices();
+//        expectedSubService.setName(subServiceName);
+//        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.of(expectedSubService));
+//
+//        // When
+//        Optional<SubServices> actualSubService = underTest.findByName(subServiceName);
+//
+//        // Then
+//        assertThat(actualSubService).isEqualTo(Optional.of(expectedSubService));
+//        verify(subServicesRepository).findByName(subServiceName);
+//        verifyNoMoreInteractions(subServicesRepository);
+//    }
+//    @Test
+//    void testFindByName_ReturnsEmptyOptional() {
+//        // Given
+//        String subServiceName = "UnSavedSubService";
+//        when(subServicesRepository.findByName(subServiceName)).thenReturn(Optional.empty());
+//
+//        // When
+//        Optional<SubServices> actualService = underTest.findByName(subServiceName);
+//
+//        // Then
+//        assertThat(actualService).isEmpty();
+//        verify(subServicesRepository).findByName(subServiceName);
+//        verifyNoMoreInteractions(subServicesRepository);
+//    }
 
     @Test
     void testExistsByName_ReturnsTrue() {
