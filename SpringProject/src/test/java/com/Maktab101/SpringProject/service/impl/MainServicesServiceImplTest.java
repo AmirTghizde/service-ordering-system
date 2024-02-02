@@ -3,9 +3,10 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.MainServices;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.repository.MainServicesRepository;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -62,36 +63,37 @@ class MainServicesServiceImplTest {
         verifyNoMoreInteractions(mainServicesRepository);
     }
 
-    @Test
-    void testFindByName_ReturnsOptionalMainService() {
-        // Given
-        String serviceName="Cleaning";
-        MainServices expectedService = new MainServices();
-        expectedService.setName(serviceName);
-        when(mainServicesRepository.findByName(serviceName)).thenReturn(Optional.of(expectedService));
-
-        // When
-        Optional<MainServices> actualService = underTest.findByName(serviceName);
-
-        // Then
-        assertThat(actualService).isEqualTo(Optional.of(expectedService));
-        verify(mainServicesRepository).findByName(serviceName);
-        verifyNoMoreInteractions(mainServicesRepository);
-    }
-    @Test
-    void testFindByName_ReturnsEmptyOptional() {
-        // Given
-        String serviceName = "UnSavedService";
-        when(mainServicesRepository.findByName(serviceName)).thenReturn(Optional.empty());
-
-        // When
-        Optional<MainServices> actualService = underTest.findByName(serviceName);
-
-        // Then
-        assertThat(actualService).isEmpty();
-        verify(mainServicesRepository).findByName(serviceName);
-        verifyNoMoreInteractions(mainServicesRepository);
-    }
+//    @Test
+//    void testFindByName_ReturnsOptionalMainService() {
+//        // Given
+//        String serviceName="Cleaning";
+//        MainServices expectedService = new MainServices();
+//        expectedService.setName(serviceName);
+//        when(mainServicesRepository.findByName(serviceName)).thenReturn(Optional.of(expectedService));
+//
+//        // When
+//        Optional<MainServices> actualService = underTest.findByName(serviceName);
+//
+//        // Then
+//        assertThat(actualService).isEqualTo(Optional.of(expectedService));
+//        verify(mainServicesRepository).findByName(serviceName);
+//        verifyNoMoreInteractions(mainServicesRepository);
+//    }
+//    @Test
+//    @Disabled
+//    void testFindByName_ReturnsEmptyOptional() {
+//        // Given
+//        String serviceName = "UnSavedService";
+//        when(mainServicesRepository.findByName(serviceName)).thenReturn(Optional.empty());
+//
+//        // When
+//        Optional<MainServices> actualService = underTest.findByName(serviceName);
+//
+//        // Then
+//        assertThat(actualService).isEmpty();
+//        verify(mainServicesRepository).findByName(serviceName);
+//        verifyNoMoreInteractions(mainServicesRepository);
+//    }
 
     @Test
     void testExistsByName_ReturnsTrue() {

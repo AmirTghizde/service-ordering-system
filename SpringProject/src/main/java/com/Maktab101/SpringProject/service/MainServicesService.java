@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface MainServicesService {
     void addService(String serviceName);
-    Optional<MainServices> findByName(String MainServiceName);
+    MainServices findByName(String MainServiceName);
     boolean existsByName(String MainServiceName);
     MainServices save(MainServices mainServices);
     List<MainServices> findAll();
