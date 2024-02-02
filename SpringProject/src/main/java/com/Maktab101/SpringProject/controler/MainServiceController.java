@@ -1,9 +1,10 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.ServiceNameDto;
+import com.Maktab101.SpringProject.dto.services.MainServiceResponseDto;
+import com.Maktab101.SpringProject.dto.services.ServiceNameDto;
 import com.Maktab101.SpringProject.model.MainServices;
+import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.service.MainServicesService;
-import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mainServices")
@@ -23,14 +25,25 @@ public class MainServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addService(@Valid @RequestBody ServiceNameDto serviceNameDto){
+    public ResponseEntity<Void> addService(@Valid @RequestBody ServiceNameDto serviceNameDto) {
         mainServicesService.addService(serviceNameDto.getServiceName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @GetMapping(path = "/view/service")
-    public ResponseEntity<MainServices> fetchServiceByName(@RequestParam("serviceName") String serviceName){
+    public ResponseEntity<MainServiceResponseDto> fetchServiceByName(@RequestParam("serviceName") String serviceName) {
         MainServices mainServices = mainServicesService.findByName(serviceName);
-        return ResponseEntity.ok(mainServices);
+
+        MainServiceResponseDto dto = new MainServiceResponseDto();
+        dto.setId(mainServices.getId());
+        dto.setName(mainServices.getName());
+        dto.setSubServices(
+                mainServices.getSubServices()
+                        .stream()
+                        .map(SubServices::getName)
+                        .collect(Collectors.toList())
+        );
+        return ResponseEntity.ok(dto);
     }
     @GetMapping(path = "/view")
     public ResponseEntity<List<MainServices>> fetchAll(){

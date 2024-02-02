@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.utils;
 
 import com.Maktab101.SpringProject.utils.exceptions.ApiException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(apiException, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(value = DuplicateValueException.class)
-    public ResponseEntity<Object> handelNotFoundException(DuplicateValueException e) {
+    public ResponseEntity<Object> handelDuplicateValueException(DuplicateValueException e) {
         ApiException apiException = new ApiException(
                 "(⚆ᗝ⚆) (☉_ ☉)",
                 e.getClass().getSimpleName(),
@@ -29,5 +30,15 @@ public class ApiExceptionHandler {
                 HttpStatus.CONFLICT
         );
         return new ResponseEntity<>(apiException, HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(value = CustomException.class)
+    public ResponseEntity<Object> handelCustomException(CustomException e) {
+        ApiException apiException = new ApiException(
+                "(╥_╥)",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
     }
 }
