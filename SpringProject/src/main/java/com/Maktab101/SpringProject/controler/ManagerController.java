@@ -1,6 +1,9 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.ManagerResponseDto;
 import com.Maktab101.SpringProject.dto.RegisterDto;
+import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.ManagerService;
 import jakarta.validation.Valid;
@@ -24,8 +27,9 @@ public class ManagerController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerManager(@Valid @RequestBody RegisterDto registerDto) {
-        managerService.register(registerDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ManagerResponseDto> registerManager(@Valid @RequestBody RegisterDto registerDto) {
+        Manager manager = managerService.register(registerDto);
+        ManagerResponseDto managerDto = UserMapper.INSTANCE.toManagerDto(manager);
+        return ResponseEntity.status(HttpStatus.CREATED).body(managerDto);
     }
 }

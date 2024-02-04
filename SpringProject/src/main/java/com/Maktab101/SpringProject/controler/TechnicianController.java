@@ -2,6 +2,9 @@ package com.Maktab101.SpringProject.controler;
 
 import com.Maktab101.SpringProject.dto.ImageSaveDto;
 import com.Maktab101.SpringProject.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.TechnicianResponseDto;
+import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
@@ -22,9 +25,10 @@ public class TechnicianController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerTechnician(@Valid @RequestBody RegisterDto registerDto) {
-        technicianService.register(registerDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<TechnicianResponseDto> registerTechnician(@Valid @RequestBody RegisterDto registerDto) {
+        Technician technician = technicianService.register(registerDto);
+        TechnicianResponseDto technicianDto = UserMapper.INSTANCE.toTechnicianDto(technician);
+        return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
     }
 
     @PutMapping("/confirm")

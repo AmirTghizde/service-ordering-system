@@ -1,7 +1,10 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.CustomerResponseDto;
 import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.dto.services.ServiceNameDto;
+import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +27,9 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerCustomer(@Valid @RequestBody RegisterDto registerDto) {
-        customerService.register(registerDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<CustomerResponseDto> registerCustomer(@Valid @RequestBody RegisterDto registerDto) {
+        Customer customer = customerService.register(registerDto);
+        CustomerResponseDto customerDto = UserMapper.INSTANCE.toCustomerDto(customer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerDto);
     }
 }
