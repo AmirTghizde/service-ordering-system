@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.controler;
 
 import com.Maktab101.SpringProject.dto.ImageSaveDto;
+import com.Maktab101.SpringProject.dto.PasswordEditDto;
 import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.dto.TechnicianResponseDto;
 import com.Maktab101.SpringProject.mapper.UserMapper;
@@ -40,7 +41,13 @@ public class TechnicianController {
     @PutMapping("/edit/addImage")
     public ResponseEntity<Void> saveImage(@Valid @RequestBody ImageSaveDto dto) {
         String imagePath = "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\";
-        technicianService.saveImage(dto.getTechnicianId(), imagePath+dto.getImageName());
+        technicianService.saveImage(dto.getTechnicianId(), imagePath + dto.getImageName());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/edit/password")
+    public ResponseEntity<Void> editPassword(@Valid @RequestBody PasswordEditDto dto) {
+        technicianService.editPassword(dto.getUserId(), dto.getNewPassword());
         return ResponseEntity.ok().build();
     }
 }
