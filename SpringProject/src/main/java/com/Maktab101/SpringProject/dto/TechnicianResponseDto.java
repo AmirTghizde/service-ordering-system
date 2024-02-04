@@ -24,6 +24,5 @@ public class TechnicianResponseDto implements Serializable {
     private TechnicianStatus status;
     private double score;
     private double balance;
-    private byte[] imageData;
     private List<SubServicesDto> subServices = new ArrayList<>();
 }

@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -47,7 +48,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             checkCondition(registerDto);
             Technician technician = mapDtoValues(registerDto);
             try {
-                log.info("Connecting to [{}]",baseRepository);
+                log.info("Connecting to [{}]", baseRepository);
                 return baseRepository.save(technician);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
@@ -58,8 +59,13 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         throw new CustomException(violationMessages);
     }
 
+    @Override
+    public List<Technician> findAll() {
+        return baseRepository.findAll();
+    }
+
     protected void validateImage(String imageAddress) {
-        log.info("Validating image [{}]",imageAddress);
+        log.info("Validating image [{}]", imageAddress);
         try {
             File imageFile = new File(imageAddress);
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(imageFile);
@@ -71,15 +77,15 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
                 long imageSize = imageFile.length() / 1024; // Size in KB
 
                 if (!imageType.equalsIgnoreCase("jpeg")) {
-                    log.error("Image format [{}] is invalid throwing exception",imageType);
+                    log.error("Image format [{}] is invalid throwing exception", imageType);
                     throw new CustomException("The only supported format is JPEG");
                 } else if (imageSize > 300) {
-                    log.error("Image size [{}] is more than 300kb throwing exception",imageSize);
+                    log.error("Image size [{}] is more than 300kb throwing exception", imageSize);
                     throw new CustomException("Max image size is 300kb");
                 }
             } else {
                 log.error("Can't find image throwing exception");
-                throw new NotFoundException("ImageAddress: "+imageAddress);
+                throw new NotFoundException("ImageAddress: " + imageAddress);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -101,7 +107,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         Technician technician = findById(technicianId);
 
         try {
-            log.info("Connecting to [{}]",baseRepository);
+            log.info("Connecting to [{}]", baseRepository);
             technician.setStatus(TechnicianStatus.CONFIRMED);
             baseRepository.save(technician);
         } catch (PersistenceException e) {
@@ -111,18 +117,18 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     }
 
     @Override
-    public void saveImage(Long technicianId,String imageAddress) {
+    public void saveImage(Long technicianId, String imageAddress) {
 
         Technician technician = findById(technicianId);
 
-        log.info("Adding image to [{}] profile",technician.getEmail());
+        log.info("Adding image to [{}] profile", technician.getEmail());
 
         validateImage(imageAddress);
         byte[] bytes = imageToBytes(imageAddress);
         technician.setImageData(bytes);
         try {
             baseRepository.save(technician);
-        }catch (PersistenceException e) {
+        } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
             throw new CustomException(e.getMessage());
         }
@@ -148,7 +154,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     }
 
     protected Technician mapDtoValues(RegisterDto registerDto) {
-        log.info("Mapping [{}] values",registerDto);
+        log.info("Mapping [{}] values", registerDto);
         Technician technician = new Technician();
         technician.setFirstname(registerDto.getFirstname());
         technician.setLastname(registerDto.getLastname());

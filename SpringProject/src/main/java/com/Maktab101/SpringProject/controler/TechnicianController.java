@@ -4,6 +4,7 @@ import com.Maktab101.SpringProject.dto.ImageSaveDto;
 import com.Maktab101.SpringProject.dto.PasswordEditDto;
 import com.Maktab101.SpringProject.dto.RegisterDto;
 import com.Maktab101.SpringProject.dto.TechnicianResponseDto;
+import com.Maktab101.SpringProject.mapper.MainServicesMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.service.ManagerService;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/technicians")
@@ -30,6 +34,15 @@ public class TechnicianController {
         Technician technician = technicianService.register(registerDto);
         TechnicianResponseDto technicianDto = UserMapper.INSTANCE.toTechnicianDto(technician);
         return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
+    }
+
+    @GetMapping("/fetch")
+    public ResponseEntity<List<TechnicianResponseDto>> fetchAll() {
+        List<Technician> technicians = technicianService.findAll();
+        List<TechnicianResponseDto> dtoList = technicians.stream()
+                .map(UserMapper.INSTANCE::toTechnicianDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(dtoList);
     }
 
     @PutMapping("/confirm")

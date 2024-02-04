@@ -18,5 +18,4 @@ public class TechnicianDto implements Serializable {
     private String lastname;
     private String email;
     private double score;
-    private byte[] imageData;
 }
