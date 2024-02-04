@@ -1,7 +1,7 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.MainServicesResponseDto;
-import com.Maktab101.SpringProject.dto.ServiceNameDto;
+import com.Maktab101.SpringProject.dto.services.MainServicesResponseDto;
+import com.Maktab101.SpringProject.dto.services.ServiceNameDto;
 import com.Maktab101.SpringProject.mapper.MainServicesMapper;
 import com.Maktab101.SpringProject.model.MainServices;
 import com.Maktab101.SpringProject.service.MainServicesService;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mainServices")
@@ -39,9 +40,14 @@ public class MainServiceController {
     }
 
     @GetMapping(path = "/view")
-    public ResponseEntity<List<MainServices>> fetchAll() {
+    public ResponseEntity<List<MainServicesResponseDto>> fetchAll() {
         List<MainServices> mainServices = mainServicesService.findAll();
-        return ResponseEntity.ok(mainServices);
+
+        List<MainServicesResponseDto> responseDtoList = mainServices.stream()
+                .map(MainServicesMapper.INSTANCE::toDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDtoList);
     }
 
     @GetMapping(path = "/view/subServices")

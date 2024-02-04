@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.services;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

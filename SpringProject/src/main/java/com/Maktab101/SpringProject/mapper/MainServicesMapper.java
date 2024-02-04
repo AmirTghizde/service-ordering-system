@@ -1,6 +1,6 @@
 package com.Maktab101.SpringProject.mapper;
 
-import com.Maktab101.SpringProject.dto.MainServicesResponseDto;
+import com.Maktab101.SpringProject.dto.services.MainServicesResponseDto;
 import com.Maktab101.SpringProject.model.MainServices;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
