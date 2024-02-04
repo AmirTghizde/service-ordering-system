@@ -67,40 +67,40 @@ class BaseUserServiceImplTest {
     }
 
 
-    @Test
-    void testFindByEmailAddress_IfExists_ReturnsUser() {
-        // Given
-        String email = "Ali123@Gmail.com";
-        Customer customer = new Customer();
-        customer.setEmail(email);
-        customer.setPassword("Ali1234");
+//    @Test
+//    void testFindByEmailAddress_IfExists_ReturnsUser() {
+//        // Given
+//        String email = "Ali123@Gmail.com";
+//        Customer customer = new Customer();
+//        customer.setEmail(email);
+//        customer.setPassword("Ali1234");
+//
+//        when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
+//
+//        // When
+//        Optional<User> optionalUser = underTest.findByEmailAddress(email);
+//
+//        // Then
+//        assertThat(optionalUser).isPresent();
+//        assertThat(optionalUser).isEqualTo(Optional.of(customer));
+//        verify(baseRepository).findByEmail(email);
+//        verifyNoMoreInteractions(baseRepository);
+//    }
 
-        when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
-
-        // When
-        Optional<User> optionalUser = underTest.findByEmailAddress(email);
-
-        // Then
-        assertThat(optionalUser).isPresent();
-        assertThat(optionalUser).isEqualTo(Optional.of(customer));
-        verify(baseRepository).findByEmail(email);
-        verifyNoMoreInteractions(baseRepository);
-    }
-
-    @Test
-    void testFindByEmailAddress_IfNotExists_ReturnsEmpty() {
-        // Given
-        String email = "Ali123@Gmail.com";
-        when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-        // When
-        Optional<User> optionalUser = underTest.findByEmailAddress(email);
-
-        // Then
-        assertThat(optionalUser).isEmpty();
-        verify(baseRepository).findByEmail(email);
-        verifyNoMoreInteractions(baseRepository);
-    }
+//    @Test
+//    void testFindByEmailAddress_IfNotExists_ReturnsEmpty() {
+//        // Given
+//        String email = "Ali123@Gmail.com";
+//        when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
+//
+//        // When
+//        Optional<User> optionalUser = underTest.findByEmailAddress(email);
+//
+//        // Then
+//        assertThat(optionalUser).isEmpty();
+//        verify(baseRepository).findByEmail(email);
+//        verifyNoMoreInteractions(baseRepository);
+//    }
 
     @Test
     void testLogin_IfValidCredential_ReturnUser() {

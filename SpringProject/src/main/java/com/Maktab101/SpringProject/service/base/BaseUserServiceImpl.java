@@ -31,16 +31,17 @@ public abstract class BaseUserServiceImpl<T extends User>
     }
 
     @Override
-    public Optional<T> findByEmailAddress(String emailAddress) {
+    public T findByEmailAddress(String emailAddress) {
         log.info("trying to find [{}]", emailAddress);
-        return baseRepository.findByEmail(emailAddress);
+        return baseRepository.findByEmail(emailAddress).orElseThrow(
+                () -> new NotFoundException("Couldn't find a user with this email: " + emailAddress));
     }
 
     @Override
     public T login(String emailAddress, String password) {
         log.info("Logging in with this data [email:{}, password{}]", emailAddress, password);
         if (baseRepository.existsByEmailAndPassword(emailAddress, password)) {
-            T user = findByEmailAddress(emailAddress).orElse(null);
+            T user = findByEmailAddress(emailAddress);
             if (user == null) {
                 throw new NotFoundException("User");
             }
