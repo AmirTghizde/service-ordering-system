@@ -28,7 +28,7 @@ public class OrderSubmitDto {
     String time;
 
     @NotBlank(message = "Address must be specified")
-    String Address;
+    String address;
 
     @Positive
     double price;

@@ -1,13 +1,13 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
+import com.Maktab101.SpringProject.dto.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.SuggestionService;
 import com.Maktab101.SpringProject.service.TechnicianService;
-import com.Maktab101.SpringProject.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
@@ -148,8 +148,8 @@ class OrderSuggestionImplTest {
 
         Long orderId = 1L;
         Long technicianId = 2L;
-        Set<ConstraintViolation<SuggestionDto>> violations =new HashSet<>();
-        SuggestionDto dto = new SuggestionDto();
+        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate("2025-01-20");
@@ -199,12 +199,12 @@ class OrderSuggestionImplTest {
         Long orderId = 1L;
         Long technicianId = 2L;
 
-        Set<ConstraintViolation<SuggestionDto>> violations =new HashSet<>();
-        ConstraintViolation<SuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
+        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
+        ConstraintViolation<SendSuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("invalid Date");
         violations.add(mockedViolation1);
 
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate("2025-01-20");
@@ -248,8 +248,8 @@ class OrderSuggestionImplTest {
         // Given
         Long orderId = 1L;
         Long technicianId = 2L;
-        Set<ConstraintViolation<SuggestionDto>> violations =new HashSet<>();
-        SuggestionDto dto = new SuggestionDto();
+        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate("2025-01-20");
@@ -438,7 +438,7 @@ class OrderSuggestionImplTest {
         double price = 50;
         String date = "2025-01-20";
         String time = "12:05";
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate(date);
@@ -472,7 +472,7 @@ class OrderSuggestionImplTest {
         double price = 50;
         String date = "2025-01-20";
         String time = "12:05";
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate(date);
@@ -510,7 +510,7 @@ class OrderSuggestionImplTest {
         double price = 50;
         String date = "2025-01-20";
         String time = "12:05";
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate(date);
@@ -547,7 +547,7 @@ class OrderSuggestionImplTest {
         double price = 1;
         String date = "2025-01-20";
         String time = "12:05";
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate(date);
@@ -585,7 +585,7 @@ class OrderSuggestionImplTest {
         double price = 50;
         String date = "2022-01-20";
         String time = "12:05";
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate(date);
@@ -620,12 +620,12 @@ class OrderSuggestionImplTest {
     @Test
     void testGetViolationMessages_ReturnsViolationString() {
         // Given
-        Set<ConstraintViolation<SuggestionDto>> violations = new HashSet<>();
-        ConstraintViolation<SuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
+        Set<ConstraintViolation<SendSuggestionDto>> violations = new HashSet<>();
+        ConstraintViolation<SendSuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
         when(mockedViolation1.getMessage()).thenReturn("Violation1");
         violations.add(mockedViolation1);
 
-        ConstraintViolation<SuggestionDto> mockedViolation2 = mock(ConstraintViolation.class);
+        ConstraintViolation<SendSuggestionDto> mockedViolation2 = mock(ConstraintViolation.class);
         when(mockedViolation2.getMessage()).thenReturn("Violation2");
         violations.add(mockedViolation2);
 
@@ -684,7 +684,7 @@ class OrderSuggestionImplTest {
         technician.setEmail("Ali@Gmail.com");
         technician.setPassword("Ali1234");
 
-        SuggestionDto dto = new SuggestionDto();
+        SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
         dto.setSuggestedDate("2025-01-20");

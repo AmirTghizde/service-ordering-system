@@ -1,12 +1,12 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.dto.SuggestionDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
@@ -58,7 +58,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         switch (order.getOrderStatus()) {
             case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
                 log.error("Invalid order status throwing exception");
-                throw new CustomException("You can't select suggestions anymore");}
+                throw new CustomException("You can't select suggestions anymore");
+            }
         }
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
@@ -68,19 +69,19 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
     @Override
     @Transactional
-    public void sendSuggestion(Long technicianId, SuggestionDto suggestionDto) {
+    public void sendSuggestion(Long technicianId, SendSuggestionDto sendSuggestionDto) {
         log.info("Technician with id [{}] is trying to send a new suggestion [{}] for this order [{}]"
-                , technicianId, suggestionDto, suggestionDto.getOrderID());
+                , technicianId, sendSuggestionDto, sendSuggestionDto.getOrderID());
 
-        Set<ConstraintViolation<SuggestionDto>> violations = validator.validate(suggestionDto);
+        Set<ConstraintViolation<SendSuggestionDto>> violations = validator.validate(sendSuggestionDto);
         if (violations.isEmpty()) {
             log.info("Information is validated - commencing registration");
-            Order order = orderService.findById(suggestionDto.getOrderID());
+            Order order = orderService.findById(sendSuggestionDto.getOrderID());
             SubServices subServices = subServicesService.findById(order.getSubServices().getId());
             Technician technician = technicianService.findById(technicianId);
 
-            checkCondition(technician, suggestionDto, subServices, order);
-            Suggestion suggestion = mapDtoValues(technician, suggestionDto);
+            checkCondition(technician, sendSuggestionDto, subServices, order);
+            Suggestion suggestion = mapDtoValues(technician, sendSuggestionDto);
 
             try {
                 log.info("Connecting to [{}]", suggestionService);
@@ -126,7 +127,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         return suggestions;
     }
 
-    protected void checkCondition(Technician technician, SuggestionDto suggestionDto, SubServices subServices, Order order) {
+    protected void checkCondition(Technician technician, SendSuggestionDto sendSuggestionDto, SubServices subServices, Order order) {
         log.info("Checking suggestion conditions");
         switch (order.getOrderStatus()) {
             case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
@@ -139,11 +140,11 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
             log.error("Technician doesn't have this service throwing exception");
             throw new CustomException("You don't have this sub service");
         }
-        if (suggestionDto.getSuggestedPrice() < subServices.getBaseWage()) {
+        if (sendSuggestionDto.getSuggestedPrice() < subServices.getBaseWage()) {
             log.error("SuggestedPrice is lower than base wage throwing exception");
             throw new CustomException("Price can't be lower than base wage");
         }
-        LocalDateTime localDateTime = toLocalDateTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
+        LocalDateTime localDateTime = toLocalDateTime(sendSuggestionDto.getSuggestedTime(), sendSuggestionDto.getSuggestedDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
             log.error("Date is before now throwing exception");
@@ -151,10 +152,10 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         }
     }
 
-    protected String getViolationMessages(Set<ConstraintViolation<SuggestionDto>> violations) {
-        log.error("SuggestionDto violates some fields throwing exception");
+    protected String getViolationMessages(Set<ConstraintViolation<SendSuggestionDto>> violations) {
+        log.error("SendSuggestionDto violates some fields throwing exception");
         StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<SuggestionDto> violation : violations) {
+        for (ConstraintViolation<SendSuggestionDto> violation : violations) {
             messageBuilder.append("\n").append(violation.getMessage());
         }
         return messageBuilder.toString().trim();
@@ -175,17 +176,17 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         return LocalTime.parse(duration, timeFormatter);
     }
 
-    protected Suggestion mapDtoValues(Technician technician, SuggestionDto suggestionDto) {
-        log.info("Mapping Dto values [{}]", suggestionDto);
+    protected Suggestion mapDtoValues(Technician technician, SendSuggestionDto sendSuggestionDto) {
+        log.info("Mapping Dto values [{}]", sendSuggestionDto);
         Suggestion suggestion = new Suggestion();
         suggestion.setDate(LocalDateTime.now());
-        suggestion.setSuggestedPrice(suggestionDto.getSuggestedPrice());
+        suggestion.setSuggestedPrice(sendSuggestionDto.getSuggestedPrice());
         suggestion.setTechnician(technician);
 
-        LocalDateTime localDateTime = toLocalDateTime(suggestionDto.getSuggestedTime(), suggestionDto.getSuggestedDate());
+        LocalDateTime localDateTime = toLocalDateTime(sendSuggestionDto.getSuggestedTime(), sendSuggestionDto.getSuggestedDate());
         suggestion.setSuggestedDate(localDateTime);
 
-        suggestion.setDuration(convertTime(suggestionDto.getDuration()));
+        suggestion.setDuration(convertTime(sendSuggestionDto.getDuration()));
         return suggestion;
     }
 }
