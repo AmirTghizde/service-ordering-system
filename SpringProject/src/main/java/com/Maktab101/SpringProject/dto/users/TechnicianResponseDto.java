@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.users;
 
 import com.Maktab101.SpringProject.dto.services.SubServicesDto;
 import com.Maktab101.SpringProject.model.enums.TechnicianStatus;

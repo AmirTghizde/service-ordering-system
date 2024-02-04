@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.suggestion;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PasswordEditDto {
+public class SelectSuggestionDto {
     @NotNull
-    private Long userId;
+    private Long orderId;
     @NotNull
-    private String newPassword;
+    private Long suggestionId;
 }

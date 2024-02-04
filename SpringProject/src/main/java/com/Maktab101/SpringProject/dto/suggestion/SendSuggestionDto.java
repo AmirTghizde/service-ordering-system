@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.suggestion;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

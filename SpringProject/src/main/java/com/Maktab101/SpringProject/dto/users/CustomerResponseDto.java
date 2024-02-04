@@ -1,5 +1,6 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.users;
 
+import com.Maktab101.SpringProject.dto.order.OrderDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

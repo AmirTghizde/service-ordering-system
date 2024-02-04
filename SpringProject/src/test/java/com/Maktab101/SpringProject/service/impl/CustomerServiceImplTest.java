@@ -2,7 +2,7 @@ package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.repository.CustomerRepository;
-import com.Maktab101.SpringProject.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;

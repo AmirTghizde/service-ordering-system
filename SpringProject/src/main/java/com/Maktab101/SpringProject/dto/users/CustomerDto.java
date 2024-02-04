@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,15 +7,14 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * DTO for {@link com.Maktab101.SpringProject.model.Manager}
+ * DTO for {@link com.Maktab101.SpringProject.model.Customer}
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ManagerResponseDto implements Serializable {
+public class CustomerDto implements Serializable {
     private Long id;
     private String firstname;
     private String lastname;
     private String email;
-    private String managerCode;
 }

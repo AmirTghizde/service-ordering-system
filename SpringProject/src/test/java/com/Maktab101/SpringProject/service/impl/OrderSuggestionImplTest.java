@@ -1,7 +1,7 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
-import com.Maktab101.SpringProject.dto.SendSuggestionDto;
+import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.OrderService;

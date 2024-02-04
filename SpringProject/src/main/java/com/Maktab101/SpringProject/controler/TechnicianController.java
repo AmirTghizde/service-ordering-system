@@ -1,13 +1,11 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.ImageSaveDto;
-import com.Maktab101.SpringProject.dto.PasswordEditDto;
-import com.Maktab101.SpringProject.dto.RegisterDto;
-import com.Maktab101.SpringProject.dto.TechnicianResponseDto;
-import com.Maktab101.SpringProject.mapper.MainServicesMapper;
+import com.Maktab101.SpringProject.dto.users.ImageSaveDto;
+import com.Maktab101.SpringProject.dto.users.PasswordEditDto;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.dto.users.TechnicianResponseDto;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Technician;
-import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

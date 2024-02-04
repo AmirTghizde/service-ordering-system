@@ -1,6 +1,6 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.dto.SendSuggestionDto;
+import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.model.Suggestion;

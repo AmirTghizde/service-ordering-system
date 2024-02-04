@@ -1,5 +1,7 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.suggestion;
 
+import com.Maktab101.SpringProject.dto.order.OrderDto;
+import com.Maktab101.SpringProject.dto.users.TechnicianDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

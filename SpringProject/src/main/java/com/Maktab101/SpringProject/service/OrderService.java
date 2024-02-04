@@ -2,7 +2,7 @@ package com.Maktab101.SpringProject.service;
 
 
 import com.Maktab101.SpringProject.model.Order;
-import com.Maktab101.SpringProject.dto.OrderSubmitDto;
+import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 
 import java.util.List;
 

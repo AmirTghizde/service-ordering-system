@@ -6,7 +6,7 @@ import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
-import com.Maktab101.SpringProject.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;

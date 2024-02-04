@@ -1,6 +1,5 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.order;
 
-import com.Maktab101.SpringProject.dto.services.SubServicesDto;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,13 +14,11 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderResponseDto implements Serializable {
+public class OrderDto implements Serializable {
     private Long id;
     private OrderStatus orderStatus;
     private String jobInfo;
     private LocalDateTime dateAndTime;
     private String Address;
     private double price;
-    private CustomerDto customer;
-    private SubServicesDto subServices;
 }

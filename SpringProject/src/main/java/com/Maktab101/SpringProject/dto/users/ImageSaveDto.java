@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.dto;
+package com.Maktab101.SpringProject.dto.users;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

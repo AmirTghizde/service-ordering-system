@@ -1,6 +1,6 @@
 package com.Maktab101.SpringProject.mapper;
 
-import com.Maktab101.SpringProject.dto.SuggestionResponseDto;
+import com.Maktab101.SpringProject.dto.suggestion.SuggestionResponseDto;
 import com.Maktab101.SpringProject.model.Suggestion;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

@@ -4,7 +4,7 @@ import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.dto.OrderSubmitDto;
+import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;

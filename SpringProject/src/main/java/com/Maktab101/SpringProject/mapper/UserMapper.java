@@ -1,8 +1,8 @@
 package com.Maktab101.SpringProject.mapper;
 
-import com.Maktab101.SpringProject.dto.CustomerResponseDto;
-import com.Maktab101.SpringProject.dto.ManagerResponseDto;
-import com.Maktab101.SpringProject.dto.TechnicianResponseDto;
+import com.Maktab101.SpringProject.dto.users.CustomerResponseDto;
+import com.Maktab101.SpringProject.dto.users.ManagerResponseDto;
+import com.Maktab101.SpringProject.dto.users.TechnicianResponseDto;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.model.Technician;

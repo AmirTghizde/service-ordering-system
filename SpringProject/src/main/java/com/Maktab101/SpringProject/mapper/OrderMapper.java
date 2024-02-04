@@ -1,6 +1,6 @@
 package com.Maktab101.SpringProject.mapper;
 
-import com.Maktab101.SpringProject.dto.OrderResponseDto;
+import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.model.Order;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

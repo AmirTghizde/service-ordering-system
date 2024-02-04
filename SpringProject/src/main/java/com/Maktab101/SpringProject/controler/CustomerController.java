@@ -1,8 +1,8 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.CustomerResponseDto;
-import com.Maktab101.SpringProject.dto.PasswordEditDto;
-import com.Maktab101.SpringProject.dto.RegisterDto;
+import com.Maktab101.SpringProject.dto.users.CustomerResponseDto;
+import com.Maktab101.SpringProject.dto.users.PasswordEditDto;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.service.CustomerService;

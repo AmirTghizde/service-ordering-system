@@ -1,8 +1,8 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.OrderSubmitDto;
-import com.Maktab101.SpringProject.dto.OrderResponseDto;
-import com.Maktab101.SpringProject.dto.SelectSuggestionDto;
+import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
+import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
+import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.service.OrderService;
