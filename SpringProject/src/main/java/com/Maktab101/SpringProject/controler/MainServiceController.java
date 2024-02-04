@@ -1,9 +1,9 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.services.MainServiceResponseDto;
-import com.Maktab101.SpringProject.dto.services.ServiceNameDto;
+import com.Maktab101.SpringProject.dto.MainServicesResponseDto;
+import com.Maktab101.SpringProject.dto.ServiceNameDto;
+import com.Maktab101.SpringProject.mapper.MainServicesMapper;
 import com.Maktab101.SpringProject.model.MainServices;
-import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.service.MainServicesService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mainServices")
 public class MainServiceController {
     private final MainServicesService mainServicesService;
+
 
     @Autowired
     public MainServiceController(MainServicesService mainServicesService) {
@@ -31,27 +31,21 @@ public class MainServiceController {
     }
 
     @GetMapping(path = "/view/service")
-    public ResponseEntity<MainServiceResponseDto> fetchServiceByName(@RequestParam("serviceName") String serviceName) {
+    public ResponseEntity<MainServicesResponseDto> fetchServiceByName(@RequestParam("serviceName") String serviceName) {
         MainServices mainServices = mainServicesService.findByName(serviceName);
 
-        MainServiceResponseDto dto = new MainServiceResponseDto();
-        dto.setId(mainServices.getId());
-        dto.setName(mainServices.getName());
-        dto.setSubServices(
-                mainServices.getSubServices()
-                        .stream()
-                        .map(SubServices::getName)
-                        .collect(Collectors.toList())
-        );
+        MainServicesResponseDto dto = MainServicesMapper.INSTANCE.toDto(mainServices);
         return ResponseEntity.ok(dto);
     }
+
     @GetMapping(path = "/view")
-    public ResponseEntity<List<MainServices>> fetchAll(){
+    public ResponseEntity<List<MainServices>> fetchAll() {
         List<MainServices> mainServices = mainServicesService.findAll();
         return ResponseEntity.ok(mainServices);
     }
+
     @GetMapping(path = "/view/subServices")
-    public ResponseEntity<List<String>> fetchSubServices(@RequestParam("id") Long serviceId){
+    public ResponseEntity<List<String>> fetchSubServices(@RequestParam("id") Long serviceId) {
         List<String> subServiceNames = mainServicesService.findSubServiceNames(serviceId);
         return ResponseEntity.ok(subServiceNames);
     }
