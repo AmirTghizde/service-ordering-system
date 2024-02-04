@@ -20,10 +20,11 @@ public class SuggestionServiceImpl implements SuggestionService {
     public SuggestionServiceImpl(SuggestionRepository suggestionRepository) {
         this.suggestionRepository = suggestionRepository;
     }
+
     @Override
     public Suggestion findById(Long suggestionId) {
         return suggestionRepository.findById(suggestionId).orElseThrow(
-                ()->new NotFoundException("Suggestion: "+suggestionId)
+                () -> new NotFoundException("Couldn't find a suggestion with this id: " + suggestionId)
         );
     }
 

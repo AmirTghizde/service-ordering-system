@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<Order> findAwaitingOrdersByTechnician(Long technicianId) {
-        log.info("Finding orders for technician[{}]",technicianId);
+        log.info("Finding orders for technician[{}]", technicianId);
         Technician technician = technicianService.findById(technicianId);
 
         List<SubServices> subServices = technician.getSubServices();
@@ -88,13 +88,13 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatus.AWAITING_TECHNICIAN_SUGGESTION,
                 OrderStatus.AWAITING_TECHNICIAN_SELECTION
         );
-        return orderRepository.findBySubServicesInAndOrderStatusIn(subServices,orderStatuses);
+        return orderRepository.findBySubServicesInAndOrderStatusIn(subServices, orderStatuses);
     }
 
     @Override
     public Order findById(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(()->
-                new NotFoundException("Order: "+ orderId));
+        return orderRepository.findById(orderId).orElseThrow(() ->
+                new NotFoundException("Couldn't find an order with this id: " + orderId));
     }
 
     @Override
@@ -104,9 +104,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void startOrder(Long orderId) {
-        log.info("Starting order [{}]",orderId);
+        log.info("Starting order [{}]", orderId);
         Order order = findById(orderId);
-        if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)){
+        if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)) {
             log.error("Invalid order status throwing exception");
             throw new CustomException("You can't start this order");
         }
@@ -116,9 +116,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void finishOrder(Long orderId) {
-        log.info("Finishing order [{}]",orderId);
+        log.info("Finishing order [{}]", orderId);
         Order order = findById(orderId);
-        if (!order.getOrderStatus().equals(OrderStatus.STARTED)){
+        if (!order.getOrderStatus().equals(OrderStatus.STARTED)) {
             log.error("Invalid order status throwing exception");
             throw new CustomException("You can't finish this order");
         }

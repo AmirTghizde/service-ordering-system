@@ -85,7 +85,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
                 }
             } else {
                 log.error("Can't find image throwing exception");
-                throw new NotFoundException("ImageAddress: " + imageAddress);
+                throw new NotFoundException("Couldn't find an image in this address: " + imageAddress);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -149,7 +149,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new DuplicateValueException("Email address already exists in the database");
+            throw new DuplicateValueException("This email is already being used in the database: " + registerDto.getEmailAddress());
         }
     }
 

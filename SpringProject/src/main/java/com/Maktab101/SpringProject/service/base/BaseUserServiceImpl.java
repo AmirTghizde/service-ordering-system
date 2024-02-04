@@ -43,12 +43,12 @@ public abstract class BaseUserServiceImpl<T extends User>
         if (baseRepository.existsByEmailAndPassword(emailAddress, password)) {
             T user = findByEmailAddress(emailAddress);
             if (user == null) {
-                throw new NotFoundException("User");
+                throw new NotFoundException("Couldn't find user user is null");
             }
             log.info("[{}] successfully longed in", user.getEmail());
             return user;
         }
-        throw new NotFoundException("User");
+        throw new NotFoundException("User not found check the email and password");
     }
 
     @Override
@@ -75,7 +75,7 @@ public abstract class BaseUserServiceImpl<T extends User>
     @Override
     public T findById(Long userId) {
         return baseRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException("UserId: " + userId));
+                () -> new NotFoundException("Couldn't find a user with his id: " + userId));
     }
 
     @Override

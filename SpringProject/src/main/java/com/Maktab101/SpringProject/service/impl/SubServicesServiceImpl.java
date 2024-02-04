@@ -61,7 +61,7 @@ public class SubServicesServiceImpl implements SubServicesService {
     public SubServices findByName(String subServiceName) {
         log.info("trying to find [{}]", subServiceName);
         return subServicesRepository.findByName(subServiceName).orElseThrow(
-                () -> new NotFoundException(subServiceName)
+                () -> new NotFoundException("Couldn't find a subService with this name: " + subServiceName)
         );
     }
 
@@ -151,7 +151,7 @@ public class SubServicesServiceImpl implements SubServicesService {
                 technicianService.save(technician);
             } else {
                 log.error("[{}] doesn't exists throwing Exception", technician.getEmail());
-                throw new NotFoundException("Technician: " + technician.getEmail());
+                throw new NotFoundException("Couldn't find this technician in the subService: " + technician.getEmail());
             }
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
@@ -162,7 +162,7 @@ public class SubServicesServiceImpl implements SubServicesService {
     @Override
     public SubServices findById(Long subServiceId) {
         return subServicesRepository.findById(subServiceId).
-                orElseThrow(() -> new NotFoundException("SubService: " + subServiceId));
+                orElseThrow(() -> new NotFoundException("Couldn't find a subService with this id: " + subServiceId));
     }
 
     @Override
@@ -174,11 +174,11 @@ public class SubServicesServiceImpl implements SubServicesService {
         log.info("Checking conditions");
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception", serviceName);
-            throw new DuplicateValueException(serviceName);
+            throw new DuplicateValueException("This service name is already being used in database: " + serviceName);
         }
         if (!mainServicesService.existsByName(mainServiceName)) {
             log.error("[{}] doesnt exist in database throwing exception", mainServiceName);
-            throw new NotFoundException("MainService: " + mainServiceName);
+            throw new NotFoundException("Couldn't find a mainService with this name: " + mainServiceName);
         }
     }
 

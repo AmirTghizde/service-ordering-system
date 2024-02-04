@@ -45,7 +45,7 @@ public class MainServicesServiceImpl implements MainServicesService {
     public MainServices findByName(String mainServiceName) {
         log.info("trying to find [{}]", mainServiceName);
         return mainServicesRepository.findByName(mainServiceName).orElseThrow(
-                () -> new NotFoundException(mainServiceName));
+                () -> new NotFoundException("Couldn't find a MainService with this name: " + mainServiceName));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MainServicesServiceImpl implements MainServicesService {
     @Override
     public List<String> findSubServiceNames(Long mainServiceId) {
         MainServices mainServices = mainServicesRepository.findById(mainServiceId).orElseThrow(() ->
-                new CustomException("We cannot find the main service"));
+                new NotFoundException("Couldn't find a main service with this id: " + mainServiceId));
 
         return mainServices.getSubServices().stream()
                 .map(SubServices::getName)
@@ -78,7 +78,7 @@ public class MainServicesServiceImpl implements MainServicesService {
         log.info("Checking main service conditions");
         if (existsByName(serviceName)) {
             log.error("[{}] already exists in database throwing exception", serviceName);
-            throw new DuplicateValueException(serviceName);
+            throw new DuplicateValueException("This name is already being used in database: " + serviceName);
         }
         if (StringUtils.isBlank(serviceName)) {
             log.error("Main service is blank throwing exception");

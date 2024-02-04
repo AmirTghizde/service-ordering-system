@@ -38,7 +38,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
             checkCondition(registerDto);
             Manager manager = mapDtoValues(registerDto);
             try {
-                log.info("Connecting to [{}]",baseRepository);
+                log.info("Connecting to [{}]", baseRepository);
                 return baseRepository.save(manager);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
@@ -62,13 +62,13 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new DuplicateValueException("Email address already exists in the database");
+            throw new DuplicateValueException("This email is already being used in database: " + registerDto.getEmailAddress());
         }
     }
 
     protected Manager mapDtoValues(RegisterDto registerDto) {
         Random random = new Random();
-        log.info("Mapping [{}] values",registerDto);
+        log.info("Mapping [{}] values", registerDto);
         Manager manager = new Manager();
         manager.setFirstname(registerDto.getFirstname());
         manager.setLastname(registerDto.getLastname());
@@ -76,7 +76,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         manager.setPassword(registerDto.getPassword());
 
         int number = random.nextInt(90000) + 10000;
-        manager.setManagerCode("M"+number);
+        manager.setManagerCode("M" + number);
 
         return manager;
     }

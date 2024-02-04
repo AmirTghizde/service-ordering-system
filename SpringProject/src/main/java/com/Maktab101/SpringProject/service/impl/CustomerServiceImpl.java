@@ -12,6 +12,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.util.Set;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implement
             checkCondition(registerDto);
             Customer customer = mapDtoValues(registerDto);
             try {
-                log.info("Connecting to [{}]",baseRepository);
+                log.info("Connecting to [{}]", baseRepository);
                 return baseRepository.save(customer);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
@@ -64,7 +65,7 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implement
     }
 
     protected Customer mapDtoValues(RegisterDto registerDto) {
-        log.info("Mapping [{}] values",registerDto);
+        log.info("Mapping [{}] values", registerDto);
         Customer customer = new Customer();
         customer.setFirstname(registerDto.getFirstname());
         customer.setLastname(registerDto.getLastname());

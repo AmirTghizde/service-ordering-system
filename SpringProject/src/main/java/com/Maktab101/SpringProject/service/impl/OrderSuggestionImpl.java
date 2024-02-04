@@ -8,6 +8,7 @@ import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -53,7 +54,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
         if (!order.getSuggestions().contains(suggestion)) {
             log.error("Suggestion isn't for this order throwing exception");
-            throw new CustomException("We can't find that suggestion in your order");
+            throw new NotFoundException("Couldn't find that suggestion in your orders");
         }
         switch (order.getOrderStatus()) {
             case AWAITING_TECHNICIAN_ARRIVAL, STARTED, FINISHED, PAID -> {
