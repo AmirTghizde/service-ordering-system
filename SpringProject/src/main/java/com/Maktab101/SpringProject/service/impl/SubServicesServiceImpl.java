@@ -59,15 +59,15 @@ public class SubServicesServiceImpl implements SubServicesService {
 
     @Override
     public SubServices findByName(String subServiceName) {
-        log.info("trying to find [{}]",subServiceName);
+        log.info("trying to find [{}]", subServiceName);
         return subServicesRepository.findByName(subServiceName).orElseThrow(
-                ()->new NotFoundException(subServiceName)
+                () -> new NotFoundException(subServiceName)
         );
     }
 
     @Override
     public boolean existsByName(String subServiceName) {
-        log.info("trying to check if [{}] exists",subServiceName);
+        log.info("trying to check if [{}] exists", subServiceName);
         return subServicesRepository.existsByName(subServiceName);
     }
 
@@ -113,7 +113,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             }
 
             if (!subService.getTechnicians().contains(technician)) {
-                log.info("Connecting to [{}]",subServicesRepository);
+                log.info("Connecting to [{}]", subServicesRepository);
                 //add them
                 subService.getTechnicians().add(technician);
                 technician.getSubServices().add(subService);
@@ -122,7 +122,7 @@ public class SubServicesServiceImpl implements SubServicesService {
                 subServicesRepository.save(subService);
                 technicianService.save(technician);
             } else {
-                log.error("[{}] already exists throwing Exception",technician.getEmail());
+                log.error("[{}] already exists throwing Exception", technician.getEmail());
                 throw new DuplicateValueException("You already added this technician before");
             }
         } catch (PersistenceException e) {
@@ -141,7 +141,7 @@ public class SubServicesServiceImpl implements SubServicesService {
             log.info("deleting [{}] from [{}]", technician.getEmail(), subService.getName());
 
             if (subService.getTechnicians().contains(technician)) {
-                log.info("Connecting to [{}]",subServicesRepository);
+                log.info("Connecting to [{}]", subServicesRepository);
                 //remove them
                 subService.getTechnicians().remove(technician);
                 technician.getSubServices().remove(subService);
@@ -150,8 +150,8 @@ public class SubServicesServiceImpl implements SubServicesService {
                 subServicesRepository.save(subService);
                 technicianService.save(technician);
             } else {
-                log.error("[{}] doesn't exists throwing Exception",technician.getEmail());
-                throw new NotFoundException("Technician: "+technician.getEmail());
+                log.error("[{}] doesn't exists throwing Exception", technician.getEmail());
+                throw new NotFoundException("Technician: " + technician.getEmail());
             }
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
@@ -162,7 +162,7 @@ public class SubServicesServiceImpl implements SubServicesService {
     @Override
     public SubServices findById(Long subServiceId) {
         return subServicesRepository.findById(subServiceId).
-                orElseThrow(() -> new NotFoundException("SubService: "+subServiceId));
+                orElseThrow(() -> new NotFoundException("SubService: " + subServiceId));
     }
 
     @Override
@@ -173,12 +173,12 @@ public class SubServicesServiceImpl implements SubServicesService {
     protected void checkConditions(String serviceName, String mainServiceName) {
         log.info("Checking conditions");
         if (existsByName(serviceName)) {
-            log.error("[{}] already exists in database throwing exception",serviceName);
-            throw new DuplicateValueException("Sub service already exists in the database");
+            log.error("[{}] already exists in database throwing exception", serviceName);
+            throw new DuplicateValueException(serviceName);
         }
         if (!mainServicesService.existsByName(mainServiceName)) {
-            log.error("[{}] doesnt exist in database throwing exception",mainServiceName);
-            throw new NotFoundException("MainService: "+mainServiceName);
+            log.error("[{}] doesnt exist in database throwing exception", mainServiceName);
+            throw new NotFoundException("MainService: " + mainServiceName);
         }
     }
 
