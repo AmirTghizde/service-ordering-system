@@ -7,7 +7,6 @@ import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
-import com.Maktab101.SpringProject.utils.sorter.CustomerSorter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
@@ -28,15 +27,12 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
     @PersistenceContext
     private EntityManager entityManager;
     private final Validator validator;
-    private final CustomerSorter sortFilterable;
 
 
     @Autowired
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator,
-                               CustomerSorter sortFilterable) {
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator) {
         super(baseRepository);
         this.validator = validator;
-        this.sortFilterable = sortFilterable;
     }
 
 
@@ -58,11 +54,6 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         }
         String violationMessages = getViolationMessages(violations);
         throw new CustomException(violationMessages);
-    }
-
-    @Override
-    public List<Customer> sort(List<String> sortingFields) {
-        return sortFilterable.sort(entityManager, sortingFields);
     }
 
     @Override

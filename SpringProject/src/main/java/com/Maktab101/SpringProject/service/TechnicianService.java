@@ -17,6 +17,5 @@ public interface TechnicianService extends BaseUserService<Technician> {
 
     void saveImage(Long technicianId, String imageAddress);
 
-    List<Technician> sort(List<String> sortingFields);
     List<Technician> filter(Specification<Technician> specification);
 }

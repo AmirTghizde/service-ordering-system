@@ -45,15 +45,6 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/sort")
-    public ResponseEntity<List<CustomerResponseDto>> sortCustomers(@RequestBody List<String> sortingFields) {
-        List<Customer> sortedCustomers = customerService.sort(sortingFields);
-        List<CustomerResponseDto> dtoList = sortedCustomers.stream()
-                .map(UserMapper.INSTANCE::toCustomerDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
-    }
-
     @GetMapping("/filter")
     public ResponseEntity<List<CustomerResponseDto>> sortCustomers(@RequestBody RequestDto requestDto) {
         Specification<Customer> specificationList = filterSpecification.getSpecificationList(

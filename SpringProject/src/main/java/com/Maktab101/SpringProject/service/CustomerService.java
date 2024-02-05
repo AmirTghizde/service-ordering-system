@@ -11,7 +11,5 @@ import java.util.List;
 public interface CustomerService extends BaseUserService<Customer> {
     Customer register (RegisterDto registerDto);
 
-    List<Customer> sort(List<String> sortingFields);
-
     List<Customer> filter(Specification<Customer> specification);
 }

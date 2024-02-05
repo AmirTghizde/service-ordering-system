@@ -5,7 +5,6 @@ import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
-import com.Maktab101.SpringProject.utils.sorter.TechnicianSorter;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -33,13 +32,11 @@ class TechnicianServiceImplTest {
     private TechnicianRepository technicianRepository;
     @Mock
     private Validator validator;
-    @Mock
-    private TechnicianSorter sortFilterable;
     private TechnicianServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new TechnicianServiceImpl(technicianRepository, validator, sortFilterable);
+        underTest = new TechnicianServiceImpl(technicianRepository, validator);
     }
 
     @Test

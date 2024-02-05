@@ -36,14 +36,6 @@ public class TechnicianController {
         TechnicianResponseDto technicianDto = UserMapper.INSTANCE.toTechnicianDto(technician);
         return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
     }
-    @GetMapping("/sort")
-    public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@RequestBody List<String> sortingFields) {
-        List<Technician> sortedTechnician = technicianService.sort(sortingFields);
-        List<TechnicianResponseDto> dtoList = sortedTechnician.stream()
-                .map(UserMapper.INSTANCE::toTechnicianDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
-    }
 
     @GetMapping("/filter")
     public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@RequestBody RequestDto requestDto) {
