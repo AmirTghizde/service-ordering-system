@@ -3,6 +3,8 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
+import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
@@ -26,11 +28,13 @@ class CustomerServiceImplTest {
     private CustomerRepository customerRepository;
     @Mock
     private Validator validator;
+    @Mock
+    private TechnicianService technicianService;
     private CustomerServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new CustomerServiceImpl(customerRepository, validator);
+        underTest = new CustomerServiceImpl(customerRepository, technicianService, validator);
     }
 
 

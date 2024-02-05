@@ -21,4 +21,5 @@ public class OrderDto implements Serializable {
     private LocalDateTime dateAndTime;
     private String Address;
     private double price;
+    private Long SelectedSuggestionId;
 }

@@ -1,9 +1,6 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.users.CustomerResponseDto;
-import com.Maktab101.SpringProject.dto.users.PasswordEditDto;
-import com.Maktab101.SpringProject.dto.users.RegisterDto;
-import com.Maktab101.SpringProject.dto.users.RequestDto;
+import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.service.CustomerService;
@@ -57,5 +54,11 @@ public class CustomerController {
                 .map(UserMapper.INSTANCE::toCustomerDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
+    }
+
+    @PutMapping("/credit/add")
+    public ResponseEntity<String> addCredit(@Valid @RequestBody AddCreditDto dto) {
+        customerService.addCredit(dto.getCustomerId(), dto.getAmount());
+        return ResponseEntity.ok("Credit increased successfully");
     }
 }

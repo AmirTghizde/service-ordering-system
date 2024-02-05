@@ -23,6 +23,7 @@ public class OrderResponseDto implements Serializable {
     private LocalDateTime dateAndTime;
     private String Address;
     private double price;
+    private Long SelectedSuggestionId;
     private CustomerDto customer;
     private SubServicesDto subServices;
 }

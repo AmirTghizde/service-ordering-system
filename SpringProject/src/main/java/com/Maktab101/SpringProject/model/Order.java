@@ -31,6 +31,8 @@ public class Order  {
 
     private double price;
 
+    private Long SelectedSuggestionId;
+
     private String comment;
 
     private double point;

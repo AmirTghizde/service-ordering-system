@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
@@ -33,9 +34,6 @@ import java.util.Set;
 @Slf4j
 @Service
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> implements TechnicianService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
     private final Validator validator;
 
     @Autowired
@@ -142,6 +140,16 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     @Override
     public List<Technician> filter(Specification<Technician> specification) {
         return baseRepository.findAll(specification);
+    }
+
+    @Override
+    public void addCredit(Long technicianId, double amount) {
+        double seventyPercent = amount * 0.7;
+        Technician technician = findById(technicianId);
+        double balance = technician.getBalance();
+        balance += seventyPercent;
+        technician.setBalance(balance);
+        baseRepository.save(technician);
     }
 
     protected byte[] imageToBytes(String imageAddress) {

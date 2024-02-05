@@ -64,6 +64,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         }
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
+        order.setPrice(suggestion.getSuggestedPrice());
+        order.setSelectedSuggestionId(suggestion.getId());
         orderService.save(order);
     }
 

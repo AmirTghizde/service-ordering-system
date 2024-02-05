@@ -7,8 +7,8 @@ import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.model.Order;
-import com.Maktab101.SpringProject.service.OrderService;
-import com.Maktab101.SpringProject.service.OrderSuggestionService;
+import com.Maktab101.SpringProject.model.Suggestion;
+import com.Maktab101.SpringProject.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,11 +23,20 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
+    private final CustomerService customerService;
+    private final TechnicianService technicianService;
+    private final SuggestionService suggestionService;
+
     private final OrderSuggestionService orderSuggestionService;
 
     @Autowired
-    public OrderController(OrderService orderService, OrderSuggestionService orderSuggestionService) {
+    public OrderController(OrderService orderService, CustomerService customerService,
+                           TechnicianService technicianService, SuggestionService suggestionService,
+                           OrderSuggestionService orderSuggestionService) {
         this.orderService = orderService;
+        this.customerService = customerService;
+        this.technicianService = technicianService;
+        this.suggestionService = suggestionService;
         this.orderSuggestionService = orderSuggestionService;
     }
 
@@ -70,6 +79,15 @@ public class OrderController {
             orderService.addComment(dto.getId(),dto.getComment());
         }
         return ResponseEntity.ok().build();
+    }
+    @PutMapping("/payment/byCredit")
+    public ResponseEntity<String> payByCredit(@RequestParam("id") Long orderId) {
+        Order order = orderService.findById(orderId);
+        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+
+        customerService.payByCredit(order.getCustomer().getId(),order.getPrice());
+        technicianService.addCredit(suggestion.getTechnician().getId(),order.getPrice());
+        return ResponseEntity.ok("Payment completed!");
     }
     @GetMapping("/view")
     public ResponseEntity<OrderCommentDto> viewOrder(@RequestParam("id") Long orderId) {

@@ -18,4 +18,6 @@ public interface TechnicianService extends BaseUserService<Technician> {
     void saveImage(Long technicianId, String imageAddress);
 
     List<Technician> filter(Specification<Technician> specification);
+
+    void addCredit(Long technicianId, double amount);
 }

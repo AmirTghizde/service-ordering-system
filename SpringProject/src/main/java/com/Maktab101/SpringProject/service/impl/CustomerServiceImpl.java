@@ -1,8 +1,10 @@
 package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
+import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
@@ -23,15 +25,15 @@ import java.util.*;
 @Service
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final TechnicianService technicianService;
     private final Validator validator;
 
 
     @Autowired
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator) {
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository,
+                               TechnicianService technicianService, Validator validator) {
         super(baseRepository);
+        this.technicianService = technicianService;
         this.validator = validator;
     }
 
@@ -59,6 +61,28 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
     @Override
     public List<Customer> filter(Specification<Customer> specification) {
         return baseRepository.findAll(specification);
+    }
+
+    @Override
+    public void payByCredit(Long customerId, double amount) {
+        Customer customer = findById(customerId);
+        if (customer.getBalance() > amount) {
+            double balance = customer.getBalance();
+            balance -= amount;
+            customer.setBalance(balance);
+            baseRepository.save(customer);
+        } else {
+            throw new CustomException("Not enough credit use the online method");
+        }
+    }
+
+    @Override
+    public void addCredit(Long customerId, double amount) {
+        Customer customer = findById(customerId);
+        double balance = customer.getBalance();
+        balance += amount;
+        customer.setBalance(balance);
+        baseRepository.save(customer);
     }
 
     protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
