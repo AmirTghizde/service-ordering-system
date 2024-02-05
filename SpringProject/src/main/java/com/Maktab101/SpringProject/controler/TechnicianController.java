@@ -4,9 +4,11 @@ import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +22,12 @@ public class TechnicianController {
 
     private final TechnicianService technicianService;
 
+    private final FilterSpecification<Technician> filterSpecification;
+
     @Autowired
-    public TechnicianController(TechnicianService technicianService) {
+    public TechnicianController(TechnicianService technicianService, FilterSpecification<Technician> filterSpecification) {
         this.technicianService = technicianService;
+        this.filterSpecification = filterSpecification;
     }
 
     @PostMapping
@@ -38,6 +43,21 @@ public class TechnicianController {
                 .map(UserMapper.INSTANCE::toTechnicianDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@RequestBody RequestDto requestDto) {
+        Specification<Technician> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        List<Technician> filteredCustomers = technicianService.filter(specificationList);
+
+        List<TechnicianResponseDto> dtoList = filteredCustomers.stream()
+                .map(UserMapper.INSTANCE::toTechnicianDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
+
     }
 
     @GetMapping("/fetch")

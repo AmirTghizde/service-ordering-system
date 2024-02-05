@@ -3,7 +3,6 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.repository.SuggestionRepository;
 import com.Maktab101.SpringProject.service.SuggestionService;
-import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

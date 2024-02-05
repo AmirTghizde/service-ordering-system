@@ -18,6 +18,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -143,9 +144,13 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
     @Override
     public List<Technician> sort(List<String> sortingFields) {
-        return sortFilterable.sort(entityManager,sortingFields);
+        return sortFilterable.sort(entityManager, sortingFields);
     }
 
+    @Override
+    public List<Technician> filter(Specification<Technician> specification) {
+        return baseRepository.findAll(specification);
+    }
 
     protected byte[] imageToBytes(String imageAddress) {
         log.info("Converting image to bytes");

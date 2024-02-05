@@ -4,6 +4,7 @@ import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.service.base.BaseUserService;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -17,4 +18,5 @@ public interface TechnicianService extends BaseUserService<Technician> {
     void saveImage(Long technicianId, String imageAddress);
 
     List<Technician> sort(List<String> sortingFields);
+    List<Technician> filter(Specification<Technician> specification);
 }

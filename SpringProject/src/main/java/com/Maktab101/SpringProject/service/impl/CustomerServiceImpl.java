@@ -15,6 +15,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -62,6 +63,11 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
     @Override
     public List<Customer> sort(List<String> sortingFields) {
         return sortFilterable.sort(entityManager, sortingFields);
+    }
+
+    @Override
+    public List<Customer> filter(Specification<Customer> specification) {
+        return baseRepository.findAll(specification);
     }
 
     protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
