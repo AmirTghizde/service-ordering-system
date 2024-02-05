@@ -118,14 +118,32 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void finishOrder(Long orderId) {
+    public void finishOrder(Long orderId,double point) {
         log.info("Finishing order [{}]", orderId);
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.STARTED)) {
             log.error("Invalid order status throwing exception");
             throw new CustomException("You can't finish this order");
         }
-        order.setOrderStatus(OrderStatus.FINISHED);
+
+        if (0<=point && point<=5){
+            order.setOrderStatus(OrderStatus.FINISHED);
+            order.setPoint(point);
+            save(order);
+        }else {
+            throw new CustomException("Point must be between 0 to 5");
+        }
+    }
+
+    @Override
+    public void addComment(Long orderId, String comment) {
+        log.info("Adding comment for this order [{}]", orderId);
+        Order order = findById(orderId);
+        if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
+            log.error("Invalid order status throwing exception");
+            throw new CustomException("Can't leave a comment now");
+        }
+        order.setComment(comment);
         save(order);
     }
 

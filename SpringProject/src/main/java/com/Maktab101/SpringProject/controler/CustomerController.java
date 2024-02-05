@@ -46,7 +46,7 @@ public class CustomerController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<CustomerResponseDto>> sortCustomers(@RequestBody RequestDto requestDto) {
+    public ResponseEntity<List<CustomerResponseDto>> sortCustomers(@Valid @RequestBody RequestDto requestDto) {
         Specification<Customer> specificationList = filterSpecification.getSpecificationList(
                 requestDto.getSearchRequestDto(),
                 requestDto.getGlobalOperator());

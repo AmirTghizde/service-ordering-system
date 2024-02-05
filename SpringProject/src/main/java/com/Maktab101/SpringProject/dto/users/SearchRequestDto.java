@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.dto.users;
 
 import com.Maktab101.SpringProject.model.enums.Operation;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchRequestDto {
+    @NotNull
     private String column;
+    @NotNull
     private String value;
+    @NotNull
     private Operation operation;
     private String joinTable;
 }

@@ -38,7 +38,7 @@ public class TechnicianController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@RequestBody RequestDto requestDto) {
+    public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@Valid @RequestBody RequestDto requestDto) {
         Specification<Technician> specificationList = filterSpecification.getSpecificationList(
                 requestDto.getSearchRequestDto(),
                 requestDto.getGlobalOperator());

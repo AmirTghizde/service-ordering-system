@@ -1,5 +1,7 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
+import com.Maktab101.SpringProject.dto.order.OrderCommentDto;
 import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
@@ -62,8 +64,17 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
     @PutMapping("/finish")
-    public ResponseEntity<Void> finishOrder(@RequestParam("id") Long orderId) {
-        orderService.finishOrder(orderId);
+    public ResponseEntity<Void> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
+        orderService.finishOrder(dto.getId(),dto.getPoint());
+        if (dto.getComment() != null){
+            orderService.addComment(dto.getId(),dto.getComment());
+        }
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/view")
+    public ResponseEntity<OrderCommentDto> viewOrder(@RequestParam("id") Long orderId) {
+        Order order = orderService.findById(orderId);
+        OrderCommentDto orderCommentDto = OrderMapper.INSTANCE.toOrderCommentDto(order);
+        return ResponseEntity.ok(orderCommentDto);
     }
 }

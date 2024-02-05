@@ -12,5 +12,6 @@ public interface OrderService {
     Order findById(Long orderId);
     Order save(Order order);
     void startOrder(Long orderId);
-    void finishOrder(Long orderId);
+    void finishOrder(Long orderId,double point);
+    void addComment(Long orderId,String comment);
 }
