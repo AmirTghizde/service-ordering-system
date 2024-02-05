@@ -8,6 +8,7 @@ import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Suggestion;
+import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +88,8 @@ public class OrderController {
 
         customerService.payByCredit(order.getCustomer().getId(),order.getPrice());
         technicianService.addCredit(suggestion.getTechnician().getId(),order.getPrice());
+        order.setOrderStatus(OrderStatus.PAID);
+        orderService.save(order);
         return ResponseEntity.ok("Payment completed!");
     }
     @GetMapping("/view")
