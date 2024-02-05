@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.utils.sortFilterable;
+package com.Maktab101.SpringProject.utils.sorter;
 
 
 import com.Maktab101.SpringProject.model.User;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface UserSortFilterable<T extends User> {
+public interface UserSorter<T extends User> {
     List<T> sort(EntityManager entityManager, List<String> sortingFields);
 
     default List<Order> getOrders(List<String> sortingFields, Map<String, Order> orderMap) {

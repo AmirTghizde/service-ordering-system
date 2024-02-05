@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.utils.sortFilterable;
+package com.Maktab101.SpringProject.utils.sorter;
 
 import com.Maktab101.SpringProject.model.Customer;
 import jakarta.persistence.EntityManager;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class CustomerSortFilterable implements UserSortFilterable<Customer> {
+public class CustomerSorter implements UserSorter<Customer> {
     @Override
     public List<Customer> sort(EntityManager entityManager, List<String> sortingFields) {
         log.info("Sorting Customers by these values [{}]", sortingFields);
@@ -31,6 +31,4 @@ public class CustomerSortFilterable implements UserSortFilterable<Customer> {
 
         return entityManager.createQuery(query).getResultList();
     }
-
-
 }

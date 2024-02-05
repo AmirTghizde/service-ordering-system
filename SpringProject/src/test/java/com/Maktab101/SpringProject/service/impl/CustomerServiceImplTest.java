@@ -4,7 +4,7 @@ import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
-import com.Maktab101.SpringProject.utils.sortFilterable.CustomerSortFilterable;
+import com.Maktab101.SpringProject.utils.sorter.CustomerSorter;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -28,7 +28,7 @@ class CustomerServiceImplTest {
     @Mock
     private Validator validator;
     @Mock
-    private CustomerSortFilterable sorter;
+    private CustomerSorter sorter;
     private CustomerServiceImpl underTest;
 
     @BeforeEach

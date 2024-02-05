@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.utils.sortFilterable;
+package com.Maktab101.SpringProject.utils.sorter;
 
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.model.Technician;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class TechnicianSortFilterable implements UserSortFilterable<Technician> {
+public class TechnicianSorter implements UserSorter<Technician> {
 
     @Override
     public List<Technician> sort(EntityManager entityManager, List<String> sortingFields) {

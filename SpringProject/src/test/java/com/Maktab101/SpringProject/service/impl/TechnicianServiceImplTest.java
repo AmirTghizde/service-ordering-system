@@ -5,7 +5,7 @@ import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
-import com.Maktab101.SpringProject.utils.sortFilterable.TechnicianSortFilterable;
+import com.Maktab101.SpringProject.utils.sorter.TechnicianSorter;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,7 @@ class TechnicianServiceImplTest {
     @Mock
     private Validator validator;
     @Mock
-    private TechnicianSortFilterable sortFilterable;
+    private TechnicianSorter sortFilterable;
     private TechnicianServiceImpl underTest;
 
     @BeforeEach
