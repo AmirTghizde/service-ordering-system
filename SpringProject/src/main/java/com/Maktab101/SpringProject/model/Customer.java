@@ -19,5 +19,6 @@ public class Customer extends User {
     private double balance = 0;
 
     @OneToMany(mappedBy = "customer")
+    @ToString.Exclude
     private List<Order> orders;
 }

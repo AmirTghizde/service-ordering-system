@@ -1,9 +1,5 @@
-package com.Maktab101.SpringProject.utils;
+package com.Maktab101.SpringProject.utils.exceptions;
 
-import com.Maktab101.SpringProject.utils.exceptions.ApiException;
-import com.Maktab101.SpringProject.utils.exceptions.CustomException;
-import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
-import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
@@ -10,6 +11,9 @@ import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
+import com.Maktab101.SpringProject.utils.sortFilterable.TechnicianSortFilterable;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -31,12 +35,16 @@ import java.util.Set;
 @Service
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> implements TechnicianService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final Validator validator;
+    private final TechnicianSortFilterable sortFilterable;
 
     @Autowired
-    public TechnicianServiceImpl(TechnicianRepository baseRepository, Validator validator) {
+    public TechnicianServiceImpl(TechnicianRepository baseRepository, Validator validator, TechnicianSortFilterable sortFilterable1) {
         super(baseRepository);
         this.validator = validator;
+        this.sortFilterable = sortFilterable1;
     }
 
     @Override
@@ -132,6 +140,11 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             log.error("PersistenceException occurred throwing CustomException ... ");
             throw new CustomException(e.getMessage());
         }
+    }
+
+    @Override
+    public List<Technician> sort(List<String> sortingFields) {
+        return sortFilterable.sort(entityManager,sortingFields);
     }
 
 

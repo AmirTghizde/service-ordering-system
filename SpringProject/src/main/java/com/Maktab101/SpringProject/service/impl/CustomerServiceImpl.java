@@ -7,23 +7,35 @@ import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
+import com.Maktab101.SpringProject.utils.sortFilterable.CustomerSortFilterable;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
-public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implements CustomerService {
+public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
+        implements CustomerService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final Validator validator;
+    private final CustomerSortFilterable sortFilterable;
 
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator) {
+
+    @Autowired
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator,
+                               CustomerSortFilterable sortFilterable) {
         super(baseRepository);
         this.validator = validator;
+        this.sortFilterable = sortFilterable;
     }
 
 
@@ -45,6 +57,11 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implement
         }
         String violationMessages = getViolationMessages(violations);
         throw new CustomException(violationMessages);
+    }
+
+    @Override
+    public List<Customer> sort(List<String> sortingFields) {
+        return sortFilterable.sort(entityManager, sortingFields);
     }
 
     protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
@@ -73,5 +90,4 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implement
         customer.setPassword(registerDto.getPassword());
         return customer;
     }
-
 }

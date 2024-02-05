@@ -1,10 +1,8 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.users.ImageSaveDto;
-import com.Maktab101.SpringProject.dto.users.PasswordEditDto;
-import com.Maktab101.SpringProject.dto.users.RegisterDto;
-import com.Maktab101.SpringProject.dto.users.TechnicianResponseDto;
+import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
@@ -32,6 +30,14 @@ public class TechnicianController {
         Technician technician = technicianService.register(registerDto);
         TechnicianResponseDto technicianDto = UserMapper.INSTANCE.toTechnicianDto(technician);
         return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
+    }
+    @GetMapping("/sort")
+    public ResponseEntity<List<TechnicianResponseDto>> sortCustomers(@RequestBody List<String> sortingFields) {
+        List<Technician> sortedTechnician = technicianService.sort(sortingFields);
+        List<TechnicianResponseDto> dtoList = sortedTechnician.stream()
+                .map(UserMapper.INSTANCE::toTechnicianDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/fetch")
