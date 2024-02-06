@@ -20,4 +20,6 @@ public interface TechnicianService extends BaseUserService<Technician> {
     List<Technician> filter(Specification<Technician> specification);
 
     void addCredit(Long technicianId, double amount);
+    void addPoints(Long technicianId, double amount);
+    void reducePoints(Long technicianId, double amount);
 }

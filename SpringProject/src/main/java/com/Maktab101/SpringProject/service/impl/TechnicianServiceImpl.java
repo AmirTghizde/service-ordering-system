@@ -152,6 +152,33 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         baseRepository.save(technician);
     }
 
+    @Override
+    public void addPoints(Long technicianId, double amount) {
+        Technician technician = findById(technicianId);
+        double score = technician.getScore();
+        score = (score + amount) / 2;
+
+        technician.setScore(score);
+        baseRepository.save(technician);
+    }
+
+    @Override
+    public void reducePoints(Long technicianId, double amount) {
+        log.info("Reducing points [technician:{}] points by [{}]",technicianId,amount);
+        Technician technician = findById(technicianId);
+        double score = technician.getScore();
+        score -= amount;
+        log.info("The new score is [{}]",score);
+
+        if (score < 0 ){
+            log.info("Score is lower than 0 disabling account");
+            technician.setStatus(TechnicianStatus.DISABLED);
+        }
+
+        technician.setScore(score);
+        baseRepository.save(technician);
+    }
+
     protected byte[] imageToBytes(String imageAddress) {
         log.info("Converting image to bytes");
         try {

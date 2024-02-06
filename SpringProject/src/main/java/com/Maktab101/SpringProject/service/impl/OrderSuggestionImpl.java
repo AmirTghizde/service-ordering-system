@@ -1,5 +1,6 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
 import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
@@ -17,10 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -128,6 +131,52 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         }
         suggestions.sort(priceComparing);
         return suggestions;
+    }
+
+    @Override
+    public long isAfterSuggestedTime(Long orderId) {
+        log.info("Calculating order time [orderId:{}]", orderId);
+        Order order = orderService.findById(orderId);
+        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime suggestedDateTime = suggestion.getSuggestedDate();
+        LocalTime suggestedDuration = suggestion.getDuration();
+        Duration duration = Duration.between(LocalTime.MIN, suggestedDuration);
+        LocalDateTime endDateTime = suggestedDateTime.plus(duration);
+
+        if (now.isAfter(endDateTime)) {
+            long difference = ChronoUnit.HOURS.between(now, endDateTime);
+            difference = Math.abs(difference);
+            log.info("Hour difference is [{}]", difference);
+            return difference;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handelFinishOrder(FinishOrderDto dto) {
+        log.info("Order[id:{}] finished, handling the aftermath", dto.getId());
+        // Finish the order
+        orderService.finishOrder(dto.getId(), dto.getPoint());
+        if (dto.getComment() != null) {
+            orderService.addComment(dto.getId(), dto.getComment());
+        }
+
+        // Add the technician points
+        Order order = orderService.findById(dto.getId());
+        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+        Technician technician = suggestion.getTechnician();
+        technicianService.addPoints(technician.getId(), dto.getPoint());
+
+
+        // If the finished time is after now returns more than 0(Returns the hour difference)
+        long hourDifference = isAfterSuggestedTime(dto.getId());
+        if (hourDifference > 0) {
+            technicianService.reducePoints(technician.getId(), hourDifference);
+        }
     }
 
     protected void checkCondition(Technician technician, SendSuggestionDto sendSuggestionDto, SubServices subServices, Order order) {

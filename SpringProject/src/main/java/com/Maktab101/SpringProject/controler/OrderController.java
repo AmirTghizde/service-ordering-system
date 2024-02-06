@@ -74,12 +74,9 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
     @PutMapping("/finish")
-    public ResponseEntity<Void> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
-        orderService.finishOrder(dto.getId(),dto.getPoint());
-        if (dto.getComment() != null){
-            orderService.addComment(dto.getId(),dto.getComment());
-        }
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
+        orderSuggestionService.handelFinishOrder(dto);
+        return ResponseEntity.ok("Successfully finished order");
     }
     @PutMapping("/payment/byCredit")
     public ResponseEntity<String> payByCredit(@RequestParam("id") Long orderId) {
