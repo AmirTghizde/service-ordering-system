@@ -26,9 +26,9 @@ public class MainServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addService(@Valid @RequestBody ServiceNameDto serviceNameDto) {
+    public ResponseEntity<String> addService(@Valid @RequestBody ServiceNameDto serviceNameDto) {
         mainServicesService.addService(serviceNameDto.getServiceName());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body("🔨 New main service created");
     }
 
     @GetMapping(path = "/view/service")

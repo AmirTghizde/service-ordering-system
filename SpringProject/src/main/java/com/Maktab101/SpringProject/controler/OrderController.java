@@ -42,11 +42,11 @@ public class OrderController {
     }
 
     @PostMapping("/{customerId}/submit")
-    public ResponseEntity<Void> submitOrder(
+    public ResponseEntity<String> submitOrder(
             @PathVariable(name = "customerId") Long customerId,
             @Valid @RequestBody OrderSubmitDto orderSubmitDto) {
         orderService.submitOrder(customerId,orderSubmitDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok("📜 New order submitted");
     }
 
     @GetMapping("/fetch/byTechnician")
@@ -64,19 +64,19 @@ public class OrderController {
         return ResponseEntity.ok().body(dto);
     }
     @PutMapping("/suggestions/select")
-    public ResponseEntity<Void> selectSuggestion(@Valid @RequestBody SelectSuggestionDto dto) {
+    public ResponseEntity<String> selectSuggestion(@Valid @RequestBody SelectSuggestionDto dto) {
         orderSuggestionService.selectSuggestion(dto.getOrderId(), dto.getSuggestionId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("✅ Suggestion successfully selected");
     }
     @PutMapping("/start")
-    public ResponseEntity<Void> startOrder(@RequestParam("id") Long orderId) {
+    public ResponseEntity<String> startOrder(@RequestParam("id") Long orderId) {
         orderService.startOrder(orderId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("👨‍🔧 Order started successfully");
     }
     @PutMapping("/finish")
     public ResponseEntity<String> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
         orderSuggestionService.handelFinishOrder(dto);
-        return ResponseEntity.ok("Successfully finished order");
+        return ResponseEntity.ok("👷‍♂️ Order finished successfully");
     }
     @PutMapping("/payment/byCredit")
     public ResponseEntity<String> payByCredit(@RequestParam("id") Long orderId) {
@@ -87,7 +87,7 @@ public class OrderController {
         technicianService.addCredit(suggestion.getTechnician().getId(),order.getPrice());
         order.setOrderStatus(OrderStatus.PAID);
         orderService.save(order);
-        return ResponseEntity.ok("Payment completed!");
+        return ResponseEntity.ok("🤝 Payment completed");
     }
     @GetMapping("/view")
     public ResponseEntity<OrderCommentDto> viewOrder(@RequestParam("id") Long orderId) {

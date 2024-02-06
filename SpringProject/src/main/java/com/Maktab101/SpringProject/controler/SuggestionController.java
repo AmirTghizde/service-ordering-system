@@ -26,11 +26,11 @@ public class SuggestionController {
     }
 
     @PostMapping("/{technicianId}/send")
-    public ResponseEntity<Void> sendSuggestion(
+    public ResponseEntity<String> sendSuggestion(
             @PathVariable(name = "technicianId") Long technicianId,
             @Valid @RequestBody SendSuggestionDto suggestionDto) {
         orderSuggestionService.sendSuggestion(technicianId, suggestionDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok("📮 Suggestion sent successfully");
     }
 
     @GetMapping("/fetch/byPoint")

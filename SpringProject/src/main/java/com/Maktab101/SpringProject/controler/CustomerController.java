@@ -37,9 +37,9 @@ public class CustomerController {
     }
 
     @PutMapping("/edit/password")
-    public ResponseEntity<Void> editPassword(@Valid @RequestBody PasswordEditDto dto) {
+    public ResponseEntity<String> editPassword(@Valid @RequestBody PasswordEditDto dto) {
         customerService.editPassword(dto.getUserId(), dto.getNewPassword());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("🔐 Password changed successfully");
     }
 
     @GetMapping("/filter")
@@ -59,6 +59,6 @@ public class CustomerController {
     @PutMapping("/credit/add")
     public ResponseEntity<String> addCredit(@Valid @RequestBody AddCreditDto dto) {
         customerService.addCredit(dto.getCustomerId(), dto.getAmount());
-        return ResponseEntity.ok("Credit increased successfully");
+        return ResponseEntity.ok("💳 Credit increased successfully");
     }
 }

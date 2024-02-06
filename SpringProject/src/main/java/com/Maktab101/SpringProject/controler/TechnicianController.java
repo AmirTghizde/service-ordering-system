@@ -62,21 +62,21 @@ public class TechnicianController {
     }
 
     @PutMapping("/confirm")
-    public ResponseEntity<Void> confirmTechnician(@RequestParam("id") Long technicianId) {
+    public ResponseEntity<String> confirmTechnician(@RequestParam("id") Long technicianId) {
         technicianService.confirmTechnician(technicianId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("✅ Suggestion confirmed successfully");
     }
 
     @PutMapping("/edit/addImage")
-    public ResponseEntity<Void> saveImage(@Valid @RequestBody ImageSaveDto dto) {
+    public ResponseEntity<String> saveImage(@Valid @RequestBody ImageSaveDto dto) {
         String imagePath = "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\";
         technicianService.saveImage(dto.getTechnicianId(), imagePath + dto.getImageName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("📸 Image added successfully");
     }
 
     @PutMapping("/edit/password")
-    public ResponseEntity<Void> editPassword(@Valid @RequestBody PasswordEditDto dto) {
+    public ResponseEntity<String> editPassword(@Valid @RequestBody PasswordEditDto dto) {
         technicianService.editPassword(dto.getUserId(), dto.getNewPassword());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("🔐 Password changed successfully");
     }
 }

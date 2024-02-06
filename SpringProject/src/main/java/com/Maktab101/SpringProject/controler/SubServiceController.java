@@ -22,14 +22,14 @@ public class SubServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addService(@Valid @RequestBody SubServiceSubmitDto subServiceDto) {
+    public ResponseEntity<String> addService(@Valid @RequestBody SubServiceSubmitDto subServiceDto) {
         subServicesService.addService(
                 subServiceDto.getName(),
                 subServiceDto.getBaseWage(),
                 subServiceDto.getDescription(),
                 subServiceDto.getMainServiceName()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("🔧 New subService created");
     }
 
     @GetMapping(path = "/view/service")
@@ -40,32 +40,32 @@ public class SubServiceController {
     }
 
     @PutMapping(path = "/edit/baseWage")
-    public ResponseEntity<Void> editBaseWage(
+    public ResponseEntity<String> editBaseWage(
             @RequestParam("id") Long serviceId,
             @RequestParam("newWage") double newBaseWage
     ) {
         subServicesService.editBaseWage(serviceId, newBaseWage);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("✏ Base wage changed successfully");
     }
 
     @PutMapping(path = "/edit/description")
-    public ResponseEntity<Void> editDescription(
+    public ResponseEntity<String> editDescription(
             @RequestParam("id") Long serviceId,
             @RequestParam("description") String description
     ) {
         subServicesService.editDescription(serviceId, description);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("✏ Description changed successfully");
     }
 
     @PutMapping(path = "/edit/addTechnician")
-    public ResponseEntity<Void> addTechnician(@Valid @RequestBody SubServiceTechnicianDto dto) {
+    public ResponseEntity<String> addTechnician(@Valid @RequestBody SubServiceTechnicianDto dto) {
         subServicesService.addToSubService(dto.getTechnicianId(), dto.getSubServiceId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("🧰 Technician added successfully");
     }
 
     @PutMapping(path = "/edit/deleteTechnician")
-    public ResponseEntity<Void> deleteTechnician(@RequestBody SubServiceTechnicianDto dto) {
+    public ResponseEntity<String> deleteTechnician(@RequestBody SubServiceTechnicianDto dto) {
         subServicesService.deleteFromSubService(dto.getTechnicianId(), dto.getSubServiceId());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("🧰 Technician deleted successfully");
     }
 }
