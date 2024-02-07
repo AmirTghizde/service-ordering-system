@@ -1,0 +1,63 @@
+html, body {
+    font-family: "Arial Black", sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    text-transform: uppercase;
+    background-color: #212529;
+}
+
+.container {
+}
+
+.container form {
+    background-color: #2B3035;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, .1);
+    padding: 20px;
+    width: 600px;
+}
+
+.container form .inputBox {
+    margin-top: 20px;
+}
+
+.container form .inputBox span {
+    color: #eee;
+}
+
+.container form .inputBox input {
+    background-color: #2B3035;
+}
+
+.container form .flexbox {
+    gap: 15px;
+}
+
+.container form .flexbox .inputBox {
+    flex: 1 1 150px;
+}
+
+.container form .flexbox select {
+    background-color: #2B3035;
+}
+
+.container form .submit-btn {
+    background: linear-gradient(45deg, blueviolet, deeppink);
+    margin-top: 20px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: .2s linear;
+}
+
+.container form .submit-btn:hover{
+    letter-spacing: 1px;
+    opacity: .8;
+}
+
+input:focus {
+    outline: none;
+}
