@@ -34,7 +34,7 @@ class CustomerServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new CustomerServiceImpl(customerRepository, technicianService, validator);
+        underTest = new CustomerServiceImpl(customerRepository, technicianService);
     }
 
 
@@ -116,27 +116,6 @@ class CustomerServiceImplTest {
         verify(customerRepository).save(any(Customer.class));
         verify(customerRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(customerRepository);
-    }
-
-    @Test
-    void testGetViolationMessages_ReturnsViolationMessage() {
-        // Given
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
-
-        ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("Violation1");
-        violations.add(mockedViolation1);
-
-        ConstraintViolation<RegisterDto> mockedViolation2 = mock(ConstraintViolation.class);
-        when(mockedViolation2.getMessage()).thenReturn("Violation2");
-        violations.add(mockedViolation2);
-
-        // When
-        String violationMessages = underTest.getViolationMessages(violations);
-
-        // Then
-        assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoInteractions(customerRepository);
     }
 
     @Test

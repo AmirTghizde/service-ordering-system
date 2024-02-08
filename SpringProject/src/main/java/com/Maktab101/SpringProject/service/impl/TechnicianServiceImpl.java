@@ -34,32 +34,25 @@ import java.util.Set;
 @Slf4j
 @Service
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> implements TechnicianService {
-    private final Validator validator;
 
     @Autowired
-    public TechnicianServiceImpl(TechnicianRepository baseRepository, Validator validator) {
+    public TechnicianServiceImpl(TechnicianRepository baseRepository) {
         super(baseRepository);
-        this.validator = validator;
     }
 
     @Override
     public Technician register(RegisterDto registerDto) {
         log.info("Registering with this data [{}]", registerDto);
-        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            checkCondition(registerDto);
-            Technician technician = mapDtoValues(registerDto);
-            try {
-                log.info("Connecting to [{}]", baseRepository);
-                return baseRepository.save(technician);
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException(e.getMessage());
-            }
+
+        checkCondition(registerDto);
+        Technician technician = mapDtoValues(registerDto);
+        try {
+            log.info("Connecting to [{}]", baseRepository);
+            return baseRepository.save(technician);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
         }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -95,23 +88,14 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         }
     }
 
-    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
-        log.error("RegisterDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<RegisterDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
-        }
-        return messageBuilder.toString().trim();
-    }
-
     @Override
     public void confirmTechnician(Long technicianId) {
         log.info("Confirming technician");
         Technician technician = findById(technicianId);
 
+        technician.setStatus(TechnicianStatus.CONFIRMED);
         try {
             log.info("Connecting to [{}]", baseRepository);
-            technician.setStatus(TechnicianStatus.CONFIRMED);
             baseRepository.save(technician);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
@@ -149,7 +133,12 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         double balance = technician.getBalance();
         balance += seventyPercent;
         technician.setBalance(balance);
-        baseRepository.save(technician);
+        try {
+            baseRepository.save(technician);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
+        }
     }
 
     @Override
@@ -159,24 +148,34 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         score = (score + amount) / 2;
 
         technician.setScore(score);
-        baseRepository.save(technician);
+        try {
+            baseRepository.save(technician);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
+        }
     }
 
     @Override
     public void reducePoints(Long technicianId, double amount) {
-        log.info("Reducing points [technician:{}] points by [{}]",technicianId,amount);
+        log.info("Reducing points [technician:{}] points by [{}]", technicianId, amount);
         Technician technician = findById(technicianId);
         double score = technician.getScore();
         score -= amount;
-        log.info("The new score is [{}]",score);
+        log.info("The new score is [{}]", score);
 
-        if (score < 0 ){
+        if (score < 0) {
             log.info("Score is lower than 0 disabling account");
             technician.setStatus(TechnicianStatus.DISABLED);
         }
 
         technician.setScore(score);
-        baseRepository.save(technician);
+        try {
+            baseRepository.save(technician);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
+        }
     }
 
     protected byte[] imageToBytes(String imageAddress) {

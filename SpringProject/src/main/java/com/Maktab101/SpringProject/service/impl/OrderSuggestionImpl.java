@@ -36,17 +36,14 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     private final SuggestionService suggestionService;
     private final SubServicesService subServicesService;
     private final TechnicianService technicianService;
-    private final Validator validator;
 
     @Autowired
     public OrderSuggestionImpl(OrderService orderService, SuggestionService suggestionService,
-                               SubServicesService subServicesService, TechnicianService technicianService,
-                               Validator validator) {
+                               SubServicesService subServicesService, TechnicianService technicianService) {
         this.orderService = orderService;
         this.suggestionService = suggestionService;
         this.subServicesService = subServicesService;
         this.technicianService = technicianService;
-        this.validator = validator;
     }
 
     @Override
@@ -80,31 +77,25 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         log.info("Technician with id [{}] is trying to send a new suggestion [{}] for this order [{}]"
                 , technicianId, sendSuggestionDto, sendSuggestionDto.getOrderID());
 
-        Set<ConstraintViolation<SendSuggestionDto>> violations = validator.validate(sendSuggestionDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            Order order = orderService.findById(sendSuggestionDto.getOrderID());
-            SubServices subServices = subServicesService.findById(order.getSubServices().getId());
-            Technician technician = technicianService.findById(technicianId);
+        Order order = orderService.findById(sendSuggestionDto.getOrderID());
+        SubServices subServices = subServicesService.findById(order.getSubServices().getId());
+        Technician technician = technicianService.findById(technicianId);
 
-            checkCondition(technician, sendSuggestionDto, subServices, order);
-            Suggestion suggestion = mapDtoValues(technician, sendSuggestionDto);
+        checkCondition(technician, sendSuggestionDto, subServices, order);
+        Suggestion suggestion = mapDtoValues(technician, sendSuggestionDto);
 
-            try {
-                log.info("Connecting to [{}]", suggestionService);
-                order.getSuggestions().add(suggestion);
-                order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_SELECTION);
-                orderService.save(order);
-                suggestion.setOrder(order);
-                suggestionService.save(suggestion);
-                return;
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException(e.getMessage());
-            }
+        order.getSuggestions().add(suggestion);
+        order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_SELECTION);
+        suggestion.setOrder(order);
+
+        try {
+            log.info("Connecting to [{}]", suggestionService);
+            orderService.save(order);
+            suggestionService.save(suggestion);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
         }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -146,13 +137,13 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         Duration duration = Duration.between(LocalTime.MIN, suggestedDuration);
         LocalDateTime endDateTime = suggestedDateTime.plus(duration);
 
-        if (now.isAfter(endDateTime)) {
+        if (now.isBefore(endDateTime)) {
+            return 0;
+        } else {
             long difference = ChronoUnit.HOURS.between(now, endDateTime);
             difference = Math.abs(difference);
             log.info("Hour difference is [{}]", difference);
             return difference;
-        } else {
-            return 0;
         }
     }
 
@@ -199,7 +190,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         if (order.getSelectedSuggestionId() == null) {
             throw new NotFoundException("Can't find the technician of this order");
         } else if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
-            throw new CustomException("You can't pay yet");
+            throw new CustomException("You can't pay in now");
         }
         if (!dto.getCaptcha().equals(actualCaptcha)) {
             throw new CustomException("Captcha don't match");
@@ -229,15 +220,6 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
             log.error("Date is before now throwing exception");
             throw new CustomException("Date and time can't be before now");
         }
-    }
-
-    protected String getViolationMessages(Set<ConstraintViolation<SendSuggestionDto>> violations) {
-        log.error("SendSuggestionDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<SendSuggestionDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
-        }
-        return messageBuilder.toString().trim();
     }
 
     protected LocalDateTime toLocalDateTime(String time, String date) {

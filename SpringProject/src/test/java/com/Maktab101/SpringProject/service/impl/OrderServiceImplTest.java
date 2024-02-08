@@ -36,14 +36,12 @@ class OrderServiceImplTest {
     private CustomerService customerService;
     @Mock
     private TechnicianService technicianService;
-    @Mock
-    private Validator validator;
     private OrderServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
         underTest = new OrderServiceImpl(
-                subServicesService, customerService, orderRepository, technicianService, validator
+                subServicesService, customerService, orderRepository, technicianService
         );
     }
 
@@ -85,7 +83,6 @@ class OrderServiceImplTest {
         customer.setPassword("Ali12345");
         customer.setOrders(customerOrderList);
 
-        when(validator.validate(orderDto)).thenReturn(violations);
         when(subServicesService.findById(subServiceId)).thenReturn(subServices);
         when(customerService.findById(customerId)).thenReturn(customer);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
@@ -102,7 +99,6 @@ class OrderServiceImplTest {
         assertThat(savedOrder.getCustomer()).isEqualTo(customer);
         verify(customerService).findById(customerId);
         verify(subServicesService).findById(subServiceId);
-        verify(validator).validate(orderDto);
         verify(orderRepository).save(savedOrder);
         verify(subServicesService).save(subServices);
         verify(customerService).save(customer);
@@ -111,69 +107,11 @@ class OrderServiceImplTest {
         verifyNoMoreInteractions(orderRepository);
     }
     @Test
-    void testSubmitOrder_invalidValidInfo_ThrowsException() {
-        // Given
-        Long subServiceId = 1L;
-        Long customerId = 2L;
-
-        List<Order> customerOrderList = new ArrayList<>();
-        List<Order> subServiceOrderList = new ArrayList<>();
-
-        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
-        ConstraintViolation<OrderSubmitDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("invalid Date");
-        violations.add(mockedViolation1);
-
-        OrderSubmitDto orderDto = new OrderSubmitDto();
-        orderDto.setSubServiceId(subServiceId);
-        orderDto.setJobInfo("InfoTest");
-        orderDto.setDate("2025-01-20");
-        orderDto.setTime("12:05");
-        orderDto.setAddress("AddressTest");
-        orderDto.setPrice(50);
-
-        Order order = underTest.mapDtoValues(orderDto);
-        order.setId(5L);
-        customerOrderList.add(order);
-        subServiceOrderList.add(order);
-
-        SubServices subServices = new SubServices();
-        subServices.setId(subServiceId);
-        subServices.setName("HouseCleaning");
-        subServices.setBaseWage(10);
-        subServices.setOrders(subServiceOrderList);
-
-        Customer customer = new Customer();
-        customer.setId(customerId);
-        customer.setEmail("Ali@gmail.com");
-        customer.setPassword("Ali12345");
-        customer.setOrders(customerOrderList);
-
-        when(validator.validate(orderDto)).thenReturn(violations);
-
-        // When/Then
-        assertThatThrownBy(() -> underTest.submitOrder(customerId,orderDto))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: ValidationException
-                        \uD83D\uDCC3DESC:
-                        invalid Date""");
-
-        // Then
-        verifyNoInteractions(technicianService);
-        verifyNoInteractions(subServicesService);
-        verifyNoInteractions(customerService);
-        verifyNoInteractions(orderRepository);
-    }
-    @Test
     void testSubmitOrder_CatchesPersistenceException_WhenThrown() {
         // Given
         Long subServiceId = 1L;
         Long customerId = 2L;
 
-        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
-
         List<Order> customerOrderList = new ArrayList<>();
         List<Order> subServiceOrderList = new ArrayList<>();
 
@@ -203,7 +141,6 @@ class OrderServiceImplTest {
         customer.setPassword("Ali12345");
         customer.setOrders(customerOrderList);
 
-        when(validator.validate(orderDto)).thenReturn(violations);
         when(subServicesService.findById(subServiceId)).thenReturn(subServices);
         when(customerService.findById(customerId)).thenReturn(customer);
         doThrow(new PersistenceException("PersistenceException Message"))
@@ -222,7 +159,6 @@ class OrderServiceImplTest {
 
         verify(customerService).findById(customerId);
         verify(subServicesService).findById(subServiceId);
-        verify(validator).validate(orderDto);
         verify(orderRepository).save(any(Order.class));
         verify(customerService).save(customer);
     }
@@ -400,26 +336,6 @@ class OrderServiceImplTest {
 //                        You can't finish this order""");
 //        verify(orderRepository).findById(orderId);
 //        verifyNoMoreInteractions(orderRepository);
-    }
-
-    @Test
-    void testGetViolationMessages() {
-        // Given
-        Set<ConstraintViolation<OrderSubmitDto>> violations = new HashSet<>();
-        ConstraintViolation<OrderSubmitDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("Violation1");
-        violations.add(mockedViolation1);
-
-        ConstraintViolation<OrderSubmitDto> mockedViolation2 = mock(ConstraintViolation.class);
-        when(mockedViolation2.getMessage()).thenReturn("Violation2");
-        violations.add(mockedViolation2);
-
-        // When
-        String violationMessages = underTest.getViolationMessages(violations);
-
-        // Then
-        assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoInteractions(orderRepository);
     }
 
     @Test

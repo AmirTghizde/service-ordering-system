@@ -43,10 +43,11 @@ public class SubServicesServiceImpl implements SubServicesService {
 
         MainServices mainServices = mainServicesService.findByName(mainServiceName);
 
+        subServices.setMainServices(mainServices);
+        mainServices.getSubServices().add(subServices);
+
         try {
             log.info("Connecting to [{}]", subServicesRepository);
-            subServices.setMainServices(mainServices);
-            mainServices.getSubServices().add(subServices);
             mainServicesService.save(mainServices);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
@@ -73,9 +74,10 @@ public class SubServicesServiceImpl implements SubServicesService {
     public void editBaseWage(Long serviceId, double newWage) {
         SubServices subServices = findById(serviceId);
         log.info("Changing [{}] wage from [{}] to [{}]", subServices.getName(), subServices.getBaseWage(), newWage);
+
+        subServices.setBaseWage(newWage);
         try {
             log.info("Connecting to [{}]", subServicesRepository);
-            subServices.setBaseWage(newWage);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
@@ -87,9 +89,9 @@ public class SubServicesServiceImpl implements SubServicesService {
     public void editDescription(Long serviceId, String newDescription) {
         SubServices subServices = findById(serviceId);
         log.info("Changing [{}] description from [{}] to [{}]", subServices.getName(), subServices.getDescription(), newDescription);
+        subServices.setDescription(newDescription);
         try {
             log.info("Connecting to [{}]", subServicesRepository);
-            subServices.setDescription(newDescription);
             subServicesRepository.save(subServices);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
@@ -100,29 +102,18 @@ public class SubServicesServiceImpl implements SubServicesService {
     @Override
     @Transactional
     public void addToSubService(Long technicianId, Long serviceId) {
+
+        SubServices subService = findById(serviceId);
+        Technician technician = technicianService.findById(technicianId);
+        log.info("Adding [{}] to [{}]", technician.getEmail(), subService.getName());
+
+        checkAddTechnicianCondition(technician, subService);
+
+        subService.getTechnicians().add(technician);
+        technician.getSubServices().add(subService);
         try {
-            //get the entities
-            SubServices subService = findById(serviceId);
-            Technician technician = technicianService.findById(technicianId);
-            log.info("Adding [{}] to [{}]", technician.getEmail(), subService.getName());
-            if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)) {
-                log.error("[{}] is not confirmed throwing exception ", technician.getEmail());
-                throw new CustomException("Technician must be confirmed first");
-            }
-
-            if (!subService.getTechnicians().contains(technician)) {
-                log.info("Connecting to [{}]", subServicesRepository);
-                //add them
-                subService.getTechnicians().add(technician);
-                technician.getSubServices().add(subService);
-
-                //save them
-                subServicesRepository.save(subService);
-                technicianService.save(technician);
-            } else {
-                log.error("[{}] already exists throwing Exception", technician.getEmail());
-                throw new DuplicateValueException("You already added this technician before");
-            }
+            subServicesRepository.save(subService);
+            technicianService.save(technician);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
             throw new CustomException(e.getMessage());
@@ -132,25 +123,24 @@ public class SubServicesServiceImpl implements SubServicesService {
     @Override
     @Transactional
     public void deleteFromSubService(Long technicianId, Long serviceId) {
+
+        //get the entities
+        SubServices subService = findById(serviceId);
+        Technician technician = technicianService.findById(technicianId);
+        log.info("deleting [{}] from [{}]", technician.getEmail(), subService.getName());
+
+        if (!subService.getTechnicians().contains(technician)) {
+            log.error("[{}] doesn't exists throwing Exception", technician.getEmail());
+            throw new NotFoundException("Couldn't find this technician in the subService: " + technician.getEmail());
+        }
+
+        subService.getTechnicians().remove(technician);
+        technician.getSubServices().remove(subService);
+
         try {
-            //get the entities
-            SubServices subService = findById(serviceId);
-            Technician technician = technicianService.findById(technicianId);
-            log.info("deleting [{}] from [{}]", technician.getEmail(), subService.getName());
-
-            if (subService.getTechnicians().contains(technician)) {
-                log.info("Connecting to [{}]", subServicesRepository);
-                //remove them
-                subService.getTechnicians().remove(technician);
-                technician.getSubServices().remove(subService);
-
-                //save them
-                subServicesRepository.save(subService);
-                technicianService.save(technician);
-            } else {
-                log.error("[{}] doesn't exists throwing Exception", technician.getEmail());
-                throw new NotFoundException("Couldn't find this technician in the subService: " + technician.getEmail());
-            }
+            log.info("Connecting to [{}]", subServicesRepository);
+            subServicesRepository.save(subService);
+            technicianService.save(technician);
         } catch (PersistenceException e) {
             log.error("PersistenceException occurred throwing CustomException ... ");
             throw new CustomException(e.getMessage());
@@ -177,6 +167,17 @@ public class SubServicesServiceImpl implements SubServicesService {
         if (!mainServicesService.existsByName(mainServiceName)) {
             log.error("[{}] doesnt exist in database throwing exception", mainServiceName);
             throw new NotFoundException("Couldn't find a mainService with this name: " + mainServiceName);
+        }
+    }
+
+    private void checkAddTechnicianCondition(Technician technician, SubServices subService) {
+        if (!technician.getStatus().equals(TechnicianStatus.CONFIRMED)) {
+            log.error("[{}] is not confirmed throwing exception ", technician.getEmail());
+            throw new CustomException("Technician must be confirmed first");
+        }
+        if (subService.getTechnicians().contains(technician)) {
+            log.error("[{}] already exists throwing Exception", technician.getEmail());
+            throw new DuplicateValueException("You already added this technician before");
         }
     }
 

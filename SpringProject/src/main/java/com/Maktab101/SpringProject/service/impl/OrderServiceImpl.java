@@ -33,17 +33,14 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
     private final TechnicianService technicianService;
-    private final Validator validator;
 
     @Autowired
     public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
-                            OrderRepository orderRepository, TechnicianService technicianService,
-                            Validator validator) {
+                            OrderRepository orderRepository, TechnicianService technicianService) {
         this.subServicesService = subServicesService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
         this.technicianService = technicianService;
-        this.validator = validator;
     }
 
 
@@ -51,33 +48,22 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void submitOrder(Long customerId, OrderSubmitDto orderSubmitDto) {
         log.info("Customer with id [{}] is trying to submit a new order [{}]", customerId, orderSubmitDto);
-        Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId());
+        SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId());
+        Customer customer = customerService.findById(customerId);
 
-            Customer customer = customerService.findById(customerId);
+        checkCondition(orderSubmitDto, subServices);
+        Order order = mapDtoValues(orderSubmitDto);
+        updateFields(order,subServices,customer);
 
-            checkCondition(orderSubmitDto, subServices);
-            Order order = mapDtoValues(orderSubmitDto);
-
-            try {
-                log.info("Connecting to [{}]", orderRepository);
-                customer.getOrders().add(order);
-                subServices.getOrders().add(order);
-                order.setSubServices(subServices);
-                order.setCustomer(customer);
-                customerService.save(customer);
-                orderRepository.save(order);
-                subServicesService.save(subServices);
-                return;
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException(e.getMessage());
-            }
+        try {
+            log.info("Connecting to [{}]", orderRepository);
+            customerService.save(customer);
+            orderRepository.save(order);
+            subServicesService.save(subServices);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
         }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -151,16 +137,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int getNumberCaptcha() {
         Random random = new Random();
-        return random.nextInt(9999 - 1000 + 1) + 1000;
-    }
-
-    protected String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
-        log.error("SubmitOrderDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<OrderSubmitDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
-        }
-        return messageBuilder.toString().trim();
+        return random.nextInt(999999 - 100000 + 1) + 100000;
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
@@ -200,6 +177,13 @@ public class OrderServiceImpl implements OrderService {
         LocalTime localTime = LocalTime.parse(time, timeFormatter);
 
         return localDate.atTime(localTime);
+    }
+
+    private void updateFields(Order order, SubServices subServices, Customer customer) {
+        customer.getOrders().add(order);
+        subServices.getOrders().add(order);
+        order.setSubServices(subServices);
+        order.setCustomer(customer);
     }
 
 }

@@ -26,36 +26,28 @@ import java.util.*;
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
     private final TechnicianService technicianService;
-    private final Validator validator;
 
 
     @Autowired
     public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository,
-                               TechnicianService technicianService, Validator validator) {
+                               TechnicianService technicianService) {
         super(baseRepository);
         this.technicianService = technicianService;
-        this.validator = validator;
     }
 
 
     @Override
     public Customer register(RegisterDto registerDto) {
         log.info("Registering with this data [{}]", registerDto);
-        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            checkCondition(registerDto);
-            Customer customer = mapDtoValues(registerDto);
-            try {
-                log.info("Connecting to [{}]", baseRepository);
-                return baseRepository.save(customer);
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException(e.getMessage());
-            }
+        checkCondition(registerDto);
+        Customer customer = mapDtoValues(registerDto);
+        try {
+            log.info("Connecting to [{}]", baseRepository);
+            return baseRepository.save(customer);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
         }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException(violationMessages);
     }
 
     @Override
@@ -83,15 +75,6 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         balance += amount;
         customer.setBalance(balance);
         baseRepository.save(customer);
-    }
-
-    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
-        log.error("RegisterDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<RegisterDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
-        }
-        return messageBuilder.toString().trim();
     }
 
     protected void checkCondition(RegisterDto registerDto) {

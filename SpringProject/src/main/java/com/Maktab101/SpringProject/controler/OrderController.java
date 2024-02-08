@@ -1,9 +1,6 @@
 package com.Maktab101.SpringProject.controler;
 
-import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
-import com.Maktab101.SpringProject.dto.order.OrderCommentDto;
-import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
-import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
+import com.Maktab101.SpringProject.dto.order.*;
 import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
 import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
@@ -12,6 +9,7 @@ import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.*;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +19,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin("http://localhost:3000")
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;
@@ -103,10 +103,22 @@ public class OrderController {
     }
 
     @CrossOrigin
+    @GetMapping("/payment")
+    public ResponseEntity<RequestOrderDto> fetchOrderData( @RequestParam("id") Long orderId) {
+        Order order = orderService.findById(orderId);
+        numberCaptcha = orderService.getNumberCaptcha();
+        RequestOrderDto requestOrderDto = new RequestOrderDto();
+        requestOrderDto.setAmount(order.getPrice());
+        requestOrderDto.setOrderId(orderId);
+        requestOrderDto.setCaptcha(numberCaptcha);
+        log.info("Sending [{}]",requestOrderDto);
+        return ResponseEntity.ok(requestOrderDto);
+    }
+
+    @CrossOrigin
     @GetMapping("/payment/getCaptcha")
     public ResponseEntity<Integer> fetchCaptcha() {
         numberCaptcha = orderService.getNumberCaptcha();
-        System.out.println(numberCaptcha);
         return ResponseEntity.ok(numberCaptcha);
     }
 

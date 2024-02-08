@@ -15,7 +15,10 @@ public class CardPaymentDto {
     String cardNumber;
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z]+$",message = "Can't use numbers in card holder name")
-    String cardHolder;
+    String firstname;
+    @NotBlank
+    @Pattern(regexp = "^[a-zA-Z]+$",message = "Can't use numbers in card holder name")
+    String lastname;
     @NotBlank
     String expirationMonth;
     @NotBlank

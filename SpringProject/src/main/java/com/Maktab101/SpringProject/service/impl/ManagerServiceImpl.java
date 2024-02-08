@@ -22,18 +22,15 @@ import java.util.Set;
 public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         implements ManagerService {
 
-    private final Validator validator;
 
-    public ManagerServiceImpl(ManagerRepository baseRepository, Validator validator) {
+
+    public ManagerServiceImpl(ManagerRepository baseRepository) {
         super(baseRepository);
-        this.validator = validator;
     }
 
     @Override
     public Manager register(RegisterDto registerDto) {
         log.info("Registering with this data [{}]", registerDto);
-        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
-        if (violations.isEmpty()) {
             log.info("Information is validated - commencing registration");
             checkCondition(registerDto);
             Manager manager = mapDtoValues(registerDto);
@@ -44,18 +41,6 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
                 log.error("PersistenceException occurred throwing CustomException ... ");
                 throw new CustomException(e.getMessage());
             }
-        }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException(violationMessages);
-    }
-
-    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
-        log.error("RegisterDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<RegisterDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
-        }
-        return messageBuilder.toString().trim();
     }
 
     protected void checkCondition(RegisterDto registerDto) {

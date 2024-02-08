@@ -31,8 +31,8 @@ public class MainServicesServiceImpl implements MainServicesService {
     public void addService(String serviceName) {
         log.info("Adding a new service named [{}]", serviceName);
         checkConditions(serviceName);
+        MainServices mainServices = setValues(serviceName);
         try {
-            MainServices mainServices = setValues(serviceName);
             log.info("Connecting to [{}]", mainServicesRepository);
             mainServicesRepository.save(mainServices);
         } catch (PersistenceException e) {

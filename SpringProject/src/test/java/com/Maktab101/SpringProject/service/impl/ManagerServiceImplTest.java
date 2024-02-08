@@ -33,7 +33,7 @@ class ManagerServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new ManagerServiceImpl(managerRepository, validator);
+        underTest = new ManagerServiceImpl(managerRepository);
     }
 
     @Test
@@ -112,27 +112,6 @@ class ManagerServiceImplTest {
         verify(managerRepository).save(any(Manager.class));
         verify(managerRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(managerRepository);
-    }
-
-    @Test
-    void testGetViolationMessages_ReturnsViolationMessage() {
-        // Given
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
-
-        ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("Violation1");
-        violations.add(mockedViolation1);
-
-        ConstraintViolation<RegisterDto> mockedViolation2 = mock(ConstraintViolation.class);
-        when(mockedViolation2.getMessage()).thenReturn("Violation2");
-        violations.add(mockedViolation2);
-
-        // When
-        String violationMessages = underTest.getViolationMessages(violations);
-
-        // Then
-        assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoInteractions(managerRepository);
     }
 
     @Test

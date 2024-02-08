@@ -30,13 +30,11 @@ class TechnicianServiceImplTest {
 
     @Mock
     private TechnicianRepository technicianRepository;
-    @Mock
-    private Validator validator;
     private TechnicianServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new TechnicianServiceImpl(technicianRepository, validator);
+        underTest = new TechnicianServiceImpl(technicianRepository);
     }
 
     @Test
@@ -49,8 +47,6 @@ class TechnicianServiceImplTest {
         registerDto.setPassword("Ali1234");
         Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
-
-        when(validator.validate(registerDto)).thenReturn(violations);
         Technician expectedTechnician = underTest.mapDtoValues(registerDto);
 
         when(technicianRepository.save(any(Technician.class))).thenReturn(expectedTechnician);
@@ -64,29 +60,7 @@ class TechnicianServiceImplTest {
         verify(technicianRepository).existsByEmail(registerDto.getEmailAddress());
         verifyNoMoreInteractions(technicianRepository);
     }
-    @Test
-    void testRegister_InvalidInfo_ThrowsException() {
-        // Given
-        RegisterDto registerDto = new RegisterDto();
-        registerDto.setFirstname("Ali");
-        registerDto.setLastname("Alavi");
-        registerDto.setEmailAddress("Ali@gmail.com");
-        registerDto.setPassword("Aliiii");
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
-        ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("invalid Password");
-        violations.add(mockedViolation1);
-        when(validator.validate(registerDto)).thenReturn(violations);
 
-        // When/Then
-        assertThatThrownBy(() -> underTest.register(registerDto))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("(×_×;）\n" +
-                        "❗ERROR: ValidationException\n" +
-                        "\uD83D\uDCC3DESC:\n" +
-                        "invalid Password");
-        verifyNoInteractions(technicianRepository);
-    }
     @Test
     void testRegister_CatchesPersistenceException_WhenThrown() {
         // Given
@@ -95,9 +69,7 @@ class TechnicianServiceImplTest {
         registerDto.setLastname("Alavi");
         registerDto.setEmailAddress("Ali@gmail.com");
         registerDto.setPassword("Ali1234");
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
 
-        when(validator.validate(registerDto)).thenReturn(violations);
         doThrow(new PersistenceException("PersistenceException Message")).when(technicianRepository).save(any(Technician.class));
 
         // When/Then
@@ -334,27 +306,6 @@ class TechnicianServiceImplTest {
     @Disabled
     void testImageToBytes_IOExceptionOccurs() {
 
-    }
-
-
-    @Test
-    void testGetViolationMessages_ShouldContainTheErrorMessage() {
-        // Given
-        Set<ConstraintViolation<RegisterDto>> violations = new HashSet<>();
-        ConstraintViolation<RegisterDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("Violation1");
-        violations.add(mockedViolation1);
-
-        ConstraintViolation<RegisterDto> mockedViolation2 = mock(ConstraintViolation.class);
-        when(mockedViolation2.getMessage()).thenReturn("Violation2");
-        violations.add(mockedViolation2);
-
-        // When
-        String violationMessages = underTest.getViolationMessages(violations);
-
-        // Then
-        assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoInteractions(technicianRepository);
     }
 
     @Test
