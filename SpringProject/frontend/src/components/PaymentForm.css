@@ -7,41 +7,43 @@ html, body {
     border: none;
     text-decoration: none;
     text-transform: uppercase;
-    background-color: #212529;
-}
-
-.container {
 }
 
 .container form {
-    background-color: #2B3035;
+    background-color: #474F7A;
     box-shadow: 0 10px 15px rgba(0, 0, 0, .1);
     padding: 20px;
-    width: 600px;
+    width: 500px;
 }
 
-.container form .inputBox {
-    margin-top: 20px;
-}
 
 .container form .inputBox span {
-    color: #eee;
+    text-align: left;
+    color: white;
 }
 
 .container form .inputBox input {
-    background-color: #2B3035;
+    background-color: #E1F0DA;
+    color: black;
+    text-align: center;
+}
+.card-holder{
+    gap: 10px;
+}
+.card-holder input{
+width: 100%;
 }
 
-.container form .flexbox {
-    gap: 15px;
-}
 
-.container form .flexbox .inputBox {
-    flex: 1 1 150px;
+.card-detail{
+    gap: 10px;
 }
-
-.container form .flexbox select {
-    background-color: #2B3035;
+.card-detail input{
+    gap: 10px;
+}
+.card-detail select{
+    background-color: #E1F0DA;
+    color: black;
 }
 
 .container form .submit-btn {
@@ -56,6 +58,27 @@ html, body {
 .container form .submit-btn:hover{
     letter-spacing: 1px;
     opacity: .8;
+}
+
+ .captcha-display {
+     gap: 10px;
+     margin-top: 10px;
+ }
+.captcha-display input{
+    height: 100%;
+}
+.lower-part{
+    gap: 10px;
+}
+
+.rest-captcha-btn{
+    background: linear-gradient(45deg, blueviolet, deeppink);
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-top: 7px;
+    height: 100%;
 }
 
 input:focus {
