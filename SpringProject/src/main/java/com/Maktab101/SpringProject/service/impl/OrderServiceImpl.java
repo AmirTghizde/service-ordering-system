@@ -1,5 +1,6 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
@@ -118,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void finishOrder(Long orderId,double point) {
+    public void finishOrder(Long orderId, double point) {
         log.info("Finishing order [{}]", orderId);
         Order order = findById(orderId);
         if (!order.getOrderStatus().equals(OrderStatus.STARTED)) {
@@ -126,11 +127,11 @@ public class OrderServiceImpl implements OrderService {
             throw new CustomException("You can't finish this order");
         }
 
-        if (0<=point && point<=5){
+        if (0 <= point && point <= 5) {
             order.setOrderStatus(OrderStatus.FINISHED);
             order.setPoint(point);
             save(order);
-        }else {
+        } else {
             throw new CustomException("Point must be between 0 to 5");
         }
     }
@@ -145,6 +146,12 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setComment(comment);
         save(order);
+    }
+
+    @Override
+    public int getNumberCaptcha() {
+        Random random = new Random();
+        return random.nextInt(9999 - 1000 + 1) + 1000;
     }
 
     protected String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {

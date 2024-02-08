@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject.service;
 
 import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
 import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
+import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.model.Suggestion;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface OrderSuggestionService {
     List<Suggestion> getSuggestionByPrice(Long orderId,boolean ascending);
     long isAfterSuggestedTime(Long orderId);
     void handelFinishOrder(FinishOrderDto dto);
+    void payOnline( CardPaymentDto dto, int captcha);
 }

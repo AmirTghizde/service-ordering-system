@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.service;
 
 
+import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 
@@ -14,4 +15,6 @@ public interface OrderService {
     void startOrder(Long orderId);
     void finishOrder(Long orderId,double point);
     void addComment(Long orderId,String comment);
+    int getNumberCaptcha();
+
 }

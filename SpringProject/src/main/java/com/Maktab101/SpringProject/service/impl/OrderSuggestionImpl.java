@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
 import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
+import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.SubServices;
 import com.Maktab101.SpringProject.model.Suggestion;
@@ -176,6 +177,32 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         long hourDifference = isAfterSuggestedTime(dto.getId());
         if (hourDifference > 0) {
             technicianService.reducePoints(technician.getId(), hourDifference);
+        }
+    }
+
+    @Transactional
+    public void payOnline(CardPaymentDto dto, int captcha) {
+        Order order = orderService.findById(dto.getOrderId());
+        checkOnlinePaymentConditions(order, dto, captcha);
+
+        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+        Long technicianId = suggestion.getTechnician().getId();
+
+        technicianService.addCredit(technicianId, dto.getAmount());
+        order.setOrderStatus(OrderStatus.PAID);
+        orderService.save(order);
+    }
+
+    private void checkOnlinePaymentConditions(Order order, CardPaymentDto dto, int captcha) {
+        String actualCaptcha = String.valueOf(captcha);
+
+        if (order.getSelectedSuggestionId() == null) {
+            throw new NotFoundException("Can't find the technician of this order");
+        } else if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
+            throw new CustomException("You can't pay yet");
+        }
+        if (!dto.getCaptcha().equals(actualCaptcha)) {
+            throw new CustomException("Captcha don't match");
         }
     }
 
