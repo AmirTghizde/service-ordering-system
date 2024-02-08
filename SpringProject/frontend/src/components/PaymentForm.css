@@ -27,21 +27,24 @@ html, body {
     color: black;
     text-align: center;
 }
-.card-holder{
+
+.card-holder {
     gap: 10px;
-}
-.card-holder input{
-width: 100%;
 }
 
+.card-holder input {
+    width: 100%;
+}
 
-.card-detail{
+.card-detail {
     gap: 10px;
 }
-.card-detail input{
+
+.card-detail input {
     gap: 10px;
 }
-.card-detail select{
+
+.card-detail select {
     background-color: #E1F0DA;
     color: black;
 }
@@ -55,23 +58,20 @@ width: 100%;
     transition: .2s linear;
 }
 
-.container form .submit-btn:hover{
-    letter-spacing: 1px;
-    opacity: .8;
+.captcha-display {
+    gap: 10px;
+    margin-top: 10px;
 }
 
- .captcha-display {
-     gap: 10px;
-     margin-top: 10px;
- }
-.captcha-display input{
+.captcha-display input {
     height: 100%;
 }
-.lower-part{
+
+.lower-part {
     gap: 10px;
 }
 
-.rest-captcha-btn{
+.rest-captcha-btn {
     background: linear-gradient(45deg, blueviolet, deeppink);
     border: none;
     font-size: 20px;
@@ -81,6 +81,8 @@ width: 100%;
     height: 100%;
 }
 
-input:focus {
-    outline: none;
+
+button:active {
+    transform: translateY(2px);
 }
+

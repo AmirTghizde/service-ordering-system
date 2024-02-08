@@ -97,7 +97,8 @@ public class OrderController {
 
     @CrossOrigin
     @PutMapping("/payment/onlinePayment")
-    public ResponseEntity<String> payOnline( @Valid @RequestBody CardPaymentDto dto) {
+    public ResponseEntity<String> payOnline(@RequestBody CardPaymentDto dto) {
+        log.info("Paying online with this data [{}]",dto);
         orderSuggestionService.payOnline( dto, numberCaptcha);
         return ResponseEntity.ok("🤝 Payment completed");
     }
