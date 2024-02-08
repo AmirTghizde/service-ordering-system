@@ -190,9 +190,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         if (order.getSelectedSuggestionId() == null) {
             throw new NotFoundException("Can't find the technician of this order");
         } else if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
-            throw new CustomException("You can't pay in now");
-        }
-        if (!dto.getCaptcha().equals(actualCaptcha)) {
+            throw new CustomException("You can't pay now");
+        } else if (!dto.getCaptcha().equals(actualCaptcha)) {
             throw new CustomException("Captcha don't match");
         }
     }

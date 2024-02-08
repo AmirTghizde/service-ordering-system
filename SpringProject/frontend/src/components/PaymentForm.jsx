@@ -28,7 +28,7 @@ function PaymentForm() {
     useEffect(() => {
         getOrderData(orderId)
             .then((response) => {
-                console.log("i got mounted")
+                console.log("Acquiring payment data")
                 const {amount} = response.data;
                 const {captcha} = response.data;
                 const parsedAmount = parseFloat(amount);
@@ -49,8 +49,13 @@ function PaymentForm() {
         event.preventDefault();
         getCaptchaNumber()
             .then((response) => {
-                console.log(`response landed ${response.data}`);
-                setCaptcha(response.data);
+                if (response.status === 200) {
+                    console.log(`Acquired new captcha ${response.data}`);
+                    setCaptcha(response.data);
+                }
+                else {
+                    console.log("invalid response statues")
+                }
             })
             .catch((error) => {
                 const errorMessage = error.response.data.message;
@@ -75,12 +80,16 @@ function PaymentForm() {
             orderId: dto.orderId,
         };
 
-        console.log(putDto)
 
         sendPaymentData(putDto)
             .then((response) => {
-                console.log("successfully sent")
-                console.log(response.data.message)
+                if (response.status === 200) {
+                    setCaptcha(response.data);
+                    window.location.href = '/successful';
+                }
+                else {
+                    console.log("invalid response statues")
+                }
             })
             .catch((error) => {
                 const errorMessage = error.response.data.message;
@@ -89,8 +98,9 @@ function PaymentForm() {
     };
 
     const handelInput = (e) => {
+        console.log("Adding form data to dto")
         e.preventDefault();
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setDto((prevData) => ({
             ...prevData,
             [name]: value,
@@ -105,7 +115,8 @@ function PaymentForm() {
                 <div className='d-flex flex-column gap-2'>
                     <div className='inputBox'>
                         <span className='d-block'>Card Number</span>
-                        <input name='cardNumber' onChange={handelInput} className='border border-white rounded-2 w-100'/>
+                        <input name='cardNumber' onChange={handelInput}
+                               className='border border-white rounded-2 w-100'/>
                     </div>
                     <div className='card-holder d-flex justify-content-center'>
                         <div className='inputBox firstname w-100'>
@@ -122,7 +133,7 @@ function PaymentForm() {
                             <span className='d-block p-1 text-start'>expiration mm</span>
                             <select name='expirationMonth' onChange={handelInput}
                                     className='month-input w-100 p-1 rounded border border-white'>
-                                <option value='month' selected='disabled'>month</option>
+                                <option value='month' defaultValue='disabled'>month</option>
                                 <option value='01'>01</option>
                                 <option value='02'>02</option>
                                 <option value='03'>03</option>
@@ -141,7 +152,7 @@ function PaymentForm() {
                             <span className='d-block p-1 text-start'>expiration yy</span>
                             <select name='expirationYear' onChange={handelInput}
                                     className='year-input w-100 p-1 rounded border border-white'>
-                                <option value='year' selected='disabled'>year</option>
+                                <option value='year' defaultValue='disabled'>year</option>
                                 <option value='2021'>2021</option>
                                 <option value='2022'>2022</option>
                                 <option value='2023'>2023</option>
@@ -168,7 +179,8 @@ function PaymentForm() {
                     <div className='lower-part d-flex justify-content-center '>
                         <div className='inputBox w-100'>
                             <span className='d-block p-1 text-star'>captcha</span>
-                            <input onChange={handelInput} name='captcha' className='border border-white rounded-2 p-1 w-100'/>
+                            <input onChange={handelInput} name='captcha'
+                                   className='border border-white rounded-2 p-1 w-100'/>
                         </div>
                     </div>
                     <button type='submit' className='rounded-4'>pay ${amount}</button>
