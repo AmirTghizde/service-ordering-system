@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -131,6 +128,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         Order order = orderService.findById(orderId);
         Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
 
+//        LocalDateTime now = LocalDateTime.of(2024,2,9,23,0);
+
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime suggestedDateTime = suggestion.getSuggestedDate();
         LocalTime suggestedDuration = suggestion.getDuration();
@@ -194,6 +193,18 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         } else if (!dto.getCaptcha().equals(actualCaptcha)) {
             throw new CustomException("Captcha don't match");
         }
+        // check card expiration
+        String year = dto.getExpirationYear();
+        String month = dto.getExpirationMonth();
+        int expirationYear = Integer.parseInt(year);
+        int expirationMonth = Integer.parseInt(month);
+
+        YearMonth currentYearMonth = YearMonth.now();
+        YearMonth expirationYearMonth = YearMonth.of(expirationYear, expirationMonth);
+        if (expirationYearMonth.isBefore(currentYearMonth)){
+            throw new CustomException("Card is expired");
+        }
+
     }
 
     protected void checkCondition(Technician technician, SendSuggestionDto sendSuggestionDto, SubServices subServices, Order order) {
