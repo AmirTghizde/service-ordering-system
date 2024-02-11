@@ -1,8 +1,12 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.order.OrderHistoryDto;
+import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.dto.users.*;
+import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import jakarta.validation.Valid;
@@ -60,5 +64,15 @@ public class CustomerController {
     public ResponseEntity<String> addCredit(@Valid @RequestBody AddCreditDto dto) {
         customerService.addCredit(dto.getCustomerId(), dto.getAmount());
         return ResponseEntity.ok("💳 Credit increased successfully");
+    }
+    @GetMapping("/history")
+    public ResponseEntity<List<OrderHistoryDto>>fetchOrderHistory(@RequestParam("id") Long customerId) {
+        List<Order> orders = customerService.getOrderHistory(customerId);
+
+        List<OrderHistoryDto> orderHistory = orders.stream()
+                .map(OrderMapper.INSTANCE::toOrderHistoryDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(orderHistory);
     }
 }

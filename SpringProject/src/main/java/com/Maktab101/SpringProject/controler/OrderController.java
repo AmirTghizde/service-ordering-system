@@ -4,6 +4,8 @@ import com.Maktab101.SpringProject.dto.order.*;
 import com.Maktab101.SpringProject.dto.suggestion.SelectSuggestionDto;
 import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
+import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
@@ -124,7 +126,7 @@ public class OrderController {
     }
 
     @GetMapping("/view")
-    public ResponseEntity<OrderCommentDto> viewOrder(@RequestParam("id") Long orderId) {
+    public ResponseEntity<OrderCommentDto> viewComments(@RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         OrderCommentDto orderCommentDto = OrderMapper.INSTANCE.toOrderCommentDto(order);
         return ResponseEntity.ok(orderCommentDto);

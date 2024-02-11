@@ -1,6 +1,8 @@
 package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.Order;
+import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
@@ -20,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -75,6 +78,17 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         balance += amount;
         customer.setBalance(balance);
         baseRepository.save(customer);
+    }
+
+    @Override
+    public List<Order> getOrderHistory(Long customerId) {
+        Customer customer = findById(customerId);
+
+        return customer.getOrders().stream()
+                .filter(order -> order.getOrderStatus().equals(OrderStatus.FINISHED) ||
+                        order.getOrderStatus().equals(OrderStatus.PAID))
+                .collect(Collectors.toList());
+
     }
 
     protected void checkCondition(RegisterDto registerDto) {
