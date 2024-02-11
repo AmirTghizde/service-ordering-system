@@ -75,4 +75,11 @@ public class CustomerController {
 
         return ResponseEntity.ok(orderHistory);
     }
+    @GetMapping("/balance")
+    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
+        Customer customer = customerService.findById(customerId);
+        double balance = customer.getBalance();
+
+        return ResponseEntity.ok(balance);
+    }
 }

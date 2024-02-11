@@ -79,4 +79,12 @@ public class TechnicianController {
         technicianService.editPassword(dto.getUserId(), dto.getNewPassword());
         return ResponseEntity.ok("🔐 Password changed successfully");
     }
+
+    @GetMapping("/balance")
+    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
+        Technician technician = technicianService.findById(customerId);
+        double balance = technician.getBalance();
+
+        return ResponseEntity.ok(balance);
+    }
 }
