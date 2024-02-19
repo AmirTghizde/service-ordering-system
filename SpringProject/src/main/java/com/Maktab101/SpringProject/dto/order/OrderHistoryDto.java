@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.dto.order;
 
 import com.Maktab101.SpringProject.dto.services.SubServicesDto;
+import com.Maktab101.SpringProject.dto.suggestion.SuggestionDto;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class OrderHistoryDto implements Serializable {
     private LocalDateTime dateAndTime;
     private String Address;
     private double price;
+    private SuggestionDto SelectedSuggestion;
     private String comment;
     private double point;
     private SubServicesDto subServices;

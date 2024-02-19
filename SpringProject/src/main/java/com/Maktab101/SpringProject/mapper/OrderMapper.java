@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.mapper;
 
 import com.Maktab101.SpringProject.dto.order.OrderCommentDto;
+import com.Maktab101.SpringProject.dto.order.OrderDto;
 import com.Maktab101.SpringProject.dto.order.OrderHistoryDto;
 import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.model.Order;
@@ -31,4 +32,11 @@ public interface OrderMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Order partialUpdate(OrderHistoryDto orderHistoryDto, @MappingTarget Order order);
+
+    Order toEntity(OrderDto orderDto);
+
+    OrderDto toDto1(Order order);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Order partialUpdate(OrderDto orderDto, @MappingTarget Order order);
 }
