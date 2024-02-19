@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject.service.base;
 
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
+import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import io.micrometer.common.util.StringUtils;
@@ -40,7 +41,10 @@ public abstract class BaseUserServiceImpl<T extends User>
     @Override
     public T login(String emailAddress, String password) {
         log.info("Logging in with this data [email:{}, password{}]", emailAddress, password);
-        if (baseRepository.existsByEmailAndPassword(emailAddress, password)) {
+
+        String hashedPassword = HashUtils.hash(password);
+
+        if (baseRepository.existsByEmailAndPassword(emailAddress, hashedPassword)) {
             T user = findByEmailAddress(emailAddress);
             if (user == null) {
                 throw new NotFoundException("Couldn't find user user is null");

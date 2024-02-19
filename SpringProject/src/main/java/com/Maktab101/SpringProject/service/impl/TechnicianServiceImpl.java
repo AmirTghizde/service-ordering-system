@@ -8,6 +8,7 @@ import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
@@ -202,7 +203,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setFirstname(registerDto.getFirstname());
         technician.setLastname(registerDto.getLastname());
         technician.setEmail(registerDto.getEmailAddress());
-        technician.setPassword(registerDto.getPassword());
+        technician.setPassword(HashUtils.hash(registerDto.getPassword()));
         technician.setScore(0);
         technician.setStatus(TechnicianStatus.NEW);
         return technician;

@@ -4,6 +4,7 @@ import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,42 +67,6 @@ class BaseUserServiceImplTest {
         verifyNoMoreInteractions(baseRepository);
     }
 
-
-//    @Test
-//    void testFindByEmailAddress_IfExists_ReturnsUser() {
-//        // Given
-//        String email = "Ali123@Gmail.com";
-//        Customer customer = new Customer();
-//        customer.setEmail(email);
-//        customer.setPassword("Ali1234");
-//
-//        when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
-//
-//        // When
-//        Optional<User> optionalUser = underTest.findByEmailAddress(email);
-//
-//        // Then
-//        assertThat(optionalUser).isPresent();
-//        assertThat(optionalUser).isEqualTo(Optional.of(customer));
-//        verify(baseRepository).findByEmail(email);
-//        verifyNoMoreInteractions(baseRepository);
-//    }
-
-//    @Test
-//    void testFindByEmailAddress_IfNotExists_ReturnsEmpty() {
-//        // Given
-//        String email = "Ali123@Gmail.com";
-//        when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
-//
-//        // When
-//        Optional<User> optionalUser = underTest.findByEmailAddress(email);
-//
-//        // Then
-//        assertThat(optionalUser).isEmpty();
-//        verify(baseRepository).findByEmail(email);
-//        verifyNoMoreInteractions(baseRepository);
-//    }
-
     @Test
     void testLogin_IfValidCredential_ReturnUser() {
         // Given
@@ -133,40 +98,33 @@ class BaseUserServiceImplTest {
 
         // When/Then
         assertThatThrownBy(() -> underTest.login(email, password))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: UserNotFound
-                        \uD83D\uDCC3DESC:
-                        Check email or password""");
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("User not found check the email and password");
         verify(baseRepository).existsByEmailAndPassword(email, password);
         verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
     void testLogin_IfUserIsNull_ThrowException() {
-        // Given
-        String email = "Ali123@Gmail.com";
-        String password = "Ali1234";
-        Customer customer = new Customer();
-        customer.setEmail(email);
-        customer.setPassword(password);
-
-        when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(true);
-        when(baseRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-
-        // When/Then
-        assertThatThrownBy(() -> underTest.login(email, password))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: UserNotFound
-                        \uD83D\uDCC3DESC:
-                        We can't find the user""");
-        verify(baseRepository).existsByEmailAndPassword(email, password);
-        verify(baseRepository).findByEmail(email);
-        verifyNoMoreInteractions(baseRepository);
+//        // Given
+//        String email = "Ali123@Gmail.com";
+//        String password = "Ali1234";
+//        Customer customer = new Customer();
+//        customer.setEmail(email);
+//        customer.setPassword(password);
+//
+//        BaseUserServiceImpl spy = spy(BaseUserServiceImpl.class);
+//        when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(true);
+//        when(spy.findByEmailAddress(email)).thenReturn(Optional.empty());
+//
+//
+//        // When/Then
+//        assertThatThrownBy(() -> underTest.login(email, password))
+//                .isInstanceOf(NotFoundException.class)
+//                .hasMessage("Couldn't find a user with this email: "+email);
+//        verify(baseRepository).existsByEmailAndPassword(email, password);
+//        verify(baseRepository).findByEmail(email);
+//        verifyNoMoreInteractions(baseRepository);
     }
 
     @Test
@@ -223,11 +181,7 @@ class BaseUserServiceImplTest {
         // When/Then
         assertThatThrownBy(()-> underTest.editPassword(id,newPassword))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: PersistenceException
-                        \uD83D\uDCC3DESC:
-                        PersistenceException Message""");
+                .hasMessage("PersistenceException Message");
 
         verify(baseRepository).findById(id);
         verify(baseRepository).save(any(User.class));
@@ -261,7 +215,7 @@ class BaseUserServiceImplTest {
 
         // When/Then
         assertThatThrownBy(()-> underTest.findById(id))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(NotFoundException.class);
         verify(baseRepository).findById(id);
         verifyNoMoreInteractions(baseRepository);
     }

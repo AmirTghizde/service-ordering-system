@@ -9,6 +9,7 @@ import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.EntityManager;
@@ -29,8 +30,6 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
     private final TechnicianService technicianService;
-
-
     @Autowired
     public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository,
                                TechnicianService technicianService) {
@@ -105,7 +104,7 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         customer.setFirstname(registerDto.getFirstname());
         customer.setLastname(registerDto.getLastname());
         customer.setEmail(registerDto.getEmailAddress());
-        customer.setPassword(registerDto.getPassword());
+        customer.setPassword(HashUtils.hash(registerDto.getPassword()));
         return customer;
     }
 }

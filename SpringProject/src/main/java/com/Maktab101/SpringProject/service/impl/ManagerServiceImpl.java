@@ -6,6 +6,7 @@ import com.Maktab101.SpringProject.repository.ManagerRepository;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.PersistenceException;
@@ -58,7 +59,7 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         manager.setFirstname(registerDto.getFirstname());
         manager.setLastname(registerDto.getLastname());
         manager.setEmail(registerDto.getEmailAddress());
-        manager.setPassword(registerDto.getPassword());
+        manager.setPassword(HashUtils.hash(registerDto.getPassword()));
 
         int number = random.nextInt(90000) + 10000;
         manager.setManagerCode("M" + number);

@@ -1,6 +1,5 @@
 package com.Maktab101.SpringProject.service.impl;
 
-
 import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
@@ -9,6 +8,7 @@ import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.SuggestionService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -39,14 +39,12 @@ class OrderSuggestionImplTest {
     private SubServicesService subServicesService;
     @Mock
     private TechnicianService technicianService;
-    @Mock
-    private Validator validator;
     private OrderSuggestionImpl underTest;
 
     @BeforeEach
     void setUp() {
         underTest = new OrderSuggestionImpl(
-                orderService, suggestionService, subServicesService, technicianService, validator
+                orderService, suggestionService, subServicesService, technicianService
         );
     }
 
@@ -94,12 +92,8 @@ class OrderSuggestionImplTest {
 
         // When
         assertThatThrownBy(()->underTest.selectSuggestion(orderId,suggestionId))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: InvalidSuggestion
-                        \uD83D\uDCC3DESC:
-                        We can't find that suggestion in your order""");
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Couldn't find that suggestion in your orders");
 
         // Then
         assertThat(order.getOrderStatus()).isNotEqualTo(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
@@ -127,11 +121,7 @@ class OrderSuggestionImplTest {
         // When
         assertThatThrownBy(()->underTest.selectSuggestion(orderId,suggestionId))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: InvalidAction
-                        \uD83D\uDCC3DESC:
-                        You can't select suggestions anymore""");
+                .hasMessage("You can't select suggestions anymore");
 
         // Then
         assertThat(order.getOrderStatus()).isNotEqualTo(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
@@ -148,7 +138,6 @@ class OrderSuggestionImplTest {
 
         Long orderId = 1L;
         Long technicianId = 2L;
-        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
         SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
@@ -173,7 +162,6 @@ class OrderSuggestionImplTest {
         order.setSubServices(subServices);
 
 
-        when(validator.validate(dto)).thenReturn(violations);
         when(orderService.findById(orderId)).thenReturn(order);
         when(subServicesService.findById(order.getSubServices().getId())).thenReturn(subServices);
         when(technicianService.findById(technicianId)).thenReturn(technician);
@@ -194,61 +182,10 @@ class OrderSuggestionImplTest {
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.AWAITING_TECHNICIAN_SELECTION);
     }
     @Test
-    void testSendSuggestion_InvalidInfo_ThrowsException() {
-        // Given
-        Long orderId = 1L;
-        Long technicianId = 2L;
-
-        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
-        ConstraintViolation<SendSuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("invalid Date");
-        violations.add(mockedViolation1);
-
-        SendSuggestionDto dto = new SendSuggestionDto();
-        dto.setOrderID(1L);
-        dto.setDuration("00:56");
-        dto.setSuggestedDate("2025-01-20");
-        dto.setSuggestedTime("12:00");
-        dto.setSuggestedPrice(500);
-
-        Technician technician = new Technician();
-        technician.setId(technicianId);
-        technician.setEmail("Ali@gmail.com");
-        technician.setEmail("Ali1234");
-
-        SubServices subServices = new SubServices();
-        subServices.setId(3L);
-        subServices.setName("HouseCleaning");
-        subServices.getTechnicians().add(technician);
-        subServices.setBaseWage(20);
-
-        Order order = new Order();
-        order.setId(orderId);
-        order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_SUGGESTION);
-        order.setSubServices(subServices);
-
-        when(validator.validate(dto)).thenReturn(violations);
-
-        // When/Then
-        assertThatThrownBy(() -> underTest.sendSuggestion(technicianId,dto))
-                .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: ValidationException
-                        \uD83D\uDCC3DESC:
-                        invalid Date""");
-
-       verifyNoInteractions(orderService);
-       verifyNoInteractions(subServicesService);
-       verifyNoInteractions(technicianService);
-       verifyNoInteractions(suggestionService);
-    }
-    @Test
     void testSendSuggestion_CatchesPersistenceException_WhenThrown() {
         // Given
         Long orderId = 1L;
         Long technicianId = 2L;
-        Set<ConstraintViolation<SendSuggestionDto>> violations =new HashSet<>();
         SendSuggestionDto dto = new SendSuggestionDto();
         dto.setOrderID(1L);
         dto.setDuration("00:56");
@@ -273,7 +210,6 @@ class OrderSuggestionImplTest {
         order.setSubServices(subServices);
 
 
-        when(validator.validate(dto)).thenReturn(violations);
         when(orderService.findById(orderId)).thenReturn(order);
         when(subServicesService.findById(order.getSubServices().getId())).thenReturn(subServices);
         when(technicianService.findById(technicianId)).thenReturn(technician);
@@ -283,11 +219,7 @@ class OrderSuggestionImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.sendSuggestion(technicianId,dto))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: PersistenceException
-                        \uD83D\uDCC3DESC:
-                        PersistenceException Message""");
+                .hasMessage("PersistenceException Message");
 
         verify(orderService).findById(orderId);
         verify(subServicesService).findById(order.getSubServices().getId());
@@ -493,11 +425,8 @@ class OrderSuggestionImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.checkCondition(technician, dto, subServices, order))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: InvalidAction
-                        \uD83D\uDCC3DESC:
-                        You can't send a suggestion for this order""");
+                .hasMessage("You can't send a suggestion for this order");
+
         verifyNoInteractions(suggestionService);
         verifyNoInteractions(orderService);
         verifyNoInteractions(technicianService);
@@ -530,11 +459,8 @@ class OrderSuggestionImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.checkCondition(technician, dto, subServices, order))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: WrongSubService
-                        \uD83D\uDCC3DESC:
-                        You don't have this sub service""");
+                .hasMessage("You don't have this sub service");
+
         verifyNoInteractions(suggestionService);
         verifyNoInteractions(orderService);
         verifyNoInteractions(technicianService);
@@ -568,11 +494,8 @@ class OrderSuggestionImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.checkCondition(technician, dto, subServices, order))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: InvalidPrice
-                        \uD83D\uDCC3DESC:
-                        Price can't be lower than base wage""");
+                .hasMessage("Price can't be lower than base wage");
+
         verifyNoInteractions(suggestionService);
         verifyNoInteractions(orderService);
         verifyNoInteractions(technicianService);
@@ -606,39 +529,14 @@ class OrderSuggestionImplTest {
         // When/Then
         assertThatThrownBy(() -> underTest.checkCondition(technician, dto, subServices, order))
                 .isInstanceOf(CustomException.class)
-                .hasMessage("""
-                        (×_×;）
-                        ❗ERROR: InvalidDateAndTime
-                        \uD83D\uDCC3DESC:
-                        Date and time can't be before now""");
+                .hasMessage("Date and time can't be before now");
+
         verifyNoInteractions(suggestionService);
         verifyNoInteractions(orderService);
         verifyNoInteractions(technicianService);
         verifyNoInteractions(subServicesService);
     }
 
-    @Test
-    void testGetViolationMessages_ReturnsViolationString() {
-        // Given
-        Set<ConstraintViolation<SendSuggestionDto>> violations = new HashSet<>();
-        ConstraintViolation<SendSuggestionDto> mockedViolation1 = mock(ConstraintViolation.class);
-        when(mockedViolation1.getMessage()).thenReturn("Violation1");
-        violations.add(mockedViolation1);
-
-        ConstraintViolation<SendSuggestionDto> mockedViolation2 = mock(ConstraintViolation.class);
-        when(mockedViolation2.getMessage()).thenReturn("Violation2");
-        violations.add(mockedViolation2);
-
-        // When
-        String violationMessages = underTest.getViolationMessages(violations);
-
-        // Then
-        assertThat(violationMessages).contains("Violation1", "Violation2");
-        verifyNoInteractions(suggestionService);
-        verifyNoInteractions(orderService);
-        verifyNoInteractions(technicianService);
-        verifyNoInteractions(subServicesService);
-    }
 
     @Test
     void testToLocalDateTime_ReturnsLocalDateTime() {
