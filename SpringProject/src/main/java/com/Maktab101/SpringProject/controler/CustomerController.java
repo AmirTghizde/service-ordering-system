@@ -89,10 +89,4 @@ public class CustomerController {
 
         return ResponseEntity.ok(balance);
     }
-
-    @GetMapping("/hello")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
-    public ResponseEntity<String>sayHello() {
-        return ResponseEntity.ok("Hello");
-    }
 }

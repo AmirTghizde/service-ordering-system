@@ -32,9 +32,12 @@ import java.util.List;
 @Service
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> implements TechnicianService {
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
-    public TechnicianServiceImpl(TechnicianRepository baseRepository) {
+    public TechnicianServiceImpl(TechnicianRepository baseRepository, BCryptPasswordEncoder passwordEncoder) {
         super(baseRepository);
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -199,7 +202,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setFirstname(registerDto.getFirstname());
         technician.setLastname(registerDto.getLastname());
         technician.setEmail(registerDto.getEmailAddress());
-        technician.setPassword(HashUtils.hash(registerDto.getPassword()));
+        technician.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         technician.setScore(0);
         technician.setStatus(TechnicianStatus.NEW);
         technician.setIsEnabled(true);

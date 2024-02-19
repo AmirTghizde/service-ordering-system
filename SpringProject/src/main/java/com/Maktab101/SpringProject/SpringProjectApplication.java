@@ -23,9 +23,5 @@ public class SpringProjectApplication {
         if (!managerService.existsByEmailAddress(email)) {
             managerService.register(new RegisterDto("Admin", "Admin", email, password));
         }
-        System.out.println(
-                passwordEncoder.encode("Ali123")
-        );
-
     }
 }
