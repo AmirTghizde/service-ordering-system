@@ -8,7 +8,6 @@ import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
-import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;

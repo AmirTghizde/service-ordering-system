@@ -2,7 +2,6 @@ package com.Maktab101.SpringProject.service.base;
 
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
-import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import io.micrometer.common.util.StringUtils;
@@ -10,8 +9,6 @@ import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -36,23 +33,6 @@ public abstract class BaseUserServiceImpl<T extends User>
         log.info("trying to find [{}]", emailAddress);
         return baseRepository.findByEmail(emailAddress).orElseThrow(
                 () -> new NotFoundException("Couldn't find a user with this email: " + emailAddress));
-    }
-
-    @Override
-    public T login(String emailAddress, String password) {
-        log.info("Logging in with this data [email:{}, password{}]", emailAddress, password);
-
-        String hashedPassword = HashUtils.hash(password);
-
-        if (baseRepository.existsByEmailAndPassword(emailAddress, hashedPassword)) {
-            T user = findByEmailAddress(emailAddress);
-            if (user == null) {
-                throw new NotFoundException("Couldn't find user user is null");
-            }
-            log.info("[{}] successfully longed in", user.getEmail());
-            return user;
-        }
-        throw new NotFoundException("User not found check the email and password");
     }
 
     @Override

@@ -68,43 +68,6 @@ class BaseUserServiceImplTest {
     }
 
     @Test
-    void testLogin_IfValidCredential_ReturnUser() {
-        // Given
-        String email = "Ali123@Gmail.com";
-        String password = "Ali1234";
-        Customer customer = new Customer();
-        customer.setEmail(email);
-        customer.setPassword(password);
-
-        when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(true);
-        when(baseRepository.findByEmail(email)).thenReturn(Optional.of(customer));
-
-        // When
-        User loggedUser = underTest.login(email, password);
-
-        // Then
-        assertThat(loggedUser).isEqualTo(customer);
-        verify(baseRepository).findByEmail(email);
-        verify(baseRepository).existsByEmailAndPassword(email, password);
-        verifyNoMoreInteractions(baseRepository);
-    }
-
-    @Test
-    void testLogin_IfNotFound_ThrowException() {
-        // Given
-        String email = "Ali123@Gmail.com";
-        String password = "Ali1234";
-        when(baseRepository.existsByEmailAndPassword(email, password)).thenReturn(false);
-
-        // When/Then
-        assertThatThrownBy(() -> underTest.login(email, password))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessage("User not found check the email and password");
-        verify(baseRepository).existsByEmailAndPassword(email, password);
-        verifyNoMoreInteractions(baseRepository);
-    }
-
-    @Test
     void testLogin_IfUserIsNull_ThrowException() {
 //        // Given
 //        String email = "Ali123@Gmail.com";

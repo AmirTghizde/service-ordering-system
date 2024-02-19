@@ -1,5 +1,6 @@
 package com.Maktab101.SpringProject.dto.users;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -21,8 +22,7 @@ public class RegisterDto implements Serializable {
     @Pattern(regexp = "^[^0-9]+$", message = "Invalid lastname")
     String lastname;
 
-//    @Email(message = "Invalid Email format")
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@gmail.com$",message="Invalid email format")
+    @Email
     String emailAddress;
 
     @NotBlank(message = "password must not be empty")

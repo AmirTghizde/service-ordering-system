@@ -8,11 +8,7 @@ import java.util.Optional;
 
 public interface BaseUserService<T extends User>{
     boolean existsByEmailAddress(String emailAddress);
-
     T findByEmailAddress(String emailAddress);
-
-    T login(String emailAddress, String password);
-
     void editPassword(Long userId, String newPassword);
     T findById(Long userId);
 
