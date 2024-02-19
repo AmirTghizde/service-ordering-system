@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.security;
+package com.Maktab101.SpringProject.security.config;
 
 
 import com.Maktab101.SpringProject.model.User;
