@@ -31,7 +31,8 @@ public class Order  {
 
     private double price;
 
-    private Long SelectedSuggestionId;
+    @OneToOne
+    private Suggestion SelectedSuggestion;
 
     private String comment;
 

@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SuppressWarnings("unused")
 public class SpringProjectApplication {
     static String email = "Admin@gmail.com";
-    static String password = "Admin1234";
+    static String password = "Ali123";
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(SpringProjectApplication.class, args);

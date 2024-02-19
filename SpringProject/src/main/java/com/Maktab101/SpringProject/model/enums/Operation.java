@@ -7,5 +7,6 @@ public enum Operation {
     GREATER_THAN,
     LESS_THAN,
     BETWEEN,
-    JOIN
+    JOIN,
+    DOUBLE_JOIN
 }

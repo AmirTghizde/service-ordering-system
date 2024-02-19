@@ -16,6 +16,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,6 +139,11 @@ public class OrderServiceImpl implements OrderService {
     public int getNumberCaptcha() {
         Random random = new Random();
         return random.nextInt(999999 - 100000 + 1) + 100000;
+    }
+
+    @Override
+    public List<Order> filter(Specification<Order> specification) {
+        return orderRepository.findAll(specification);
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {

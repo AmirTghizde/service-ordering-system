@@ -65,6 +65,15 @@ public class FilterSpecificationImpl<T> implements FilterSpecification<T> {
 
                         predicateList.add(predicate);
                     }
+                    case DOUBLE_JOIN -> {
+                        String[] joinTables = dto.getJoinTable().split(",");
+
+                        Predicate predicate = criteriaBuilder.equal(
+                                root.join(joinTables[0]).join(joinTables[1]).get(dto.getColumn()),
+                                dto.getValue());
+
+                        predicateList.add(predicate);
+                    }
                     default -> throw new CustomException("Unexpected argument: " + dto.getOperation());
                 }
             }

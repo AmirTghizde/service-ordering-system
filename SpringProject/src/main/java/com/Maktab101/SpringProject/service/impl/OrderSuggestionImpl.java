@@ -63,7 +63,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
         order.setOrderStatus(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL);
         order.setPrice(suggestion.getSuggestedPrice());
-        order.setSelectedSuggestionId(suggestion.getId());
+        order.setSelectedSuggestion(suggestion);
         orderService.save(order);
     }
 
@@ -126,7 +126,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     public long isAfterSuggestedTime(Long orderId) {
         log.info("Calculating order time [orderId:{}]", orderId);
         Order order = orderService.findById(orderId);
-        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+        Suggestion suggestion = order.getSelectedSuggestion();
 
 //        LocalDateTime now = LocalDateTime.of(2024,2,9,23,0);
 
@@ -158,7 +158,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
 
         // Add the technician points
         Order order = orderService.findById(dto.getId());
-        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+        Suggestion suggestion = order.getSelectedSuggestion();
         Technician technician = suggestion.getTechnician();
         technicianService.addPoints(technician.getId(), dto.getPoint());
 
@@ -175,7 +175,7 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
         Order order = orderService.findById(dto.getOrderId());
         checkOnlinePaymentConditions(order, dto, captcha);
 
-        Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
+        Suggestion suggestion = order.getSelectedSuggestion();
         Long technicianId = suggestion.getTechnician().getId();
 
         technicianService.addCredit(technicianId, dto.getAmount());
@@ -186,8 +186,8 @@ public class OrderSuggestionImpl implements OrderSuggestionService {
     private void checkOnlinePaymentConditions(Order order, CardPaymentDto dto, int captcha) {
         String actualCaptcha = String.valueOf(captcha);
 
-        if (order.getSelectedSuggestionId() == null) {
-            throw new NotFoundException("Can't find the technician of this order");
+        if (order.getSelectedSuggestion() == null) {
+            throw new NotFoundException("You haven't selected any suggestion ");
         } else if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
             throw new CustomException("You can't pay now");
         } else if (!dto.getCaptcha().equals(actualCaptcha)) {
