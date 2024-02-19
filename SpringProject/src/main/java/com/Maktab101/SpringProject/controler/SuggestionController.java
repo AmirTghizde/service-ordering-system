@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class SuggestionController {
     }
 
     @PostMapping("/{technicianId}/send")
+    @PreAuthorize("hasAnyRole('TECHNICIAN')")
     public ResponseEntity<String> sendSuggestion(
             @PathVariable(name = "technicianId") Long technicianId,
             @Valid @RequestBody SendSuggestionDto suggestionDto) {
@@ -34,6 +36,7 @@ public class SuggestionController {
     }
 
     @GetMapping("/fetch/byPoint")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<List<SuggestionResponseDto>> fetchByPoint(@RequestParam("id") Long orderId) {
         List<Suggestion> suggestions =
                 orderSuggestionService.getSuggestionByTechnicianPoint(orderId, false);
@@ -46,6 +49,7 @@ public class SuggestionController {
     }
 
     @GetMapping("/fetch/byPrice")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<List<SuggestionResponseDto>> fetchByPrice(@RequestParam("id") Long orderId) {
         List<Suggestion> suggestions =
                 orderSuggestionService.getSuggestionByPrice(orderId, false);

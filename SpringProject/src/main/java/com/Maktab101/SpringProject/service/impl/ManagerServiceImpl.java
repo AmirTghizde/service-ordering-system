@@ -2,31 +2,30 @@ package com.Maktab101.SpringProject.service.impl;
 
 
 import com.Maktab101.SpringProject.model.Manager;
+import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.repository.ManagerRepository;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
-import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 @Service
 public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         implements ManagerService {
 
+    private final BCryptPasswordEncoder passwordEncoder;
 
-
-    public ManagerServiceImpl(ManagerRepository baseRepository) {
+    public ManagerServiceImpl(ManagerRepository baseRepository, BCryptPasswordEncoder passwordEncoder) {
         super(baseRepository);
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -59,7 +58,9 @@ public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         manager.setFirstname(registerDto.getFirstname());
         manager.setLastname(registerDto.getLastname());
         manager.setEmail(registerDto.getEmailAddress());
-        manager.setPassword(HashUtils.hash(registerDto.getPassword()));
+        manager.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        manager.setIsEnabled(true);
+        manager.setRole(Role.ROLE_MANAGER);
 
         int number = random.nextInt(90000) + 10000;
         manager.setManagerCode("M" + number);

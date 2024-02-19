@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,8 @@ public class CustomerController {
         this.filterSpecification = filterSpecification1;
     }
 
-    @PostMapping
+
+    @PostMapping("/register")
     public ResponseEntity<CustomerResponseDto> registerCustomer(@Valid @RequestBody RegisterDto registerDto) {
         Customer customer = customerService.register(registerDto);
         CustomerResponseDto customerDto = UserMapper.INSTANCE.toCustomerDto(customer);
@@ -41,13 +43,15 @@ public class CustomerController {
     }
 
     @PutMapping("/edit/password")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> editPassword(@Valid @RequestBody PasswordEditDto dto) {
         customerService.editPassword(dto.getUserId(), dto.getNewPassword());
         return ResponseEntity.ok("🔐 Password changed successfully");
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<CustomerResponseDto>> sortCustomers(@Valid @RequestBody RequestDto requestDto) {
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<List<CustomerResponseDto>> filterCustomers(@Valid @RequestBody RequestDto requestDto) {
         Specification<Customer> specificationList = filterSpecification.getSpecificationList(
                 requestDto.getSearchRequestDto(),
                 requestDto.getGlobalOperator());
@@ -61,11 +65,13 @@ public class CustomerController {
     }
 
     @PutMapping("/credit/add")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> addCredit(@Valid @RequestBody AddCreditDto dto) {
         customerService.addCredit(dto.getCustomerId(), dto.getAmount());
         return ResponseEntity.ok("💳 Credit increased successfully");
     }
     @GetMapping("/history")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<List<OrderHistoryDto>>fetchOrderHistory(@RequestParam("id") Long customerId) {
         List<Order> orders = customerService.getOrderHistory(customerId);
 
@@ -76,10 +82,17 @@ public class CustomerController {
         return ResponseEntity.ok(orderHistory);
     }
     @GetMapping("/balance")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
         Customer customer = customerService.findById(customerId);
         double balance = customer.getBalance();
 
         return ResponseEntity.ok(balance);
+    }
+
+    @GetMapping("/hello")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<String>sayHello() {
+        return ResponseEntity.ok("Hello");
     }
 }

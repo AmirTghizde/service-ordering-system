@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +27,14 @@ public class MainServiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<String> addService(@Valid @RequestBody ServiceNameDto serviceNameDto) {
         mainServicesService.addService(serviceNameDto.getServiceName());
         return ResponseEntity.status(HttpStatus.CREATED).body("🔨 New main service created");
     }
 
     @GetMapping(path = "/view/service")
+    @PreAuthorize("hasAnyRole('MANAGER','CUSTOMER','TECHNICIAN')")
     public ResponseEntity<MainServicesResponseDto> fetchServiceByName(@RequestParam("serviceName") String serviceName) {
         MainServices mainServices = mainServicesService.findByName(serviceName);
 
@@ -40,6 +43,7 @@ public class MainServiceController {
     }
 
     @GetMapping(path = "/view")
+    @PreAuthorize("hasAnyRole('MANAGER','CUSTOMER','TECHNICIAN')")
     public ResponseEntity<List<MainServicesResponseDto>> fetchAll() {
         List<MainServices> mainServices = mainServicesService.findAll();
 
@@ -51,6 +55,7 @@ public class MainServiceController {
     }
 
     @GetMapping(path = "/view/subServices")
+    @PreAuthorize("hasAnyRole('MANAGER','CUSTOMER','TECHNICIAN')")
     public ResponseEntity<List<String>> fetchSubServices(@RequestParam("id") Long serviceId) {
         List<String> subServiceNames = mainServicesService.findSubServiceNames(serviceId);
         return ResponseEntity.ok(subServiceNames);

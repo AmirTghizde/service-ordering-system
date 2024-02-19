@@ -3,23 +3,19 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
-import com.Maktab101.SpringProject.repository.CustomerRepository;
+import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
-import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,14 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
-    private final TechnicianService technicianService;
-    @Autowired
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository,
-                               TechnicianService technicianService) {
-        super(baseRepository);
-        this.technicianService = technicianService;
-    }
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder) {
+        super(baseRepository);
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public Customer register(RegisterDto registerDto) {
@@ -104,7 +100,9 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         customer.setFirstname(registerDto.getFirstname());
         customer.setLastname(registerDto.getLastname());
         customer.setEmail(registerDto.getEmailAddress());
-        customer.setPassword(HashUtils.hash(registerDto.getPassword()));
+        customer.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        customer.setIsEnabled(true);
+        customer.setRole(Role.ROLE_CUSTOMER);
         return customer;
     }
 }

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,13 +24,14 @@ public class ManagerController {
         this.managerService = managerService;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ManagerResponseDto> registerManager(@Valid @RequestBody RegisterDto registerDto) {
         Manager manager = managerService.register(registerDto);
         ManagerResponseDto managerDto = UserMapper.INSTANCE.toManagerDto(manager);
         return ResponseEntity.status(HttpStatus.CREATED).body(managerDto);
     }
     @PutMapping("/edit/password")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> editPassword(@Valid @RequestBody PasswordEditDto dto) {
         managerService.editPassword(dto.getUserId(), dto.getNewPassword());
         return ResponseEntity.ok().build();

@@ -1,8 +1,8 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
-import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
 import com.Maktab101.SpringProject.service.TechnicianService;
@@ -12,14 +12,11 @@ import com.Maktab101.SpringProject.utils.HashUtils;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -30,7 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -167,7 +163,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
         if (score < 0) {
             log.info("Score is lower than 0 disabling account");
-            technician.setStatus(TechnicianStatus.DISABLED);
+            technician.setIsEnabled(false);
         }
 
         technician.setScore(score);
@@ -206,6 +202,8 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setPassword(HashUtils.hash(registerDto.getPassword()));
         technician.setScore(0);
         technician.setStatus(TechnicianStatus.NEW);
+        technician.setIsEnabled(true);
+        technician.setRole(Role.ROLE_TECHNICIAN);
         return technician;
     }
 }

@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class OrderController {
     }
 
     @PostMapping("/{customerId}/submit")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> submitOrder(
             @PathVariable(name = "customerId") Long customerId,
             @Valid @RequestBody OrderSubmitDto orderSubmitDto) {
@@ -52,6 +54,7 @@ public class OrderController {
     }
 
     @GetMapping("/fetch/byTechnician")
+    @PreAuthorize("hasAnyRole('TECHNICIAN','MANAGER')")
     public ResponseEntity<List<OrderResponseDto>> fetchByTechnician(@RequestParam("id") Long technicianId) {
         List<Order> orders = orderService.findAwaitingOrdersByTechnician(technicianId);
         List<OrderResponseDto> dtoList = orders.stream()
@@ -61,6 +64,7 @@ public class OrderController {
     }
 
     @GetMapping("/fetch/byId")
+    @PreAuthorize("hasAnyRole('MANAGER','CUSTOMER','TECHNICIAN')")
     public ResponseEntity<OrderResponseDto> fetchById(@RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         OrderResponseDto dto = OrderMapper.INSTANCE.toDto(order);
@@ -68,24 +72,28 @@ public class OrderController {
     }
 
     @PutMapping("/suggestions/select")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> selectSuggestion(@Valid @RequestBody SelectSuggestionDto dto) {
         orderSuggestionService.selectSuggestion(dto.getOrderId(), dto.getSuggestionId());
         return ResponseEntity.ok("✅ Suggestion successfully selected");
     }
 
     @PutMapping("/start")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> startOrder(@RequestParam("id") Long orderId) {
         orderService.startOrder(orderId);
         return ResponseEntity.ok("👨‍🔧 Order started successfully");
     }
 
     @PutMapping("/finish")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
         orderSuggestionService.handelFinishOrder(dto);
         return ResponseEntity.ok("👷‍♂️ Order finished successfully");
     }
 
     @PutMapping("/payment/byCredit")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> payByCredit(@RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         Suggestion suggestion = suggestionService.findById(order.getSelectedSuggestionId());
@@ -99,6 +107,7 @@ public class OrderController {
 
     @CrossOrigin
     @PutMapping("/payment/onlinePayment")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> payOnline(@Valid @RequestBody CardPaymentDto dto) {
         log.info("Paying online with this data [{}]",dto);
         orderSuggestionService.payOnline( dto, numberCaptcha);
@@ -107,6 +116,7 @@ public class OrderController {
 
     @CrossOrigin
     @GetMapping("/payment")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<RequestOrderDto> fetchOrderData( @RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         numberCaptcha = orderService.getNumberCaptcha();
@@ -120,12 +130,14 @@ public class OrderController {
 
     @CrossOrigin
     @GetMapping("/payment/getCaptcha")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<Integer> fetchCaptcha() {
         numberCaptcha = orderService.getNumberCaptcha();
         return ResponseEntity.ok(numberCaptcha);
     }
 
     @GetMapping("/view")
+    @PreAuthorize("hasAnyRole('MANAGER','CUSTOMER','TECHNICIAN')")
     public ResponseEntity<OrderCommentDto> viewComments(@RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         OrderCommentDto orderCommentDto = OrderMapper.INSTANCE.toOrderCommentDto(order);
