@@ -72,8 +72,8 @@ public class CustomerController {
     }
     @GetMapping("/history")
     @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
-    public ResponseEntity<List<OrderHistoryDto>>fetchOrderHistory(@RequestParam("id") Long customerId) {
-        List<Order> orders = customerService.getOrderHistory(customerId);
+    public ResponseEntity<List<OrderHistoryDto>>fetchOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
+        List<Order> orders = customerService.getOrderHistory(dto.getId(),dto.getStatus());
 
         List<OrderHistoryDto> orderHistory = orders.stream()
                 .map(OrderMapper.INSTANCE::toOrderHistoryDto)

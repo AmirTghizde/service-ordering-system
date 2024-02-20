@@ -75,12 +75,11 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
     }
 
     @Override
-    public List<Order> getOrderHistory(Long customerId) {
+    public List<Order> getOrderHistory(Long customerId,OrderStatus status) {
         Customer customer = findById(customerId);
 
         return customer.getOrders().stream()
-                .filter(order -> order.getOrderStatus().equals(OrderStatus.FINISHED) ||
-                        order.getOrderStatus().equals(OrderStatus.PAID))
+                .filter(order -> order.getOrderStatus().equals(status))
                 .collect(Collectors.toList());
 
     }
