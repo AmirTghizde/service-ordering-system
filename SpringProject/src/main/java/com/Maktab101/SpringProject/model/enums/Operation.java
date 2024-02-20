@@ -8,5 +8,6 @@ public enum Operation {
     LESS_THAN,
     BETWEEN,
     JOIN,
-    DOUBLE_JOIN
+    DOUBLE_JOIN,
+    DATE_TIME_EQUAL,
 }

@@ -1,9 +1,12 @@
 package com.Maktab101.SpringProject.utils.exceptions;
 
+import org.hibernate.QueryException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.time.DateTimeException;
 
 @ControllerAdvice
 public class ApiExceptionHandler {
@@ -36,5 +39,27 @@ public class ApiExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = QueryException.class)
+    public ResponseEntity<Object> handelQueryException(QueryException e) {
+        ApiException apiException = new ApiException(
+                "(꒪⌓꒪)",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+        return new ResponseEntity<>(apiException, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(value = DateTimeException.class)
+    public ResponseEntity<Object> handelDateTimeException(DateTimeException e) {
+        ApiException apiException = new ApiException(
+                "ミ●﹏☉ミ",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+        return new ResponseEntity<>(apiException, HttpStatus.CONFLICT);
     }
 }

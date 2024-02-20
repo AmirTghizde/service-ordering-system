@@ -8,6 +8,8 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +74,14 @@ public class FilterSpecificationImpl<T> implements FilterSpecification<T> {
                                 root.join(joinTables[0]).join(joinTables[1]).get(dto.getColumn()),
                                 dto.getValue());
 
+                        predicateList.add(predicate);
+                    }
+                    case DATE_TIME_EQUAL -> {
+                        LocalDateTime valueDateTime = LocalDateTime.parse(dto.getValue());
+                        LocalDateTime startDateTime = valueDateTime.with(LocalTime.MIN);
+                        LocalDateTime endDateTime = valueDateTime.with(LocalTime.MAX);
+
+                        Predicate predicate = criteriaBuilder.between(root.get(dto.getColumn()), startDateTime, endDateTime);
                         predicateList.add(predicate);
                     }
                     default -> throw new CustomException("Unexpected argument: " + dto.getOperation());
