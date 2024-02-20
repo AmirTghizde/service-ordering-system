@@ -1,7 +1,6 @@
 package com.Maktab101.SpringProject.controler;
 
 import com.Maktab101.SpringProject.dto.order.OrderHistoryDto;
-import com.Maktab101.SpringProject.dto.order.OrderResponseDto;
 import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
@@ -9,6 +8,7 @@ import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
+import com.Maktab101.SpringProject.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,13 +25,17 @@ import java.util.stream.Collectors;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final OrderService orderService;
     private final FilterSpecification<Customer> filterSpecification;
+    private final FilterSpecification<Order> orderFilterSpecification;
 
     @Autowired
     public CustomerController(CustomerService customerService,
-                              FilterSpecification<Customer> filterSpecification1) {
+                              FilterSpecification<Customer> filterSpecification1, OrderService orderService, FilterSpecification<Order> orderFilterSpecification) {
         this.customerService = customerService;
         this.filterSpecification = filterSpecification1;
+        this.orderService = orderService;
+        this.orderFilterSpecification = orderFilterSpecification;
     }
 
 
@@ -71,12 +75,32 @@ public class CustomerController {
         return ResponseEntity.ok("💳 Credit increased successfully");
     }
 
-    @GetMapping("/balance")
+    @GetMapping("/profile/balance")
     @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<Double> viewBalance(@RequestParam("id") Long customerId) {
         Customer customer = customerService.findById(customerId);
         double balance = customer.getBalance();
 
         return ResponseEntity.ok(balance);
+    }
+
+    @GetMapping("/profile/myHistory")
+    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    public ResponseEntity<List<OrderHistoryDto>> viewOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
+
+        RequestDto requestDto = customerService.getRequestDto(dto.getId(),dto.getStatus());
+
+        Specification<Order> specificationList = orderFilterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        List<Order> orderList = orderService.filter(specificationList);
+
+        List<OrderHistoryDto> dtoList = orderList.stream()
+                .map(OrderMapper.INSTANCE::toOrderHistoryDto)
+                .toList();
+
+
+        return ResponseEntity.ok(dtoList);
     }
 }

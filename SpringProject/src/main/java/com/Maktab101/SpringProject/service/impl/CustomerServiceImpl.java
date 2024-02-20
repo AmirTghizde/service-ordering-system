@@ -1,7 +1,10 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.users.RequestDto;
+import com.Maktab101.SpringProject.dto.users.SearchRequestDto;
 import com.Maktab101.SpringProject.model.Customer;
-import com.Maktab101.SpringProject.model.Order;
+import com.Maktab101.SpringProject.model.enums.GlobalOperator;
+import com.Maktab101.SpringProject.model.enums.Operation;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
@@ -18,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -72,6 +74,32 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         balance += amount;
         customer.setBalance(balance);
         baseRepository.save(customer);
+    }
+
+    @Override
+    public RequestDto getRequestDto(Long customerId, OrderStatus status) {
+
+        // Find customer's orders
+        SearchRequestDto searchRequest1 = SearchRequestDto.builder()
+                .column("id")
+                .value(customerId.toString())
+                .operation(Operation.JOIN)
+                .joinTable("customer")
+                .build();
+
+        // Find the ones matching the status
+        SearchRequestDto searchRequest2 = SearchRequestDto.builder()
+                .column("orderStatus")
+                .value(String.valueOf(status))
+                .operation(Operation.EQUAL)
+                .joinTable("")
+                .build();
+
+        // Build the dto
+        return RequestDto.builder()
+                .searchRequestDto(List.of(searchRequest1,searchRequest2))
+                .globalOperator(GlobalOperator.AND)
+                .build();
     }
 
     protected void checkCondition(RegisterDto registerDto) {
