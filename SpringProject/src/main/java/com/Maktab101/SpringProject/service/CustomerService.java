@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface CustomerService extends BaseUserService<Customer> {
     Customer register (RegisterDto registerDto);
-    List<Customer> filter(Specification<Customer> specification);
+    List<Customer> handelFiltering(RequestDto requestDto);
     void payByCredit(Long customerId, double amount);
     void addCredit(Long customerId, double amount);
     RequestDto getRequestDto(Long customerId, OrderStatus status);

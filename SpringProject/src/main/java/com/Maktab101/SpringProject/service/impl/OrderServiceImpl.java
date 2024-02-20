@@ -1,19 +1,14 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
+import com.Maktab101.SpringProject.dto.users.RequestDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
-import com.Maktab101.SpringProject.service.CustomerService;
-import com.Maktab101.SpringProject.service.OrderService;
-import com.Maktab101.SpringProject.service.SubServicesService;
-import com.Maktab101.SpringProject.service.TechnicianService;
+import com.Maktab101.SpringProject.service.*;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,14 +29,17 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
     private final TechnicianService technicianService;
+    private final FilterSpecification<Order> filterSpecification;
 
     @Autowired
     public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
-                            OrderRepository orderRepository, TechnicianService technicianService) {
+                            OrderRepository orderRepository, TechnicianService technicianService,
+                            FilterSpecification<Order> filterSpecification) {
         this.subServicesService = subServicesService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
         this.technicianService = technicianService;
+        this.filterSpecification = filterSpecification;
     }
 
 
@@ -142,8 +140,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> filter(Specification<Order> specification) {
-        return orderRepository.findAll(specification);
+    public List<Order> handelFiltering(RequestDto requestDto) {
+        Specification<Order> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        return orderRepository.findAll(specificationList);
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {

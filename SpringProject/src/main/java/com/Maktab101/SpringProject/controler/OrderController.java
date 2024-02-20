@@ -100,11 +100,8 @@ public class OrderController {
     @GetMapping("/filter")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<OrderResponseDto>> filter(@Valid @RequestBody RequestDto requestDto) {
-        Specification<Order> specificationList = filterSpecification.getSpecificationList(
-                requestDto.getSearchRequestDto(),
-                requestDto.getGlobalOperator());
 
-        List<Order> orderList = orderService.filter(specificationList);
+        List<Order> orderList = orderService.handelFiltering(requestDto);
 
         List<OrderResponseDto> dtoList = orderList.stream()
                 .map(OrderMapper.INSTANCE::toDto)

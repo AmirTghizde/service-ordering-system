@@ -4,13 +4,13 @@ import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
+import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.SubServicesService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,14 +35,16 @@ class OrderServiceImplTest {
     @Mock
     private CustomerService customerService;
     @Mock
+    private  FilterSpecification<Order> orderFilterSpecification;
+    @Mock
     private TechnicianService technicianService;
     private OrderServiceImpl underTest;
 
     @BeforeEach
     void setUp() {
         underTest = new OrderServiceImpl(
-                subServicesService, customerService, orderRepository, technicianService
-        );
+                subServicesService, customerService, orderRepository, technicianService,
+                orderFilterSpecification);
     }
 
     @Test

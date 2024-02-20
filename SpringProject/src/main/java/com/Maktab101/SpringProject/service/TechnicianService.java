@@ -1,7 +1,9 @@
 package com.Maktab101.SpringProject.service;
 
+import com.Maktab101.SpringProject.dto.users.RequestDto;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.service.base.BaseUserService;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,9 +19,10 @@ public interface TechnicianService extends BaseUserService<Technician> {
 
     void saveImage(Long technicianId, String imageAddress);
 
-    List<Technician> filter(Specification<Technician> specification);
+    List<Technician> handelFiltering(RequestDto requestDto);
 
     void addCredit(Long technicianId, double amount);
     void addPoints(Long technicianId, double amount);
     void reducePoints(Long technicianId, double amount);
+    RequestDto getRequestDto(Long technicianId, OrderStatus status);
 }

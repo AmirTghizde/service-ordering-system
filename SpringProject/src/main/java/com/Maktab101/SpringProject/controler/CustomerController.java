@@ -26,16 +26,12 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final OrderService orderService;
-    private final FilterSpecification<Customer> filterSpecification;
-    private final FilterSpecification<Order> orderFilterSpecification;
+
 
     @Autowired
-    public CustomerController(CustomerService customerService,
-                              FilterSpecification<Customer> filterSpecification1, OrderService orderService, FilterSpecification<Order> orderFilterSpecification) {
+    public CustomerController(CustomerService customerService, OrderService orderService) {
         this.customerService = customerService;
-        this.filterSpecification = filterSpecification1;
         this.orderService = orderService;
-        this.orderFilterSpecification = orderFilterSpecification;
     }
 
 
@@ -56,11 +52,8 @@ public class CustomerController {
     @GetMapping("/filter")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<CustomerResponseDto>> filterCustomers(@Valid @RequestBody RequestDto requestDto) {
-        Specification<Customer> specificationList = filterSpecification.getSpecificationList(
-                requestDto.getSearchRequestDto(),
-                requestDto.getGlobalOperator());
 
-        List<Customer> filteredCustomers = customerService.filter(specificationList);
+        List<Customer> filteredCustomers = customerService.handelFiltering(requestDto);
 
         List<CustomerResponseDto> dtoList = filteredCustomers.stream()
                 .map(UserMapper.INSTANCE::toCustomerDto)
@@ -90,11 +83,7 @@ public class CustomerController {
 
         RequestDto requestDto = customerService.getRequestDto(dto.getId(),dto.getStatus());
 
-        Specification<Order> specificationList = orderFilterSpecification.getSpecificationList(
-                requestDto.getSearchRequestDto(),
-                requestDto.getGlobalOperator());
-
-        List<Order> orderList = orderService.filter(specificationList);
+        List<Order> orderList = orderService.handelFiltering(requestDto);
 
         List<OrderHistoryDto> dtoList = orderList.stream()
                 .map(OrderMapper.INSTANCE::toOrderHistoryDto)

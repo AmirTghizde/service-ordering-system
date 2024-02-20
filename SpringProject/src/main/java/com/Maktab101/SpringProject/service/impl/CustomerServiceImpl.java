@@ -9,6 +9,7 @@ import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
+import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.utils.exceptions.CustomException;
@@ -28,11 +29,13 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
 
     private final BCryptPasswordEncoder passwordEncoder;
+    private final FilterSpecification<Customer> filterSpecification;
 
     @Autowired
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder) {
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder, FilterSpecification<Customer> filterSpecification) {
         super(baseRepository);
         this.passwordEncoder = passwordEncoder;
+        this.filterSpecification = filterSpecification;
     }
 
     @Override
@@ -50,8 +53,13 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
     }
 
     @Override
-    public List<Customer> filter(Specification<Customer> specification) {
-        return baseRepository.findAll(specification);
+    public List<Customer> handelFiltering(RequestDto requestDto) {
+
+        Specification<Customer> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        return baseRepository.findAll(specificationList);
     }
 
     @Override

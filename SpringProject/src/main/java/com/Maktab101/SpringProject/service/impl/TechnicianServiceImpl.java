@@ -1,10 +1,12 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
+import com.Maktab101.SpringProject.dto.users.RequestDto;
+import com.Maktab101.SpringProject.dto.users.SearchRequestDto;
 import com.Maktab101.SpringProject.model.Technician;
-import com.Maktab101.SpringProject.model.enums.Role;
-import com.Maktab101.SpringProject.model.enums.TechnicianStatus;
+import com.Maktab101.SpringProject.model.enums.*;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
+import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
@@ -31,11 +33,13 @@ import java.util.List;
 public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> implements TechnicianService {
 
     private final BCryptPasswordEncoder passwordEncoder;
+    private final FilterSpecification<Technician> filterSpecification;
 
     @Autowired
-    public TechnicianServiceImpl(TechnicianRepository baseRepository, BCryptPasswordEncoder passwordEncoder) {
+    public TechnicianServiceImpl(TechnicianRepository baseRepository, BCryptPasswordEncoder passwordEncoder, FilterSpecification<Technician> filterSpecification) {
         super(baseRepository);
         this.passwordEncoder = passwordEncoder;
+        this.filterSpecification = filterSpecification;
     }
 
     @Override
@@ -120,8 +124,12 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     }
 
     @Override
-    public List<Technician> filter(Specification<Technician> specification) {
-        return baseRepository.findAll(specification);
+    public List<Technician> handelFiltering(RequestDto requestDto) {
+        Specification<Technician> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        return baseRepository.findAll(specificationList);
     }
 
     @Override
@@ -174,6 +182,31 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
             log.error("PersistenceException occurred throwing CustomException ... ");
             throw new CustomException(e.getMessage());
         }
+    }
+
+    @Override
+    public RequestDto getRequestDto(Long technicianId, OrderStatus status) {
+        // Find technician's orders
+        SearchRequestDto searchRequest1 = SearchRequestDto.builder()
+                .column("id")
+                .value(technicianId.toString())
+                .operation(Operation.DOUBLE_JOIN)
+                .joinTable("SelectedSuggestion,technician")
+                .build();
+
+        // Find the ones matching the status
+        SearchRequestDto searchRequest2 = SearchRequestDto.builder()
+                .column("orderStatus")
+                .value(String.valueOf(status))
+                .operation(Operation.EQUAL)
+                .joinTable("")
+                .build();
+
+        // Build the dto
+        return RequestDto.builder()
+                .searchRequestDto(List.of(searchRequest1,searchRequest2))
+                .globalOperator(GlobalOperator.AND)
+                .build();
     }
 
     protected byte[] imageToBytes(String imageAddress) {

@@ -1,10 +1,13 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.order.OrderHistoryDto;
 import com.Maktab101.SpringProject.dto.users.*;
+import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
-import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.service.FilterSpecification;
+import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +25,12 @@ import java.util.stream.Collectors;
 public class TechnicianController {
 
     private final TechnicianService technicianService;
-
-    private final FilterSpecification<Technician> filterSpecification;
+    private final OrderService orderService;
 
     @Autowired
-    public TechnicianController(TechnicianService technicianService, FilterSpecification<Technician> filterSpecification) {
+    public TechnicianController(TechnicianService technicianService, OrderService orderService, FilterSpecification<Technician> filterSpecification) {
         this.technicianService = technicianService;
-        this.filterSpecification = filterSpecification;
+        this.orderService = orderService;
     }
 
     @PostMapping("/register")
@@ -41,11 +43,8 @@ public class TechnicianController {
     @GetMapping("/filter")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<List<TechnicianResponseDto>> filterTechnicians(@Valid @RequestBody RequestDto requestDto) {
-        Specification<Technician> specificationList = filterSpecification.getSpecificationList(
-                requestDto.getSearchRequestDto(),
-                requestDto.getGlobalOperator());
 
-        List<Technician> filteredCustomers = technicianService.filter(specificationList);
+        List<Technician> filteredCustomers = technicianService.handelFiltering(requestDto);
 
         List<TechnicianResponseDto> dtoList = filteredCustomers.stream()
                 .map(UserMapper.INSTANCE::toTechnicianDto)
@@ -86,7 +85,23 @@ public class TechnicianController {
         return ResponseEntity.ok("🔐 Password changed successfully");
     }
 
-    @GetMapping("/balance")
+    @GetMapping("/profile/myHistory")
+    @PreAuthorize("hasAnyRole('TECHNICIAN','MANAGER')")
+    public ResponseEntity<List<OrderHistoryDto>> viewOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
+
+        RequestDto requestDto = technicianService.getRequestDto(dto.getId(),dto.getStatus());
+
+        List<Order> orderList = orderService.handelFiltering(requestDto);
+
+        List<OrderHistoryDto> dtoList = orderList.stream()
+                .map(OrderMapper.INSTANCE::toOrderHistoryDto)
+                .toList();
+
+
+        return ResponseEntity.ok(dtoList);
+    }
+
+    @GetMapping("/profile/balance")
     @PreAuthorize("hasAnyRole('MANAGER','TECHNICIAN')")
     public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
         Technician technician = technicianService.findById(customerId);
