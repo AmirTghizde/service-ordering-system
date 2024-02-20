@@ -74,16 +74,6 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         baseRepository.save(customer);
     }
 
-    @Override
-    public List<Order> getOrderHistory(Long customerId,OrderStatus status) {
-        Customer customer = findById(customerId);
-
-        return customer.getOrders().stream()
-                .filter(order -> order.getOrderStatus().equals(status))
-                .collect(Collectors.toList());
-
-    }
-
     protected void checkCondition(RegisterDto registerDto) {
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {

@@ -70,20 +70,10 @@ public class CustomerController {
         customerService.addCredit(dto.getCustomerId(), dto.getAmount());
         return ResponseEntity.ok("💳 Credit increased successfully");
     }
-    @GetMapping("/history")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
-    public ResponseEntity<List<OrderHistoryDto>>fetchOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
-        List<Order> orders = customerService.getOrderHistory(dto.getId(),dto.getStatus());
 
-        List<OrderHistoryDto> orderHistory = orders.stream()
-                .map(OrderMapper.INSTANCE::toOrderHistoryDto)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(orderHistory);
-    }
     @GetMapping("/balance")
     @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
-    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
+    public ResponseEntity<Double> viewBalance(@RequestParam("id") Long customerId) {
         Customer customer = customerService.findById(customerId);
         double balance = customer.getBalance();
 

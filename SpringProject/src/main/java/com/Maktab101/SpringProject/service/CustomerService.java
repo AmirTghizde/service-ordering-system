@@ -15,5 +15,4 @@ public interface CustomerService extends BaseUserService<Customer> {
     List<Customer> filter(Specification<Customer> specification);
     void payByCredit(Long customerId, double amount);
     void addCredit(Long customerId, double amount);
-    List<Order> getOrderHistory(Long customerId, OrderStatus status);
 }
