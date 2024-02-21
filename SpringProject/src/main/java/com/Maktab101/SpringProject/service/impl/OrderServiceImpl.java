@@ -192,6 +192,7 @@ public class OrderServiceImpl implements OrderService {
         subServices.getOrders().add(order);
         order.setSubServices(subServices);
         order.setCustomer(customer);
+        customer.setOrdersSubmitted(customer.getOrdersSubmitted()+1);
     }
 
 }

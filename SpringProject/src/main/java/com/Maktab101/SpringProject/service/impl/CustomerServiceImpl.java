@@ -125,6 +125,9 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         customer.setLastname(registerDto.getLastname());
         customer.setEmail(registerDto.getEmailAddress());
         customer.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        customer.setBalance(0);
+        customer.setOrdersSubmitted(0L);
+        customer.setOrders(new ArrayList<>());
         customer.setIsEnabled(true);
         customer.setRole(Role.ROLE_CUSTOMER);
         return customer;

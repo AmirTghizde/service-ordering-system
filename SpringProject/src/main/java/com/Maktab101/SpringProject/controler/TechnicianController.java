@@ -12,7 +12,9 @@ import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +36,9 @@ public class TechnicianController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<TechnicianResponseDto> registerTechnician(@Valid @RequestBody RegisterDto registerDto) {
+    public ResponseEntity<TechnicianDataDto> registerTechnician(@Valid @RequestBody RegisterDto registerDto) {
         Technician technician = technicianService.register(registerDto);
-        TechnicianResponseDto technicianDto = UserMapper.INSTANCE.toTechnicianDto(technician);
+        TechnicianDataDto technicianDto = UserMapper.INSTANCE.toTechnicianDataDto(technician);
         return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
     }
 
@@ -85,6 +87,18 @@ public class TechnicianController {
         return ResponseEntity.ok("🔐 Password changed successfully");
     }
 
+    @GetMapping("/profile/image")
+    @PreAuthorize("hasAnyRole('MANAGER','TECHNICIAN')")
+    public ResponseEntity<byte[]>viewImage(@RequestParam("id") Long technicianId) {
+        Technician technician = technicianService.findById(technicianId);
+
+        byte[] imageData = technician.getImageData();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+
+        return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
+    }
+
     @GetMapping("/profile/myHistory")
     @PreAuthorize("hasAnyRole('TECHNICIAN','MANAGER')")
     public ResponseEntity<List<OrderHistoryDto>> viewOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
@@ -103,10 +117,11 @@ public class TechnicianController {
 
     @GetMapping("/profile/balance")
     @PreAuthorize("hasAnyRole('MANAGER','TECHNICIAN')")
-    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long customerId) {
-        Technician technician = technicianService.findById(customerId);
+    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long technicianId) {
+        Technician technician = technicianService.findById(technicianId);
         double balance = technician.getBalance();
 
         return ResponseEntity.ok(balance);
     }
+
 }

@@ -28,6 +28,8 @@ public class Technician extends User {
     @Column(name = "image_data", columnDefinition = "bytea")
     private byte[] imageData;
 
+    private Long ordersFinished;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "Technician_SubServices",
@@ -35,6 +37,6 @@ public class Technician extends User {
             inverseJoinColumns = @JoinColumn(name = "SubService_id")
     )
     @ToString.Exclude
-    private List<SubServices> subServices = new ArrayList<>();
+    private List<SubServices> subServices;
 
 }

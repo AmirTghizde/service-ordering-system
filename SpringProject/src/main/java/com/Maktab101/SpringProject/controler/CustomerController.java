@@ -36,9 +36,9 @@ public class CustomerController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<CustomerResponseDto> registerCustomer(@Valid @RequestBody RegisterDto registerDto) {
+    public ResponseEntity<CustomerDataDto> registerCustomer(@Valid @RequestBody RegisterDto registerDto) {
         Customer customer = customerService.register(registerDto);
-        CustomerResponseDto customerDto = UserMapper.INSTANCE.toCustomerDto(customer);
+        CustomerDataDto customerDto = UserMapper.INSTANCE.toCustomerDataDto(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(customerDto);
     }
 

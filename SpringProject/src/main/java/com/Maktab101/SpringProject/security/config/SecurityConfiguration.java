@@ -35,7 +35,10 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/customers/register",
                                 "/manager/register",
-                                "/technicians/register"
+                                "/technicians/register",
+                                "/orders/payment/onlinePayment",
+                                "/orders/payment",
+                                "/payment/getCaptcha"
                         ).permitAll()
                         .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults());

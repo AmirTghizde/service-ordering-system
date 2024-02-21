@@ -1,6 +1,7 @@
 package com.Maktab101.SpringProject.utils.exceptions;
 
 import org.hibernate.QueryException;
+import org.hibernate.query.sqm.PathElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -62,4 +63,16 @@ public class ApiExceptionHandler {
         );
         return new ResponseEntity<>(apiException, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(value = PathElementException.class)
+    public ResponseEntity<Object> handelPathElementExceptionException(PathElementException e) {
+        ApiException apiException = new ApiException(
+                "ب_ب",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                HttpStatus.CONFLICT
+        );
+        return new ResponseEntity<>(apiException, HttpStatus.CONFLICT);
+    }
+
 }

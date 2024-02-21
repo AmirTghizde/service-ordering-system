@@ -1,8 +1,6 @@
 package com.Maktab101.SpringProject.mapper;
 
-import com.Maktab101.SpringProject.dto.users.CustomerResponseDto;
-import com.Maktab101.SpringProject.dto.users.ManagerResponseDto;
-import com.Maktab101.SpringProject.dto.users.TechnicianResponseDto;
+import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.model.Technician;
@@ -39,4 +37,18 @@ public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Technician partialUpdate(TechnicianResponseDto technicianResponseDto, @MappingTarget Technician technician);
+
+    Customer toEntity(CustomerDataDto customerDataDto);
+
+    CustomerDataDto toCustomerDataDto(Customer customer);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Customer partialUpdate(CustomerDataDto customerDataDto, @MappingTarget Customer customer);
+
+    Technician toEntity(TechnicianDataDto technicianDataDto);
+
+    TechnicianDataDto toTechnicianDataDto(Technician technician);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Technician partialUpdate(TechnicianDataDto technicianDataDto, @MappingTarget Technician technician);
 }

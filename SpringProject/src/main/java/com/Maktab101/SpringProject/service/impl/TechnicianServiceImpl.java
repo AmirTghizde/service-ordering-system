@@ -25,6 +25,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -154,6 +155,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         score = (score + amount) / 2;
 
         technician.setScore(score);
+        technician.setOrdersFinished(technician.getOrdersFinished()+1);
         try {
             baseRepository.save(technician);
         } catch (PersistenceException e) {
@@ -235,9 +237,17 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setEmail(registerDto.getEmailAddress());
         technician.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         technician.setScore(0);
+        technician.setBalance(0);
+        technician.setOrdersFinished(0L);
+        technician.setSubServices(new ArrayList<>());
         technician.setStatus(TechnicianStatus.NEW);
         technician.setIsEnabled(true);
         technician.setRole(Role.ROLE_TECHNICIAN);
+
+        // Add default image
+        byte[] image = imageToBytes("D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\deafualt.jpg");
+        technician.setImageData(image);
+
         return technician;
     }
 }

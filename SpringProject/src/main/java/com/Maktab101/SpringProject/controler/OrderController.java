@@ -124,7 +124,6 @@ public class OrderController {
 
     @CrossOrigin
     @PutMapping("/payment/onlinePayment")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<String> payOnline(@Valid @RequestBody CardPaymentDto dto) {
         log.info("Paying online with this data [{}]", dto);
         orderSuggestionService.payOnline(dto, numberCaptcha);
@@ -133,7 +132,6 @@ public class OrderController {
 
     @CrossOrigin
     @GetMapping("/payment")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<RequestOrderDto> fetchOrderData(@RequestParam("id") Long orderId) {
         Order order = orderService.findById(orderId);
         numberCaptcha = orderService.getNumberCaptcha();
@@ -147,7 +145,6 @@ public class OrderController {
 
     @CrossOrigin
     @GetMapping("/payment/getCaptcha")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
     public ResponseEntity<Integer> fetchCaptcha() {
         numberCaptcha = orderService.getNumberCaptcha();
         return ResponseEntity.ok(numberCaptcha);

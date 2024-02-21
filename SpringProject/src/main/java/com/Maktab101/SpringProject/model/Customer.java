@@ -16,7 +16,9 @@ import java.util.List;
 public class Customer extends User {
 
 
-    private double balance = 0;
+    private double balance;
+
+    private Long ordersSubmitted;
 
     @OneToMany(mappedBy = "customer")
     @ToString.Exclude

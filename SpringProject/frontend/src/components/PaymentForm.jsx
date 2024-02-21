@@ -5,7 +5,7 @@ import {getCaptchaNumber, getOrderData, sendPaymentData} from "../services/Order
 
 function PaymentForm() {
 
-    const orderId = 2; // Change this to change the order you are paying for
+    const orderId = 1; // Change this to change the order you are paying for
 
     const timeLimit = 10 * 60 * 1000;
     const redirectUrl = "/timeout";
@@ -40,10 +40,6 @@ function PaymentForm() {
                 window.alert(errorMessage)
             });
     }, []);
-
-    useEffect(() => {
-
-    }, [amount]);
 
     const restCaptcha = (event) => {
         event.preventDefault();
