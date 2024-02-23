@@ -16,4 +16,5 @@ public interface CustomerService extends BaseUserService<Customer> {
     void payByCredit(Long customerId, double amount);
     void addCredit(Long customerId, double amount);
     RequestDto getRequestDto(Long customerId, OrderStatus status);
+    void verify(Long customerId,String token);
 }

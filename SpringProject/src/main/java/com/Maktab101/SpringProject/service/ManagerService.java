@@ -7,4 +7,5 @@ import com.Maktab101.SpringProject.dto.users.RegisterDto;
 
 public interface ManagerService extends BaseUserService<Manager> {
     Manager register(RegisterDto registerDto);
+    void verify(Long managerId, String token);
 }

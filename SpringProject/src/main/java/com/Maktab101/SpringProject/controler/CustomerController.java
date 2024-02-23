@@ -5,16 +5,18 @@ import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.service.CustomerService;
-import com.Maktab101.SpringProject.service.FilterSpecification;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.OrderService;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +28,14 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final OrderService orderService;
+    private final EmailVerificationService emailVerificationService;
 
 
     @Autowired
-    public CustomerController(CustomerService customerService, OrderService orderService) {
+    public CustomerController(CustomerService customerService, OrderService orderService, EmailVerificationService emailVerificationService) {
         this.customerService = customerService;
         this.orderService = orderService;
+        this.emailVerificationService = emailVerificationService;
     }
 
 
@@ -40,6 +44,18 @@ public class CustomerController {
         Customer customer = customerService.register(registerDto);
         CustomerDataDto customerDto = UserMapper.INSTANCE.toCustomerDataDto(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(customerDto);
+    }
+
+    @GetMapping("/confirmEmail")
+    @Transactional
+    public ResponseEntity<String> confirmEmail(@RequestParam("token") String token) {
+        if (!emailVerificationService.isValidToken(token)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
+        }
+        EmailVerification emailVerification = emailVerificationService.findByToken(token);
+        customerService.verify(emailVerification.getUser().getId(),token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Validated Successfully you can login now");
     }
 
     @PutMapping("/edit/password")

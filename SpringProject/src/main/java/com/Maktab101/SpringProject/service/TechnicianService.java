@@ -25,4 +25,5 @@ public interface TechnicianService extends BaseUserService<Technician> {
     void addPoints(Long technicianId, double amount);
     void reducePoints(Long technicianId, double amount);
     RequestDto getRequestDto(Long technicianId, OrderStatus status);
+    void verify(Long technicianId, String token);
 }

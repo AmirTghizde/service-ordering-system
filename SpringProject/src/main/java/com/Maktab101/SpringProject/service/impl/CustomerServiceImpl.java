@@ -3,12 +3,15 @@ package com.Maktab101.SpringProject.service.impl;
 import com.Maktab101.SpringProject.dto.users.RequestDto;
 import com.Maktab101.SpringProject.dto.users.SearchRequestDto;
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.enums.GlobalOperator;
 import com.Maktab101.SpringProject.model.enums.Operation;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.model.enums.Role;
+import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
@@ -27,14 +30,16 @@ import java.util.*;
 @Service
 public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         implements CustomerService {
-
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
     private final FilterSpecification<Customer> filterSpecification;
 
     @Autowired
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder, FilterSpecification<Customer> filterSpecification) {
-        super(baseRepository);
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder, EmailVerificationService emailVerificationService, FilterSpecification<Customer> filterSpecification,
+                               CustomerRepository customerRepository) {
+        super(baseRepository, passwordEncoder);
         this.passwordEncoder = passwordEncoder;
+        this.emailVerificationService = emailVerificationService;
         this.filterSpecification = filterSpecification;
     }
 
@@ -43,11 +48,22 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         log.info("Registering with this data [{}]", registerDto);
         checkCondition(registerDto);
         Customer customer = mapDtoValues(registerDto);
+        Customer savedCustomer = save(customer);
+
+        // Send the registration email
+        EmailVerification emailVerification = emailVerificationService.generateToken(savedCustomer);
+        emailVerificationService.sendEmail(emailVerification);
+        return savedCustomer;
+    }
+
+    @Override
+    public void verify(Long customerId,String token) {
+        Customer customer = findById(customerId);
+        customer.setIsEnabled(true);
         try {
-            log.info("Connecting to [{}]", baseRepository);
-            return baseRepository.save(customer);
-        } catch (PersistenceException e) {
-            log.error("PersistenceException occurred throwing CustomException ... ");
+            save(customer);
+            emailVerificationService.deleteByToken(token);
+        }catch (PersistenceException e){
             throw new CustomException(e.getMessage());
         }
     }
@@ -128,8 +144,10 @@ public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
         customer.setBalance(0);
         customer.setOrdersSubmitted(0L);
         customer.setOrders(new ArrayList<>());
-        customer.setIsEnabled(true);
+        customer.setIsEnabled(false);
         customer.setRole(Role.ROLE_CUSTOMER);
         return customer;
     }
+
+
 }

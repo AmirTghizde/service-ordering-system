@@ -3,9 +3,11 @@ package com.Maktab101.SpringProject.service.impl;
 
 import com.Maktab101.SpringProject.dto.users.RequestDto;
 import com.Maktab101.SpringProject.dto.users.SearchRequestDto;
+import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Technician;
 import com.Maktab101.SpringProject.model.enums.*;
 import com.Maktab101.SpringProject.repository.TechnicianRepository;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
@@ -35,12 +37,14 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final FilterSpecification<Technician> filterSpecification;
+    private final EmailVerificationService emailVerificationService;
 
     @Autowired
-    public TechnicianServiceImpl(TechnicianRepository baseRepository, BCryptPasswordEncoder passwordEncoder, FilterSpecification<Technician> filterSpecification) {
-        super(baseRepository);
+    public TechnicianServiceImpl(TechnicianRepository baseRepository, BCryptPasswordEncoder passwordEncoder, FilterSpecification<Technician> filterSpecification, EmailVerificationService emailVerificationService) {
+        super(baseRepository, passwordEncoder);
         this.passwordEncoder = passwordEncoder;
         this.filterSpecification = filterSpecification;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @Override
@@ -49,11 +53,22 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
         checkCondition(registerDto);
         Technician technician = mapDtoValues(registerDto);
+        Technician savedTechnician = save(technician);
+
+        // Send the registration email
+        EmailVerification emailVerification = emailVerificationService.generateToken(savedTechnician);
+        emailVerificationService.sendEmail(emailVerification);
+        return savedTechnician;
+    }
+
+    @Override
+    public void verify(Long technicianId, String token) {
+        Technician technician = findById(technicianId);
+        technician.setStatus(TechnicianStatus.AWAITING_CONFIRMATION);
         try {
-            log.info("Connecting to [{}]", baseRepository);
-            return baseRepository.save(technician);
-        } catch (PersistenceException e) {
-            log.error("PersistenceException occurred throwing CustomException ... ");
+            save(technician);
+            emailVerificationService.deleteByToken(token);
+        }catch (PersistenceException e){
             throw new CustomException(e.getMessage());
         }
     }
@@ -97,6 +112,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         Technician technician = findById(technicianId);
 
         technician.setStatus(TechnicianStatus.CONFIRMED);
+        technician.setIsEnabled(true);
         try {
             log.info("Connecting to [{}]", baseRepository);
             baseRepository.save(technician);
@@ -241,7 +257,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setOrdersFinished(0L);
         technician.setSubServices(new ArrayList<>());
         technician.setStatus(TechnicianStatus.NEW);
-        technician.setIsEnabled(true);
+        technician.setIsEnabled(false);
         technician.setRole(Role.ROLE_TECHNICIAN);
 
         // Add default image

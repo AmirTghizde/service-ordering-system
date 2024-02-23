@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -25,6 +26,8 @@ class BaseUserServiceImplTest {
     @Mock
     private BaseUserRepository<User> baseRepository;
     private BaseUserServiceImpl<User> underTest;
+    @Mock
+    private static BCryptPasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
@@ -33,7 +36,7 @@ class BaseUserServiceImplTest {
 
     static class TestUserServiceImpl extends BaseUserServiceImpl<User> {
         public TestUserServiceImpl(BaseUserRepository<User> baseUserRepository) {
-            super(baseUserRepository);
+            super(baseUserRepository, passwordEncoder);
         }
     }
 

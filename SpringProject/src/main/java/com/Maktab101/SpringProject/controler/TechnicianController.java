@@ -4,19 +4,21 @@ import com.Maktab101.SpringProject.dto.order.OrderHistoryDto;
 import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.mapper.OrderMapper;
 import com.Maktab101.SpringProject.mapper.UserMapper;
+import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.TechnicianService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,12 +29,14 @@ import java.util.stream.Collectors;
 public class TechnicianController {
 
     private final TechnicianService technicianService;
+    private final EmailVerificationService emailVerificationService;
     private final OrderService orderService;
 
     @Autowired
-    public TechnicianController(TechnicianService technicianService, OrderService orderService, FilterSpecification<Technician> filterSpecification) {
+    public TechnicianController(TechnicianService technicianService, OrderService orderService, FilterSpecification<Technician> filterSpecification, EmailVerificationService emailVerificationService) {
         this.technicianService = technicianService;
         this.orderService = orderService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @PostMapping("/register")
@@ -40,6 +44,18 @@ public class TechnicianController {
         Technician technician = technicianService.register(registerDto);
         TechnicianDataDto technicianDto = UserMapper.INSTANCE.toTechnicianDataDto(technician);
         return ResponseEntity.status(HttpStatus.CREATED).body(technicianDto);
+    }
+
+    @GetMapping("/confirmEmail")
+    @Transactional
+    public ResponseEntity<String> confirmEmail(@RequestParam("token") String token) {
+        if (!emailVerificationService.isValidToken(token)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
+        }
+        EmailVerification emailVerification = emailVerificationService.findByToken(token);
+        technicianService.verify(emailVerification.getUser().getId(),token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Validated Successfully you can login now");
     }
 
     @GetMapping("/filter")

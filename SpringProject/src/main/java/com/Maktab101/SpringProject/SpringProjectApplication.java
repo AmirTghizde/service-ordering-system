@@ -2,6 +2,7 @@ package com.Maktab101.SpringProject;
 
 
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.service.ManagerService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,7 +22,9 @@ public class SpringProjectApplication {
         ManagerService managerService = context.getBean(ManagerService.class);
         BCryptPasswordEncoder passwordEncoder = context.getBean(BCryptPasswordEncoder.class);
         if (!managerService.existsByEmailAddress(email)) {
-            managerService.register(new RegisterDto("Admin", "Admin", email, password));
+            Manager manager = managerService.register(new RegisterDto("Admin", "Admin", email, password));
+            manager.setIsEnabled(true);
+            managerService.save(manager);
         }
     }
 }

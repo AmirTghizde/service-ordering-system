@@ -11,7 +11,5 @@ public interface BaseUserService<T extends User>{
     T findByEmailAddress(String emailAddress);
     void editPassword(Long userId, String newPassword);
     T findById(Long userId);
-
     T save(T t);
-
 }

@@ -8,6 +8,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -16,10 +17,12 @@ public abstract class BaseUserServiceImpl<T extends User>
         implements BaseUserService<T> {
 
     protected final BaseUserRepository<T> baseRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public BaseUserServiceImpl(BaseUserRepository<T> baseUserRepository) {
+    public BaseUserServiceImpl(BaseUserRepository<T> baseUserRepository, BCryptPasswordEncoder passwordEncoder) {
         this.baseRepository = baseUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -42,8 +45,9 @@ public abstract class BaseUserServiceImpl<T extends User>
         log.info("[{}] is trying to change password from [{}] to [{}]",
                 t.getEmail(), t.getPassword(), newPassword);
         if (!StringUtils.isBlank(newPassword)) {
+        String encodedPassword = passwordEncoder.encode(newPassword);
             try {
-                t.setPassword(newPassword);
+                t.setPassword(encodedPassword);
                 baseRepository.save(t);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
@@ -64,6 +68,12 @@ public abstract class BaseUserServiceImpl<T extends User>
 
     @Override
     public T save(T t) {
-        return baseRepository.save(t);
+        try {
+            log.info("Connecting to [{}]", baseRepository);
+            return baseRepository.save(t);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
+        }
     }
 }
