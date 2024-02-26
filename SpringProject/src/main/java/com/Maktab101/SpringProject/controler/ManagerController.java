@@ -1,11 +1,14 @@
 package com.Maktab101.SpringProject.controler;
 
+import com.Maktab101.SpringProject.dto.users.CurrentUserDto;
 import com.Maktab101.SpringProject.dto.users.ManagerResponseDto;
 import com.Maktab101.SpringProject.dto.users.PasswordEditDto;
 import com.Maktab101.SpringProject.dto.users.RegisterDto;
 import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Manager;
+import com.Maktab101.SpringProject.model.User;
+import com.Maktab101.SpringProject.security.CurrentUser;
 import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.ManagerService;
 import jakarta.validation.Valid;
@@ -43,7 +46,7 @@ public class ManagerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
         }
         EmailVerification emailVerification = emailVerificationService.findByToken(token);
-        managerService.verify(emailVerification.getUser().getId(),token);
+        managerService.verify(emailVerification.getUser().getId(), token);
 
         return ResponseEntity.status(HttpStatus.OK).body("Validated Successfully you can login now");
     }
@@ -51,7 +54,16 @@ public class ManagerController {
     @PutMapping("/edit/password")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> editPassword(@Valid @RequestBody PasswordEditDto dto) {
-        managerService.editPassword(dto.getUserId(), dto.getNewPassword());
+        Long userId = CurrentUser.getCurrentUserId();
+        managerService.editPassword(userId, dto.getNewPassword());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('MANAGER')")
+    public ResponseEntity<CurrentUserDto> viewProfile() {
+        User currentUser = CurrentUser.getCurrentUser();
+        CurrentUserDto currentUserDto = UserMapper.INSTANCE.toCurrentUserDto(currentUser);
+        return ResponseEntity.ok(currentUserDto);
     }
 }

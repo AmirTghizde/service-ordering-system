@@ -10,7 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ImageSaveDto {
     @NotNull
-    private Long technicianId;
-    @NotNull
     private String imageName;
 }

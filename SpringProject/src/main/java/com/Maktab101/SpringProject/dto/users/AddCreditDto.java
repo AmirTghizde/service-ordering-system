@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddCreditDto {
-    @NotNull
-    Long customerId;
     @Positive
     double amount;
 }

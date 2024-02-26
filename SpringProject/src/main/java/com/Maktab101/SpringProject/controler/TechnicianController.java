@@ -7,6 +7,8 @@ import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.User;
+import com.Maktab101.SpringProject.security.CurrentUser;
 import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.OrderService;
@@ -89,18 +91,28 @@ public class TechnicianController {
     }
 
     @PutMapping("/edit/addImage")
-    @PreAuthorize("hasAnyRole('MANAGER','TECHNICIAN')")
+    @PreAuthorize("hasRole('TECHNICIAN')")
     public ResponseEntity<String> saveImage(@Valid @RequestBody ImageSaveDto dto) {
+        Long userId = CurrentUser.getCurrentUserId();
         String imagePath = "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\";
-        technicianService.saveImage(dto.getTechnicianId(), imagePath + dto.getImageName());
+        technicianService.saveImage(userId, imagePath + dto.getImageName());
         return ResponseEntity.ok("📸 Image added successfully");
     }
 
     @PutMapping("/edit/password")
     @PreAuthorize("hasRole('TECHNICIAN')")
     public ResponseEntity<String> editPassword(@Valid @RequestBody PasswordEditDto dto) {
-        technicianService.editPassword(dto.getUserId(), dto.getNewPassword());
+        Long userId = CurrentUser.getCurrentUserId();
+        technicianService.editPassword(userId, dto.getNewPassword());
         return ResponseEntity.ok("🔐 Password changed successfully");
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('TECHNICIAN')")
+    public ResponseEntity<CurrentUserDto> viewProfile() {
+        User currentUser = CurrentUser.getCurrentUser();
+        CurrentUserDto currentUserDto = UserMapper.INSTANCE.toCurrentUserDto(currentUser);
+        return ResponseEntity.ok(currentUserDto);
     }
 
     @GetMapping("/profile/image")
@@ -116,10 +128,11 @@ public class TechnicianController {
     }
 
     @GetMapping("/profile/myHistory")
-    @PreAuthorize("hasAnyRole('TECHNICIAN','MANAGER')")
+    @PreAuthorize("hasAnyRole('TECHNICIAN')")
     public ResponseEntity<List<OrderHistoryDto>> viewOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
 
-        RequestDto requestDto = technicianService.getRequestDto(dto.getId(),dto.getStatus());
+        Long userId = CurrentUser.getCurrentUserId();
+        RequestDto requestDto = technicianService.getRequestDto(userId,dto.getStatus());
 
         List<Order> orderList = orderService.handelFiltering(requestDto);
 
@@ -127,14 +140,14 @@ public class TechnicianController {
                 .map(OrderMapper.INSTANCE::toOrderHistoryDto)
                 .toList();
 
-
         return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/profile/balance")
     @PreAuthorize("hasAnyRole('MANAGER','TECHNICIAN')")
-    public ResponseEntity<Double>viewBalance(@RequestParam("id") Long technicianId) {
-        Technician technician = technicianService.findById(technicianId);
+    public ResponseEntity<Double>viewBalance() {
+        Long userId = CurrentUser.getCurrentUserId();
+        Technician technician = technicianService.findById(userId);
         double balance = technician.getBalance();
 
         return ResponseEntity.ok(balance);

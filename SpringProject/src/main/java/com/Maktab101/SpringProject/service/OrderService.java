@@ -20,5 +20,6 @@ public interface OrderService {
     void addComment(Long orderId,String comment);
     int getNumberCaptcha();
     List<Order>handelFiltering(RequestDto requestDto);
+    void checkOrderOwner(Long currentUserId,Long orderId);
 
 }

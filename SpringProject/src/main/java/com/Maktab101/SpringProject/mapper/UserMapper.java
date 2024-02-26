@@ -4,6 +4,7 @@ import com.Maktab101.SpringProject.dto.users.*;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Manager;
 import com.Maktab101.SpringProject.model.Technician;
+import com.Maktab101.SpringProject.model.User;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -51,4 +52,9 @@ public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Technician partialUpdate(TechnicianDataDto technicianDataDto, @MappingTarget Technician technician);
+
+    CurrentUserDto toCurrentUserDto(User user);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    User partialUpdate(CurrentUserDto currentUserDto, @MappingTarget User user);
 }

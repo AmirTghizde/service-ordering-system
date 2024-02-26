@@ -1,8 +1,6 @@
 package com.Maktab101.SpringProject.dto.order;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +16,8 @@ import java.io.Serializable;
 public class FinishOrderDto implements Serializable {
     @NotNull
     private Long id;
-    @NotNull
+    @Min(value = 0)
+    @Max(value = 5)
     private double point;
     private String comment;
 }

@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ViewHistoryDto {
-    private Long id;
     private OrderStatus status;
 }

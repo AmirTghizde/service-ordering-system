@@ -7,10 +7,11 @@ import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Order;
+import com.Maktab101.SpringProject.model.User;
+import com.Maktab101.SpringProject.security.CurrentUser;
 import com.Maktab101.SpringProject.service.CustomerService;
 import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.OrderService;
-import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,15 +54,16 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
         }
         EmailVerification emailVerification = emailVerificationService.findByToken(token);
-        customerService.verify(emailVerification.getUser().getId(),token);
+        customerService.verify(emailVerification.getUser().getId(), token);
 
         return ResponseEntity.status(HttpStatus.OK).body("Validated Successfully you can login now");
     }
 
     @PutMapping("/edit/password")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> editPassword(@Valid @RequestBody PasswordEditDto dto) {
-        customerService.editPassword(dto.getUserId(), dto.getNewPassword());
+        Long userId = CurrentUser.getCurrentUserId();
+        customerService.editPassword(userId, dto.getNewPassword());
         return ResponseEntity.ok("🔐 Password changed successfully");
     }
 
@@ -78,26 +80,37 @@ public class CustomerController {
     }
 
     @PutMapping("/credit/add")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> addCredit(@Valid @RequestBody AddCreditDto dto) {
-        customerService.addCredit(dto.getCustomerId(), dto.getAmount());
+        Long userId = CurrentUser.getCurrentUserId();
+        customerService.addCredit(userId, dto.getAmount());
         return ResponseEntity.ok("💳 Credit increased successfully");
     }
 
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<CurrentUserDto> viewProfile() {
+        User currentUser = CurrentUser.getCurrentUser();
+        CurrentUserDto currentUserDto = UserMapper.INSTANCE.toCurrentUserDto(currentUser);
+        return ResponseEntity.ok(currentUserDto);
+    }
+
     @GetMapping("/profile/balance")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
-    public ResponseEntity<Double> viewBalance(@RequestParam("id") Long customerId) {
-        Customer customer = customerService.findById(customerId);
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<Double> viewBalance() {
+        Long userId = CurrentUser.getCurrentUserId();
+        Customer customer = customerService.findById(userId);
         double balance = customer.getBalance();
 
         return ResponseEntity.ok(balance);
     }
 
     @GetMapping("/profile/myHistory")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<List<OrderHistoryDto>> viewOrderHistory(@Valid @RequestBody ViewHistoryDto dto) {
 
-        RequestDto requestDto = customerService.getRequestDto(dto.getId(),dto.getStatus());
+        Long userId = CurrentUser.getCurrentUserId();
+        RequestDto requestDto = customerService.getRequestDto(userId, dto.getStatus());
 
         List<Order> orderList = orderService.handelFiltering(requestDto);
 

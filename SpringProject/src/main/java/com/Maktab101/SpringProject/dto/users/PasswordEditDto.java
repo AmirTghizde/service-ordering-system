@@ -10,7 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PasswordEditDto {
     @NotNull
-    private Long userId;
-    @NotNull
     private String newPassword;
 }

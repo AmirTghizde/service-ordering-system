@@ -10,8 +10,11 @@ import com.Maktab101.SpringProject.mapper.UserMapper;
 import com.Maktab101.SpringProject.model.Customer;
 import com.Maktab101.SpringProject.model.Order;
 import com.Maktab101.SpringProject.model.Suggestion;
+import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
+import com.Maktab101.SpringProject.security.CurrentUser;
 import com.Maktab101.SpringProject.service.*;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,36 +35,33 @@ public class OrderController {
     private final OrderService orderService;
     private final CustomerService customerService;
     private final TechnicianService technicianService;
-    private final SuggestionService suggestionService;
     private final OrderSuggestionService orderSuggestionService;
-    private final FilterSpecification<Order> filterSpecification;
     int numberCaptcha = 0;
 
     @Autowired
     public OrderController(OrderService orderService, CustomerService customerService,
-                           TechnicianService technicianService, SuggestionService suggestionService,
-                           OrderSuggestionService orderSuggestionService, FilterSpecification<Order> filterSpecification) {
+                           TechnicianService technicianService,
+                           OrderSuggestionService orderSuggestionService) {
         this.orderService = orderService;
         this.customerService = customerService;
         this.technicianService = technicianService;
-        this.suggestionService = suggestionService;
         this.orderSuggestionService = orderSuggestionService;
-        this.filterSpecification = filterSpecification;
     }
 
-    @PostMapping("/{customerId}/submit")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PostMapping("/submit")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> submitOrder(
-            @PathVariable(name = "customerId") Long customerId,
             @Valid @RequestBody OrderSubmitDto orderSubmitDto) {
-        orderService.submitOrder(customerId, orderSubmitDto);
+        Long userId = CurrentUser.getCurrentUserId();
+        orderService.submitOrder(userId, orderSubmitDto);
         return ResponseEntity.ok("📜 New order submitted");
     }
 
     @GetMapping("/fetch/byTechnician")
-    @PreAuthorize("hasAnyRole('TECHNICIAN','MANAGER')")
-    public ResponseEntity<List<OrderResponseDto>> fetchByTechnician(@RequestParam("id") Long technicianId) {
-        List<Order> orders = orderService.findAwaitingOrdersByTechnician(technicianId);
+    @PreAuthorize("hasRole('TECHNICIAN')")
+    public ResponseEntity<List<OrderResponseDto>> fetchByTechnician() {
+        Long userId = CurrentUser.getCurrentUserId();
+        List<Order> orders = orderService.findAwaitingOrdersByTechnician(userId);
         List<OrderResponseDto> dtoList = orders.stream()
                 .map(OrderMapper.INSTANCE::toDto)
                 .collect(Collectors.toList());
@@ -77,22 +77,28 @@ public class OrderController {
     }
 
     @PutMapping("/suggestions/select")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> selectSuggestion(@Valid @RequestBody SelectSuggestionDto dto) {
+        Long userId = CurrentUser.getCurrentUserId();
+        orderService.checkOrderOwner(userId,dto.getOrderId());
         orderSuggestionService.selectSuggestion(dto.getOrderId(), dto.getSuggestionId());
         return ResponseEntity.ok("✅ Suggestion successfully selected");
     }
 
     @PutMapping("/start")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> startOrder(@RequestParam("id") Long orderId) {
+        Long userId = CurrentUser.getCurrentUserId();
+        orderService.checkOrderOwner(userId,orderId);
         orderService.startOrder(orderId);
         return ResponseEntity.ok("👨‍🔧 Order started successfully");
     }
 
     @PutMapping("/finish")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> finishOrder(@Valid @RequestBody FinishOrderDto dto) {
+        Long userId = CurrentUser.getCurrentUserId();
+        orderService.checkOrderOwner(userId,dto.getId());
         orderSuggestionService.handelFinishOrder(dto);
         return ResponseEntity.ok("👷‍♂️ Order finished successfully");
     }
@@ -110,8 +116,11 @@ public class OrderController {
     }
 
     @PutMapping("/payment/byCredit")
-    @PreAuthorize("hasAnyRole('CUSTOMER','MANAGER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<String> payByCredit(@RequestParam("id") Long orderId) {
+        Long userId = CurrentUser.getCurrentUserId();
+        orderService.checkOrderOwner(userId,orderId);
+
         Order order = orderService.findById(orderId);
         Suggestion suggestion = order.getSelectedSuggestion();
 

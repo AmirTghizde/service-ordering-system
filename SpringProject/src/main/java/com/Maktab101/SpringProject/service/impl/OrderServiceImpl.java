@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
         checkCondition(orderSubmitDto, subServices);
         Order order = mapDtoValues(orderSubmitDto);
-        updateFields(order,subServices,customer);
+        updateFields(order, subServices, customer);
 
         try {
             log.info("Connecting to [{}]", orderRepository);
@@ -88,7 +88,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order save(Order order) {
-        return orderRepository.save(order);
+        try {
+            return orderRepository.save(order);
+        } catch (PersistenceException e) {
+            throw new CustomException(e.getMessage());
+        }
     }
 
     @Override
@@ -112,13 +116,9 @@ public class OrderServiceImpl implements OrderService {
             throw new CustomException("You can't finish this order");
         }
 
-        if (0 <= point && point <= 5) {
-            order.setOrderStatus(OrderStatus.FINISHED);
-            order.setPoint(point);
-            save(order);
-        } else {
-            throw new CustomException("Point must be between 0 to 5");
-        }
+        order.setOrderStatus(OrderStatus.FINISHED);
+        order.setPoint(point);
+        save(order);
     }
 
     @Override
@@ -146,6 +146,15 @@ public class OrderServiceImpl implements OrderService {
                 requestDto.getGlobalOperator());
 
         return orderRepository.findAll(specificationList);
+    }
+
+    @Override
+    public void checkOrderOwner(Long currentUserId, Long orderId) {
+        Order order = findById(orderId);
+        Long customerId = order.getCustomer().getId();
+        if (!currentUserId.equals(customerId)) {
+            throw new CustomException("Unauthorized accesses");
+        }
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
@@ -192,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
         subServices.getOrders().add(order);
         order.setSubServices(subServices);
         order.setCustomer(customer);
-        customer.setOrdersSubmitted(customer.getOrdersSubmitted()+1);
+        customer.setOrdersSubmitted(customer.getOrdersSubmitted() + 1);
     }
 
 }

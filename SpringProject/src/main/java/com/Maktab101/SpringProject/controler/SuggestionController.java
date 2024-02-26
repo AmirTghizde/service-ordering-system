@@ -4,6 +4,7 @@ import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
 import com.Maktab101.SpringProject.dto.suggestion.SuggestionResponseDto;
 import com.Maktab101.SpringProject.mapper.SuggestionMapper;
 import com.Maktab101.SpringProject.model.Suggestion;
+import com.Maktab101.SpringProject.security.CurrentUser;
 import com.Maktab101.SpringProject.service.OrderSuggestionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,11 @@ public class SuggestionController {
         this.orderSuggestionService = orderSuggestionService;
     }
 
-    @PostMapping("/{technicianId}/send")
+    @PostMapping("/send")
     @PreAuthorize("hasAnyRole('TECHNICIAN')")
-    public ResponseEntity<String> sendSuggestion(
-            @PathVariable(name = "technicianId") Long technicianId,
-            @Valid @RequestBody SendSuggestionDto suggestionDto) {
-        orderSuggestionService.sendSuggestion(technicianId, suggestionDto);
+    public ResponseEntity<String> sendSuggestion(@Valid @RequestBody SendSuggestionDto suggestionDto) {
+        Long userId = CurrentUser.getCurrentUserId();
+        orderSuggestionService.sendSuggestion(userId, suggestionDto);
         return ResponseEntity.ok("📮 Suggestion sent successfully");
     }
 
