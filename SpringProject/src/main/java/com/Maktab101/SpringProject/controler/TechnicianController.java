@@ -13,6 +13,7 @@ import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.OrderService;
 import com.Maktab101.SpringProject.service.TechnicianService;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.MediaPrintableArea;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,12 +94,14 @@ public class TechnicianController {
         return ResponseEntity.ok("✅ Suggestion confirmed successfully");
     }
 
-    @PutMapping("/edit/addImage")
+    @PostMapping(value = "/edit/addImage", consumes = MediaType.IMAGE_JPEG_VALUE)
     @PreAuthorize("hasRole('TECHNICIAN')")
-    public ResponseEntity<String> saveImage(@Valid @RequestBody ImageSaveDto dto) {
+    public ResponseEntity<String> saveImage( @RequestBody byte[] imageData) {
         Long userId = CurrentUser.getCurrentUserId();
-        String imagePath = "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\";
-        technicianService.saveImage(userId, imagePath + dto.getImageName());
+        if (imageData.length > 300 * 1024) {
+            throw new CustomException("Max file limit is 300KB");
+        }
+        technicianService.saveImage(userId,imageData);
         return ResponseEntity.ok("📸 Image added successfully");
     }
 

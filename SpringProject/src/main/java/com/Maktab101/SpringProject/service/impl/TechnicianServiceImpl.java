@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -68,7 +70,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         try {
             save(technician);
             emailVerificationService.deleteByToken(token);
-        }catch (PersistenceException e){
+        } catch (PersistenceException e) {
             throw new CustomException(e.getMessage());
         }
     }
@@ -76,34 +78,6 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     @Override
     public List<Technician> findAll() {
         return baseRepository.findAll();
-    }
-
-    protected void validateImage(String imageAddress) {
-        log.info("Validating image [{}]", imageAddress);
-        try {
-            File imageFile = new File(imageAddress);
-            ImageInputStream imageInputStream = ImageIO.createImageInputStream(imageFile);
-
-            if (imageInputStream != null) {
-                Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
-                ImageReader reader = imageReaders.next();
-                String imageType = reader.getFormatName();
-                long imageSize = imageFile.length() / 1024; // Size in KB
-
-                if (!imageType.equalsIgnoreCase("jpeg")) {
-                    log.error("Image format [{}] is invalid throwing exception", imageType);
-                    throw new CustomException("The only supported format is JPEG");
-                } else if (imageSize > 300) {
-                    log.error("Image size [{}] is more than 300kb throwing exception", imageSize);
-                    throw new CustomException("Max image size is 300kb");
-                }
-            } else {
-                log.error("Can't find image throwing exception");
-                throw new NotFoundException("Couldn't find an image in this address: " + imageAddress);
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     @Override
@@ -123,15 +97,13 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
     }
 
     @Override
-    public void saveImage(Long technicianId, String imageAddress) {
+    public void saveImage(Long technicianId, byte[] imageData) {
 
         Technician technician = findById(technicianId);
 
         log.info("Adding image to [{}] profile", technician.getEmail());
 
-        validateImage(imageAddress);
-        byte[] bytes = imageToBytes(imageAddress);
-        technician.setImageData(bytes);
+        technician.setImageData(imageData);
         try {
             baseRepository.save(technician);
         } catch (PersistenceException e) {
@@ -171,7 +143,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         score = (score + amount) / 2;
 
         technician.setScore(score);
-        technician.setOrdersFinished(technician.getOrdersFinished()+1);
+        technician.setOrdersFinished(technician.getOrdersFinished() + 1);
         try {
             baseRepository.save(technician);
         } catch (PersistenceException e) {
@@ -222,7 +194,7 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
 
         // Build the dto
         return RequestDto.builder()
-                .searchRequestDto(List.of(searchRequest1,searchRequest2))
+                .searchRequestDto(List.of(searchRequest1, searchRequest2))
                 .globalOperator(GlobalOperator.AND)
                 .build();
     }
@@ -260,8 +232,8 @@ public class TechnicianServiceImpl extends BaseUserServiceImpl<Technician> imple
         technician.setIsEnabled(false);
         technician.setRole(Role.ROLE_TECHNICIAN);
 
-        // Add default image
-        byte[] image = imageToBytes("D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\deafualt.jpg");
+        String defaultPath = "D:\\Java\\Maktab\\HW\\SpringProject\\SpringProject\\src\\main\\resources\\images\\deafualt.jpg";
+        byte[] image = imageToBytes(defaultPath);
         technician.setImageData(image);
 
         return technician;
