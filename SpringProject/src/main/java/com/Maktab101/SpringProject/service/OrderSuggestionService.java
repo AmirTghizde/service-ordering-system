@@ -1,13 +1,18 @@
 package com.Maktab101.SpringProject.service;
 
+import com.Maktab101.SpringProject.dto.order.FinishOrderDto;
+import com.Maktab101.SpringProject.dto.suggestion.SendSuggestionDto;
+import com.Maktab101.SpringProject.dto.users.CardPaymentDto;
 import com.Maktab101.SpringProject.model.Suggestion;
-import com.Maktab101.SpringProject.service.dto.SuggestionDto;
 
 import java.util.List;
 
 public interface OrderSuggestionService {
     void selectSuggestion(Long orderId,Long suggestionId);
-    void sendSuggestion(Long technicianId, SuggestionDto suggestionDto);
+    void sendSuggestion(Long technicianId, SendSuggestionDto sendSuggestionDto);
     List<Suggestion> getSuggestionByTechnicianPoint(Long orderId, boolean ascending);
     List<Suggestion> getSuggestionByPrice(Long orderId,boolean ascending);
+    long isAfterSuggestedTime(Long orderId);
+    void handelFinishOrder(FinishOrderDto dto);
+    void payOnline( CardPaymentDto dto, int captcha);
 }

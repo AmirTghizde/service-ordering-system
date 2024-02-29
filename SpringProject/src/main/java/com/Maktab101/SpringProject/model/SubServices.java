@@ -28,10 +28,12 @@ public class SubServices {
     @ManyToOne
     private MainServices mainServices;
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "subServices")
+    @ManyToMany(mappedBy = "subServices")
+    @ToString.Exclude
     private List<Technician> technicians = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "subServices")
+    @OneToMany(mappedBy = "subServices")
+    @ToString.Exclude
     private List<Order> orders = new ArrayList<>();
 
 }

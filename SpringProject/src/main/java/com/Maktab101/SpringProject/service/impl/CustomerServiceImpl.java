@@ -1,75 +1,153 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.users.RequestDto;
+import com.Maktab101.SpringProject.dto.users.SearchRequestDto;
 import com.Maktab101.SpringProject.model.Customer;
+import com.Maktab101.SpringProject.model.EmailVerification;
+import com.Maktab101.SpringProject.model.enums.GlobalOperator;
+import com.Maktab101.SpringProject.model.enums.Operation;
+import com.Maktab101.SpringProject.model.enums.OrderStatus;
+import com.Maktab101.SpringProject.model.enums.Role;
+import com.Maktab101.SpringProject.repository.CustomerRepository;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
 import com.Maktab101.SpringProject.service.CustomerService;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
+import com.Maktab101.SpringProject.service.FilterSpecification;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Set;
+
+import java.util.*;
 
 @Slf4j
 @Service
-public class CustomerServiceImpl extends BaseUserServiceImpl<Customer> implements CustomerService {
+public class CustomerServiceImpl extends BaseUserServiceImpl<Customer>
+        implements CustomerService {
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
+    private final FilterSpecification<Customer> filterSpecification;
 
-    private final Validator validator;
-
-    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, Validator validator) {
-        super(baseRepository);
-        this.validator = validator;
+    @Autowired
+    public CustomerServiceImpl(BaseUserRepository<Customer> baseRepository, BCryptPasswordEncoder passwordEncoder, EmailVerificationService emailVerificationService, FilterSpecification<Customer> filterSpecification,
+                               CustomerRepository customerRepository) {
+        super(baseRepository, passwordEncoder);
+        this.passwordEncoder = passwordEncoder;
+        this.emailVerificationService = emailVerificationService;
+        this.filterSpecification = filterSpecification;
     }
-
 
     @Override
     public Customer register(RegisterDto registerDto) {
         log.info("Registering with this data [{}]", registerDto);
-        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            checkCondition(registerDto);
-            Customer customer = mapDtoValues(registerDto);
-            try {
-                log.info("Connecting to [{}]",baseRepository);
-                return baseRepository.save(customer);
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
-            }
-        }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        checkCondition(registerDto);
+        Customer customer = mapDtoValues(registerDto);
+        Customer savedCustomer = save(customer);
+
+        // Send the registration email
+        EmailVerification emailVerification = emailVerificationService.generateToken(savedCustomer);
+        emailVerificationService.sendEmail(emailVerification);
+        return savedCustomer;
     }
 
-    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
-        log.error("RegisterDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<RegisterDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
+    @Override
+    public void verify(Long customerId,String token) {
+        Customer customer = findById(customerId);
+        customer.setIsEnabled(true);
+        try {
+            save(customer);
+            emailVerificationService.deleteByToken(token);
+        }catch (PersistenceException e){
+            throw new CustomException(e.getMessage());
         }
-        return messageBuilder.toString().trim();
+    }
+
+    @Override
+    public List<Customer> handelFiltering(RequestDto requestDto) {
+
+        Specification<Customer> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        return baseRepository.findAll(specificationList);
+    }
+
+    @Override
+    public void payByCredit(Long customerId, double amount) {
+        Customer customer = findById(customerId);
+        if (customer.getBalance() > amount) {
+            double balance = customer.getBalance();
+            balance -= amount;
+            customer.setBalance(balance);
+            baseRepository.save(customer);
+        } else {
+            throw new CustomException("Not enough credit use the online method");
+        }
+    }
+
+    @Override
+    public void addCredit(Long customerId, double amount) {
+        Customer customer = findById(customerId);
+        double balance = customer.getBalance();
+        balance += amount;
+        customer.setBalance(balance);
+        baseRepository.save(customer);
+    }
+
+    @Override
+    public RequestDto getRequestDto(Long customerId, OrderStatus status) {
+
+        // Find customer's orders
+        SearchRequestDto searchRequest1 = SearchRequestDto.builder()
+                .column("id")
+                .value(customerId.toString())
+                .operation(Operation.JOIN)
+                .joinTable("customer")
+                .build();
+
+        // Find the ones matching the status
+        SearchRequestDto searchRequest2 = SearchRequestDto.builder()
+                .column("orderStatus")
+                .value(String.valueOf(status))
+                .operation(Operation.EQUAL)
+                .joinTable("")
+                .build();
+
+        // Build the dto
+        return RequestDto.builder()
+                .searchRequestDto(List.of(searchRequest1,searchRequest2))
+                .globalOperator(GlobalOperator.AND)
+                .build();
     }
 
     protected void checkCondition(RegisterDto registerDto) {
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
+            throw new DuplicateValueException("Email address already exists in the database");
         }
     }
 
     protected Customer mapDtoValues(RegisterDto registerDto) {
-        log.info("Mapping [{}] values",registerDto);
+        log.info("Mapping [{}] values", registerDto);
         Customer customer = new Customer();
         customer.setFirstname(registerDto.getFirstname());
         customer.setLastname(registerDto.getLastname());
         customer.setEmail(registerDto.getEmailAddress());
-        customer.setPassword(registerDto.getPassword());
+        customer.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        customer.setBalance(0);
+        customer.setOrdersSubmitted(0L);
+        customer.setOrders(new ArrayList<>());
+        customer.setIsEnabled(false);
+        customer.setRole(Role.ROLE_CUSTOMER);
         return customer;
     }
+
 
 }

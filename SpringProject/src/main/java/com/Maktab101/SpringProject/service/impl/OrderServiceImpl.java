@@ -1,16 +1,17 @@
 package com.Maktab101.SpringProject.service.impl;
 
+import com.Maktab101.SpringProject.dto.users.RequestDto;
 import com.Maktab101.SpringProject.model.*;
 import com.Maktab101.SpringProject.model.enums.OrderStatus;
 import com.Maktab101.SpringProject.repository.OrderRepository;
+import com.Maktab101.SpringProject.dto.order.OrderSubmitDto;
 import com.Maktab101.SpringProject.service.*;
-import com.Maktab101.SpringProject.service.dto.OrderSubmitDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +29,17 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerService customerService;
     private final OrderRepository orderRepository;
     private final TechnicianService technicianService;
-    private final Validator validator;
+    private final FilterSpecification<Order> filterSpecification;
 
     @Autowired
     public OrderServiceImpl(SubServicesService subServicesService, CustomerService customerService,
                             OrderRepository orderRepository, TechnicianService technicianService,
-                            Validator validator) {
+                            FilterSpecification<Order> filterSpecification) {
         this.subServicesService = subServicesService;
         this.customerService = customerService;
         this.orderRepository = orderRepository;
         this.technicianService = technicianService;
-        this.validator = validator;
+        this.filterSpecification = filterSpecification;
     }
 
 
@@ -46,39 +47,28 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void submitOrder(Long customerId, OrderSubmitDto orderSubmitDto) {
         log.info("Customer with id [{}] is trying to submit a new order [{}]", customerId, orderSubmitDto);
-        Set<ConstraintViolation<OrderSubmitDto>> violations = validator.validate(orderSubmitDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId());
+        SubServices subServices = subServicesService.findById(orderSubmitDto.getSubServiceId());
+        Customer customer = customerService.findById(customerId);
 
-            Customer customer = customerService.findById(customerId);
+        checkCondition(orderSubmitDto, subServices);
+        Order order = mapDtoValues(orderSubmitDto);
+        updateFields(order, subServices, customer);
 
-            checkCondition(orderSubmitDto, subServices);
-            Order order = mapDtoValues(orderSubmitDto);
-
-            try {
-                log.info("Connecting to [{}]", orderRepository);
-                customer.getOrders().add(order);
-                subServices.getOrders().add(order);
-                order.setSubServices(subServices);
-                order.setCustomer(customer);
-                customerService.save(customer);
-                orderRepository.save(order);
-                subServicesService.save(subServices);
-                return;
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
-            }
+        try {
+            log.info("Connecting to [{}]", orderRepository);
+            customerService.save(customer);
+            orderRepository.save(order);
+            subServicesService.save(subServices);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
         }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
     }
 
     @Override
     @Transactional
     public List<Order> findAwaitingOrdersByTechnician(Long technicianId) {
-        log.info("Finding orders for technician[{}]",technicianId);
+        log.info("Finding orders for technician[{}]", technicianId);
         Technician technician = technicianService.findById(technicianId);
 
         List<SubServices> subServices = technician.getSubServices();
@@ -87,64 +77,97 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatus.AWAITING_TECHNICIAN_SUGGESTION,
                 OrderStatus.AWAITING_TECHNICIAN_SELECTION
         );
-        return orderRepository.findBySubServicesInAndOrderStatusIn(subServices,orderStatuses);
+        return orderRepository.findBySubServicesInAndOrderStatusIn(subServices, orderStatuses);
     }
 
     @Override
     public Order findById(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(()->
-                new CustomException("OrderNotFound", "We can not find the order"));
+        return orderRepository.findById(orderId).orElseThrow(() ->
+                new NotFoundException("Couldn't find an order with this id: " + orderId));
     }
 
     @Override
     public Order save(Order order) {
-        return orderRepository.save(order);
+        try {
+            return orderRepository.save(order);
+        } catch (PersistenceException e) {
+            throw new CustomException(e.getMessage());
+        }
     }
 
     @Override
     public void startOrder(Long orderId) {
-        log.info("Starting order [{}]",orderId);
+        log.info("Starting order [{}]", orderId);
         Order order = findById(orderId);
-        if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)){
+        if (!order.getOrderStatus().equals(OrderStatus.AWAITING_TECHNICIAN_ARRIVAL)) {
             log.error("Invalid order status throwing exception");
-            throw new CustomException("InvalidAction","You can't start this order");
+            throw new CustomException("You can't start this order");
         }
         order.setOrderStatus(OrderStatus.STARTED);
         save(order);
     }
 
     @Override
-    public void finishOrder(Long orderId) {
-        log.info("Finishing order [{}]",orderId);
+    public void finishOrder(Long orderId, double point) {
+        log.info("Finishing order [{}]", orderId);
         Order order = findById(orderId);
-        if (!order.getOrderStatus().equals(OrderStatus.STARTED)){
+        if (!order.getOrderStatus().equals(OrderStatus.STARTED)) {
             log.error("Invalid order status throwing exception");
-            throw new CustomException("InvalidAction","You can't finish this order");
+            throw new CustomException("You can't finish this order");
         }
+
         order.setOrderStatus(OrderStatus.FINISHED);
+        order.setPoint(point);
         save(order);
     }
 
-    protected String getViolationMessages(Set<ConstraintViolation<OrderSubmitDto>> violations) {
-        log.error("SubmitOrderDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<OrderSubmitDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
+    @Override
+    public void addComment(Long orderId, String comment) {
+        log.info("Adding comment for this order [{}]", orderId);
+        Order order = findById(orderId);
+        if (!order.getOrderStatus().equals(OrderStatus.FINISHED)) {
+            log.error("Invalid order status throwing exception");
+            throw new CustomException("Can't leave a comment now");
         }
-        return messageBuilder.toString().trim();
+        order.setComment(comment);
+        save(order);
+    }
+
+    @Override
+    public int getNumberCaptcha() {
+        Random random = new Random();
+        return random.nextInt(999999 - 100000 + 1) + 100000;
+    }
+
+    @Override
+    public List<Order> handelFiltering(RequestDto requestDto) {
+        Specification<Order> specificationList = filterSpecification.getSpecificationList(
+                requestDto.getSearchRequestDto(),
+                requestDto.getGlobalOperator());
+
+        return orderRepository.findAll(specificationList);
+    }
+
+    @Override
+    public void checkOrderOwner(Long currentUserId, Long orderId) {
+        Order order = findById(orderId);
+        Long customerId = order.getCustomer().getId();
+        if (!currentUserId.equals(customerId)) {
+            throw new CustomException("Unauthorized accesses");
+        }
     }
 
     protected void checkCondition(OrderSubmitDto orderSubmitDto, SubServices subServices) {
         log.info("Checking order conditions");
         if (orderSubmitDto.getPrice() < subServices.getBaseWage()) {
             log.error("Price is lower than base wage throwing exception");
-            throw new CustomException("InvalidPrice", "Price can't be lower than base wage");
+            throw new CustomException("Price can't be lower than base wage");
         }
         LocalDateTime localDateTime = convertDateAndTime(orderSubmitDto.getTime(), orderSubmitDto.getDate());
         LocalDateTime now = LocalDateTime.now();
         if (localDateTime.isBefore(now)) {
             log.error("Date is before now throwing exception");
-            throw new CustomException("InvalidDateAndTime", "Date and time can't be before now");
+            throw new CustomException("Date and time can't be before now");
         }
     }
 
@@ -171,6 +194,14 @@ public class OrderServiceImpl implements OrderService {
         LocalTime localTime = LocalTime.parse(time, timeFormatter);
 
         return localDate.atTime(localTime);
+    }
+
+    private void updateFields(Order order, SubServices subServices, Customer customer) {
+        customer.getOrders().add(order);
+        subServices.getOrders().add(order);
+        order.setSubServices(subServices);
+        order.setCustomer(customer);
+        customer.setOrdersSubmitted(customer.getOrdersSubmitted() + 1);
     }
 
 }

@@ -1,81 +1,84 @@
 package com.Maktab101.SpringProject.service.impl;
 
 
+import com.Maktab101.SpringProject.model.EmailVerification;
 import com.Maktab101.SpringProject.model.Manager;
+import com.Maktab101.SpringProject.model.enums.Role;
 import com.Maktab101.SpringProject.repository.ManagerRepository;
+import com.Maktab101.SpringProject.service.EmailVerificationService;
 import com.Maktab101.SpringProject.service.ManagerService;
 import com.Maktab101.SpringProject.service.base.BaseUserServiceImpl;
-import com.Maktab101.SpringProject.service.dto.RegisterDto;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.dto.users.RegisterDto;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.DuplicateValueException;
 import jakarta.persistence.PersistenceException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 @Service
 public class ManagerServiceImpl extends BaseUserServiceImpl<Manager>
         implements ManagerService {
 
-    private final Validator validator;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
 
-    public ManagerServiceImpl(ManagerRepository baseRepository, Validator validator) {
-        super(baseRepository);
-        this.validator = validator;
+    public ManagerServiceImpl(ManagerRepository baseRepository, BCryptPasswordEncoder passwordEncoder, EmailVerificationService emailVerificationService) {
+        super(baseRepository, passwordEncoder);
+        this.passwordEncoder = passwordEncoder;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @Override
     public Manager register(RegisterDto registerDto) {
         log.info("Registering with this data [{}]", registerDto);
-        Set<ConstraintViolation<RegisterDto>> violations = validator.validate(registerDto);
-        if (violations.isEmpty()) {
-            log.info("Information is validated - commencing registration");
-            checkCondition(registerDto);
-            Manager manager = mapDtoValues(registerDto);
-            try {
-                log.info("Connecting to [{}]",baseRepository);
-                return baseRepository.save(manager);
-            } catch (PersistenceException e) {
-                log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
-            }
-        }
-        String violationMessages = getViolationMessages(violations);
-        throw new CustomException("ValidationException", violationMessages);
+        log.info("Information is validated - commencing registration");
+        checkCondition(registerDto);
+        Manager manager = mapDtoValues(registerDto);
+        Manager savedManager = save(manager);
+
+        // Send the registration email
+        EmailVerification emailVerification = emailVerificationService.generateToken(savedManager);
+        emailVerificationService.sendEmail(emailVerification);
+        return savedManager;
     }
 
-    protected String getViolationMessages(Set<ConstraintViolation<RegisterDto>> violations) {
-        log.error("RegisterDto violates some fields throwing exception");
-        StringBuilder messageBuilder = new StringBuilder();
-        for (ConstraintViolation<RegisterDto> violation : violations) {
-            messageBuilder.append("\n").append(violation.getMessage());
+    @Override
+    public void verify(Long managerId, String token) {
+        Manager manager = findById(managerId);
+        manager.setIsEnabled(true);
+        try {
+            save(manager);
+            emailVerificationService.deleteByToken(token);
+        }catch (PersistenceException e){
+            throw new CustomException(e.getMessage());
         }
-        return messageBuilder.toString().trim();
     }
 
     protected void checkCondition(RegisterDto registerDto) {
         log.info("Checking registration conditions");
         if (existsByEmailAddress(registerDto.getEmailAddress())) {
             log.error("[{}] already exists in the database throwing exception", registerDto.getEmailAddress());
-            throw new CustomException("DuplicateEmailAddress", "Email address already exists in the database");
+            throw new DuplicateValueException("This email is already being used in database: " + registerDto.getEmailAddress());
         }
     }
 
     protected Manager mapDtoValues(RegisterDto registerDto) {
         Random random = new Random();
-        log.info("Mapping [{}] values",registerDto);
+        log.info("Mapping [{}] values", registerDto);
         Manager manager = new Manager();
         manager.setFirstname(registerDto.getFirstname());
         manager.setLastname(registerDto.getLastname());
         manager.setEmail(registerDto.getEmailAddress());
-        manager.setPassword(registerDto.getPassword());
+        manager.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        manager.setIsEnabled(false);
+        manager.setRole(Role.ROLE_MANAGER);
 
         int number = random.nextInt(90000) + 10000;
-        manager.setManagerCode("M"+number);
+        manager.setManagerCode("M" + number);
 
         return manager;
     }

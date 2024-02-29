@@ -1,0 +1,88 @@
+html, body {
+    font-family: "Arial Black", sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.container form {
+    background-color: #474F7A;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, .1);
+    padding: 20px;
+    width: 500px;
+}
+
+
+.container form .inputBox span {
+    text-align: left;
+    color: white;
+}
+
+.container form .inputBox input {
+    background-color: #E1F0DA;
+    color: black;
+    text-align: center;
+}
+
+.card-holder {
+    gap: 10px;
+}
+
+.card-holder input {
+    width: 100%;
+}
+
+.card-detail {
+    gap: 10px;
+}
+
+.card-detail input {
+    gap: 10px;
+}
+
+.card-detail select {
+    background-color: #E1F0DA;
+    color: black;
+}
+
+.container form .submit-btn {
+    background: linear-gradient(45deg, blueviolet, deeppink);
+    margin-top: 20px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: .2s linear;
+}
+
+.captcha-display {
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.captcha-display input {
+    height: 100%;
+}
+
+.lower-part {
+    gap: 10px;
+}
+
+.rest-captcha-btn {
+    background: linear-gradient(45deg, blueviolet, deeppink);
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-top: 7px;
+    height: 100%;
+}
+
+
+button:active {
+    transform: translateY(2px);
+}
+

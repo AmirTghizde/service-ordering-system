@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface SubServicesService {
     void addService(String subServiceName,double baseWage, String description,String mainServiceName);
-    Optional<SubServices> findByName(String subServiceName);
+    SubServices findByName(String subServiceName);
     boolean existsByName(String subServiceName);
     void editBaseWage(Long serviceId,double newWage);
     void editDescription(Long serviceId,String newDescription);

@@ -1,9 +1,8 @@
 package com.Maktab101.SpringProject.service.impl;
 
-import com.Maktab101.SpringProject.model.MainServices;
 import com.Maktab101.SpringProject.model.Suggestion;
 import com.Maktab101.SpringProject.repository.SuggestionRepository;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.service.dto;
+package com.Maktab101.SpringProject.dto.order;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +28,7 @@ public class OrderSubmitDto {
     String time;
 
     @NotBlank(message = "Address must be specified")
-    String Address;
+    String address;
 
     @Positive
     double price;

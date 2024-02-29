@@ -31,6 +31,9 @@ public class Order  {
 
     private double price;
 
+    @OneToOne
+    private Suggestion SelectedSuggestion;
+
     private String comment;
 
     private double point;

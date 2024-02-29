@@ -2,14 +2,14 @@ package com.Maktab101.SpringProject.service.base;
 
 import com.Maktab101.SpringProject.model.User;
 import com.Maktab101.SpringProject.repository.base.BaseUserRepository;
-import com.Maktab101.SpringProject.utils.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.CustomException;
+import com.Maktab101.SpringProject.utils.exceptions.NotFoundException;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -17,10 +17,12 @@ public abstract class BaseUserServiceImpl<T extends User>
         implements BaseUserService<T> {
 
     protected final BaseUserRepository<T> baseRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public BaseUserServiceImpl(BaseUserRepository<T> baseUserRepository) {
+    public BaseUserServiceImpl(BaseUserRepository<T> baseUserRepository, BCryptPasswordEncoder passwordEncoder) {
         this.baseRepository = baseUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -30,23 +32,10 @@ public abstract class BaseUserServiceImpl<T extends User>
     }
 
     @Override
-    public Optional<T> findByEmailAddress(String emailAddress) {
+    public T findByEmailAddress(String emailAddress) {
         log.info("trying to find [{}]", emailAddress);
-        return baseRepository.findByEmail(emailAddress);
-    }
-
-    @Override
-    public T login(String emailAddress, String password) {
-        log.info("Logging in with this data [email:{}, password{}]", emailAddress, password);
-        if (baseRepository.existsByEmailAndPassword(emailAddress, password)) {
-            T user = findByEmailAddress(emailAddress).orElse(null);
-            if (user == null) {
-                throw new CustomException("UserNotFound", "We can't find the user");
-            }
-            log.info("[{}] successfully longed in", user.getEmail());
-            return user;
-        }
-        throw new CustomException("UserNotFound", "Check email or password");
+        return baseRepository.findByEmail(emailAddress).orElseThrow(
+                () -> new NotFoundException("Couldn't find a user with this email: " + emailAddress));
     }
 
     @Override
@@ -56,16 +45,17 @@ public abstract class BaseUserServiceImpl<T extends User>
         log.info("[{}] is trying to change password from [{}] to [{}]",
                 t.getEmail(), t.getPassword(), newPassword);
         if (!StringUtils.isBlank(newPassword)) {
+        String encodedPassword = passwordEncoder.encode(newPassword);
             try {
-                t.setPassword(newPassword);
+                t.setPassword(encodedPassword);
                 baseRepository.save(t);
             } catch (PersistenceException e) {
                 log.error("PersistenceException occurred throwing CustomException ... ");
-                throw new CustomException("PersistenceException", e.getMessage());
+                throw new CustomException(e.getMessage());
             }
         } else {
             log.error("Password is empty throwing exception");
-            throw new CustomException("invalidPassword", "Password must not be blank");
+            throw new CustomException("Password must not be blank");
         }
 
     }
@@ -73,11 +63,17 @@ public abstract class BaseUserServiceImpl<T extends User>
     @Override
     public T findById(Long userId) {
         return baseRepository.findById(userId).orElseThrow(
-                ()->new CustomException("UserNotFound","We can't find the user with the id: "+userId));
+                () -> new NotFoundException("Couldn't find a user with his id: " + userId));
     }
 
     @Override
     public T save(T t) {
-        return baseRepository.save(t);
+        try {
+            log.info("Connecting to [{}]", baseRepository);
+            return baseRepository.save(t);
+        } catch (PersistenceException e) {
+            log.error("PersistenceException occurred throwing CustomException ... ");
+            throw new CustomException(e.getMessage());
+        }
     }
 }

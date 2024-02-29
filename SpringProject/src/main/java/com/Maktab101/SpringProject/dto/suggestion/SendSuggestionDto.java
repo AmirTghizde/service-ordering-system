@@ -1,4 +1,4 @@
-package com.Maktab101.SpringProject.service.dto;
+package com.Maktab101.SpringProject.dto.suggestion;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,15 +10,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SuggestionDto {
+public class SendSuggestionDto {
 
     @NotNull(message = "you must specify the order")
     Long orderID;
