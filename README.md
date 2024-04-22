@@ -1,3 +1,4 @@
+![Image Alt text](https://github.com/AmirTghizde/service-ordering-system/blob/master/Banner.png)
 <h1>👨‍🔧 Service Ordering App</h1>
 <h4>A Java 17 program built using Spring Boot framework for a service ordering app. This app allows customers to place orders for various services, such as house cleaning, and enables technicians to leave suggestions for the customers to accept. Once accepted, the technician can proceed with the job.</h4>
 
